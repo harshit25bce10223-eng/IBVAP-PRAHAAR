@@ -1,0 +1,13 @@
+{
+  "name": "prahaar-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PRAHAAR - SSB Border Intelligence Platform Root Workspace",
+  "scripts": {
+    "dev": "npm --prefix ibvap-frontend run dev",
+    "build": "npm --prefix ibvap-frontend run build",
+    "test": "npm --prefix ibvap-frontend test",
+    "lint": "npm --prefix ibvap-frontend run lint",
+    "start": "npm --prefix ibvap-frontend run dev"
+  }
+}

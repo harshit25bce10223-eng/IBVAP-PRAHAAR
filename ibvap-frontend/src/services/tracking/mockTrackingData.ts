@@ -1,0 +1,1114 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// PRHAAR Component 6 — mock tracking fixtures (DEMO ONLY)
+//
+// Authoritative demo fixtures representing movement continuity across time.
+// All values are static demo outputs — this module never computes Kalman
+// updates, Hungarian matching, Re-ID embeddings, risk, or threats (§1, §3, §75).
+//
+// Scenarios S1 through S10 (§77):
+// - S1: CAM-07 PERSON ACTIVE 9 observations (TRK-1042)
+// - S2: CAM-12 ANIMAL ACTIVE health DEGRADED viewpoint shift (TRK-1052)
+// - S3: CAM-19 PERSON TENTATIVE weak continuity, long-range small target (TRK-1061)
+// - S4: CAM-03 track LOST, last seen available (TRK-1071)
+// - S5: CAM-07 track REACQUIRED after temporary loss (TRK-1045)
+// - S6: CAM-12 track ENDED, last known position at frame edge (TRK-1055)
+// - S7: Multi-camera candidate CAM-07 -> CAM-08 POSSIBLE SAME ENTITY (TRK-1042 -> TRK-1081)
+// - S8: Multiple simultaneous tracks (PERSON x3, VEHICLE x2, ANIMAL x2) on CAM-07
+// - S9: Large track set (20 tracks across sector, paginated / bounded)
+// - S10: Track with full downstream references (event, correlation, incident, evidence)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import type {
+  Track,
+  TrackObservation,
+  TrackingFeed,
+} from '@/types/tracking'
+
+const D = '2026-09-07'
+export const DEMO_NOW = `${D}T04:00:00Z`
+
+const CAM07_FOOTHILL = 'INDO-NEPAL / FOOTHILL-PLAINS'
+const CAM12_FOREST = 'INDO-BHUTAN / HILLY-FOREST'
+const CAM19_FRINGE = 'INDO-NEPAL / RURAL-AGRICULTURAL-FRINGE'
+const CAM08_SECTOR = 'INDO-NEPAL / SECTOR BOUNDARY'
+
+const DEMO_PROVIDER = 'DEMO TRACKER'
+const DEMO_TRACKER_NAME = 'PRHAAR-TRACK-V1'
+const DEMO_TRACKER_VERSION = 'demo'
+
+// ── S1 & S10: TRK-1042 (CAM-07, PERSON, ACTIVE, 9 observations, full refs) ──
+const TRK_1042_OBS: TrackObservation[] = [
+  {
+    observationId: 'OBS-1042-01',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10411',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:11Z`,
+    bbox: { x: 0.38, y: 0.44, width: 0.09, height: 0.21 },
+    velocity: 1.3,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.91,
+    sequence: 1,
+    source: 'EDGE',
+    frameNumber: 1284200,
+  },
+  {
+    observationId: 'OBS-1042-02',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10412',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:13Z`,
+    bbox: { x: 0.39, y: 0.43, width: 0.09, height: 0.21 },
+    velocity: 1.35,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.92,
+    sequence: 2,
+    source: 'EDGE',
+    frameNumber: 1284205,
+  },
+  {
+    observationId: 'OBS-1042-03',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10413',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:15Z`,
+    bbox: { x: 0.395, y: 0.425, width: 0.095, height: 0.215 },
+    velocity: 1.4,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.93,
+    sequence: 3,
+    source: 'EDGE',
+    frameNumber: 1284210,
+  },
+  {
+    observationId: 'OBS-1042-04',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10414',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:18Z`,
+    bbox: { x: 0.402, y: 0.42, width: 0.095, height: 0.215 },
+    velocity: 1.4,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.94,
+    sequence: 4,
+    source: 'EDGE',
+    frameNumber: 1284215,
+  },
+  {
+    observationId: 'OBS-1042-05',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10415',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:20Z`,
+    bbox: { x: 0.408, y: 0.415, width: 0.098, height: 0.218 },
+    velocity: 1.42,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.93,
+    sequence: 5,
+    source: 'EDGE',
+    frameNumber: 1284220,
+  },
+  {
+    observationId: 'OBS-1042-06',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10416',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:22Z`,
+    bbox: { x: 0.412, y: 0.41, width: 0.1, height: 0.22 },
+    velocity: 1.4,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.95,
+    sequence: 6,
+    source: 'EDGE',
+    frameNumber: 1284225,
+  },
+  {
+    observationId: 'OBS-1042-07',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10417',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:25Z`,
+    bbox: { x: 0.416, y: 0.405, width: 0.1, height: 0.22 },
+    velocity: 1.38,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.94,
+    sequence: 7,
+    source: 'EDGE',
+    frameNumber: 1284230,
+  },
+  {
+    observationId: 'OBS-1042-08',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10418',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:27Z`,
+    bbox: { x: 0.418, y: 0.402, width: 0.1, height: 0.22 },
+    velocity: 1.4,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.94,
+    sequence: 8,
+    source: 'EDGE',
+    frameNumber: 1284235,
+  },
+  {
+    observationId: 'OBS-1042-09',
+    trackId: 'TRK-1042',
+    detectionId: 'DET-10421', // Links to C5 detection fixture DET-10421
+    cameraId: 'CAM-07',
+    observedAt: `${D}T02:14:29Z`,
+    bbox: { x: 0.42, y: 0.4, width: 0.1, height: 0.22 },
+    velocity: 1.4,
+    direction: 'NE',
+    quality: 'STRONG',
+    confidence: 0.94,
+    sequence: 9,
+    source: 'EDGE',
+    frameNumber: 1284240,
+    evidenceId: 'EVD-10481',
+  },
+]
+
+export const TRK_1042: Track = {
+  trackId: 'TRK-1042',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T02:14:11Z`,
+  lastSeenAt: `${D}T02:14:29Z`,
+  ageMs: 18000,
+  durationSec: 18,
+  detectionCount: 9,
+  currentDetectionId: 'DET-10421',
+  currentBoundingBox: { x: 0.42, y: 0.4, width: 0.1, height: 0.22 },
+  trajectory: TRK_1042_OBS.map(o => ({
+    x: o.bbox!.x + o.bbox!.width / 2,
+    y: o.bbox!.y + o.bbox!.height,
+    timestamp: o.observedAt,
+    observationId: o.observationId,
+    sequence: o.sequence ?? undefined,
+    speed: o.velocity,
+  })),
+  speed: 1.4,
+  velocity: 1.4,
+  direction: 'NE',
+  confidence: 0.92,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  provider: DEMO_PROVIDER,
+  trackerName: DEMO_TRACKER_NAME,
+  trackerVersion: DEMO_TRACKER_VERSION,
+  eventId: 'EV-10421',
+  correlationId: 'COR-1042',
+  incidentId: 'INC-1042',
+  evidenceId: 'EVD-10481',
+  candidateEntityId: 'TRK-1081',
+  crossCameraCandidate: {
+    targetCameraId: 'CAM-08',
+    candidateTrackId: 'TRK-1081',
+    continuityConfidence: 0.76,
+    gapDurationSec: 19,
+    sequenceNumber: 1,
+    note: 'Possible continuation across sector boundary; gap 19s between CAM-07 exit and CAM-08 entry.',
+  },
+  cameraHealthContext: {
+    status: 'ONLINE',
+    reliability: 'HIGH',
+    viewpointShiftDetected: false,
+  },
+  regionProfile: CAM07_FOOTHILL,
+  sectorId: 'SEC-07-NORTH',
+  observedAt: `${D}T02:14:29Z`,
+  updatedAt: `${D}T02:14:30Z`,
+  dataSource: 'DEMO',
+  revision: 1,
+  schemaVersion: '1.0.0',
+  dataCompleteness: 'COMPLETE',
+}
+
+// ── S2: CAM-12 ANIMAL ACTIVE (TRK-1052, degraded health context) ─────────────
+const TRK_1052_OBS: TrackObservation[] = [
+  {
+    observationId: 'OBS-1052-01',
+    trackId: 'TRK-1052',
+    detectionId: 'DET-10432',
+    cameraId: 'CAM-12',
+    observedAt: `${D}T03:10:05Z`,
+    bbox: { x: 0.65, y: 0.55, width: 0.12, height: 0.14 },
+    velocity: 2.1,
+    direction: 'NW',
+    quality: 'MODERATE',
+    confidence: 0.64,
+    sequence: 1,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1052-02',
+    trackId: 'TRK-1052',
+    detectionId: 'DET-10433',
+    cameraId: 'CAM-12',
+    observedAt: `${D}T03:10:09Z`,
+    bbox: { x: 0.62, y: 0.52, width: 0.12, height: 0.14 },
+    velocity: 2.1,
+    direction: 'NW',
+    quality: 'MODERATE',
+    confidence: 0.68,
+    sequence: 2,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1052-03',
+    trackId: 'TRK-1052',
+    detectionId: 'DET-10434',
+    cameraId: 'CAM-12',
+    observedAt: `${D}T03:10:14Z`,
+    bbox: { x: 0.59, y: 0.5, width: 0.12, height: 0.14 },
+    velocity: 2.0,
+    direction: 'NW',
+    quality: 'MODERATE',
+    confidence: 0.71,
+    sequence: 3,
+    source: 'EDGE',
+  },
+]
+
+export const TRK_1052: Track = {
+  trackId: 'TRK-1052',
+  cameraId: 'CAM-12',
+  status: 'ACTIVE',
+  objectClass: 'ANIMAL',
+  firstSeenAt: `${D}T03:10:05Z`,
+  lastSeenAt: `${D}T03:10:14Z`,
+  ageMs: 9000,
+  durationSec: 9,
+  detectionCount: 3,
+  currentDetectionId: 'DET-10434',
+  currentBoundingBox: { x: 0.59, y: 0.5, width: 0.12, height: 0.14 },
+  trajectory: TRK_1052_OBS.map(o => ({
+    x: o.bbox!.x + o.bbox!.width / 2,
+    y: o.bbox!.y + o.bbox!.height,
+    timestamp: o.observedAt,
+    observationId: o.observationId,
+    speed: o.velocity,
+  })),
+  speed: 2.0,
+  velocity: 2.0,
+  direction: 'NW',
+  confidence: 0.68,
+  continuityQuality: 'MODERATE',
+  source: 'EDGE',
+  provider: DEMO_PROVIDER,
+  cameraHealthContext: {
+    status: 'DEGRADED',
+    reliability: 'LOW',
+    viewpointShiftDetected: true,
+    note: 'Camera viewpoint shifted ~4.2°; virtual fence confidence impacted. Ground trajectory context may be displaced.',
+  },
+  regionProfile: CAM12_FOREST,
+  observedAt: `${D}T03:10:14Z`,
+  updatedAt: `${D}T03:10:15Z`,
+  dataSource: 'DEMO',
+  dataCompleteness: 'COMPLETE',
+}
+
+// ── S3: CAM-19 PERSON TENTATIVE (TRK-1061, long-range small target) ──────────
+const TRK_1061_OBS: TrackObservation[] = [
+  {
+    observationId: 'OBS-1061-01',
+    trackId: 'TRK-1061',
+    detectionId: 'DET-10441',
+    cameraId: 'CAM-19',
+    observedAt: `${D}T03:52:10Z`,
+    bbox: { x: 0.78, y: 0.28, width: 0.035, height: 0.07 },
+    velocity: 0.8,
+    direction: 'W',
+    quality: 'WEAK',
+    confidence: 0.42,
+    sequence: 1,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1061-02',
+    trackId: 'TRK-1061',
+    detectionId: 'DET-10442',
+    cameraId: 'CAM-19',
+    observedAt: `${D}T03:52:18Z`,
+    bbox: { x: 0.76, y: 0.28, width: 0.035, height: 0.07 },
+    velocity: 0.85,
+    direction: 'W',
+    quality: 'WEAK',
+    confidence: 0.44,
+    sequence: 2,
+    source: 'EDGE',
+  },
+]
+
+export const TRK_1061: Track = {
+  trackId: 'TRK-1061',
+  cameraId: 'CAM-19',
+  status: 'TENTATIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:52:10Z`,
+  lastSeenAt: `${D}T03:52:18Z`,
+  ageMs: 8000,
+  durationSec: 8,
+  detectionCount: 2,
+  currentDetectionId: 'DET-10442',
+  currentBoundingBox: { x: 0.76, y: 0.28, width: 0.035, height: 0.07 },
+  trajectory: TRK_1061_OBS.map(o => ({
+    x: o.bbox!.x + o.bbox!.width / 2,
+    y: o.bbox!.y + o.bbox!.height,
+    timestamp: o.observedAt,
+    observationId: o.observationId,
+  })),
+  speed: 0.85,
+  velocity: 0.85,
+  direction: 'W',
+  confidence: 0.43,
+  continuityQuality: 'WEAK',
+  source: 'EDGE',
+  cameraHealthContext: {
+    status: 'ONLINE',
+    reliability: 'MEDIUM',
+    viewpointShiftDetected: false,
+    note: 'Fringe sector; small distant target near optical resolution limit.',
+  },
+  regionProfile: CAM19_FRINGE,
+  observedAt: `${D}T03:52:18Z`,
+  updatedAt: `${D}T03:52:20Z`,
+  dataSource: 'DEMO',
+  dataCompleteness: 'PARTIAL',
+  missingObservationsNote: 'Tentative hypothesis; insufficient consecutive hits to confirm continuous trajectory.',
+}
+
+// ── S4: CAM-03 Track LOST (TRK-1071) ─────────────────────────────────────────
+const TRK_1071_OBS: TrackObservation[] = [
+  {
+    observationId: 'OBS-1071-01',
+    trackId: 'TRK-1071',
+    detectionId: 'DET-10301',
+    cameraId: 'CAM-03',
+    observedAt: `${D}T03:40:00Z`,
+    bbox: { x: 0.45, y: 0.48, width: 0.08, height: 0.18 },
+    velocity: 1.1,
+    direction: 'S',
+    quality: 'MODERATE',
+    confidence: 0.78,
+    sequence: 1,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1071-02',
+    trackId: 'TRK-1071',
+    detectionId: 'DET-10302',
+    cameraId: 'CAM-03',
+    observedAt: `${D}T03:42:15Z`,
+    bbox: { x: 0.46, y: 0.54, width: 0.085, height: 0.19 },
+    velocity: 1.0,
+    direction: 'S',
+    quality: 'MODERATE',
+    confidence: 0.72,
+    sequence: 2,
+    source: 'EDGE',
+  },
+]
+
+export const TRK_1071: Track = {
+  trackId: 'TRK-1071',
+  cameraId: 'CAM-03',
+  status: 'LOST',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:40:00Z`,
+  lastSeenAt: `${D}T03:42:15Z`,
+  ageMs: 135000,
+  durationSec: 135,
+  detectionCount: 2,
+  currentDetectionId: 'DET-10302',
+  currentBoundingBox: { x: 0.46, y: 0.54, width: 0.085, height: 0.19 },
+  trajectory: TRK_1071_OBS.map(o => ({
+    x: o.bbox!.x + o.bbox!.width / 2,
+    y: o.bbox!.y + o.bbox!.height,
+    timestamp: o.observedAt,
+    observationId: o.observationId,
+  })),
+  speed: 1.0,
+  velocity: 1.0,
+  direction: 'S',
+  confidence: 0.72,
+  continuityQuality: 'MODERATE',
+  source: 'EDGE',
+  observedAt: `${D}T03:42:15Z`,
+  updatedAt: `${D}T03:42:16Z`,
+  dataSource: 'DEMO',
+  missingObservationsNote: 'Target occluded behind vegetation at 03:42:15Z. Last known position displayed.',
+}
+
+// ── S5: CAM-07 Track REACQUIRED (TRK-1045) ───────────────────────────────────
+const TRK_1045_OBS: TrackObservation[] = [
+  {
+    observationId: 'OBS-1045-01',
+    trackId: 'TRK-1045',
+    detectionId: 'DET-10401',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T03:52:00Z`,
+    bbox: { x: 0.15, y: 0.4, width: 0.08, height: 0.18 },
+    velocity: 1.5,
+    direction: 'E',
+    quality: 'STRONG',
+    confidence: 0.88,
+    sequence: 1,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1045-02',
+    trackId: 'TRK-1045',
+    detectionId: 'DET-10402',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T03:53:10Z`,
+    bbox: { x: 0.22, y: 0.41, width: 0.08, height: 0.18 },
+    velocity: 1.5,
+    direction: 'E',
+    quality: 'STRONG',
+    confidence: 0.85,
+    sequence: 2,
+    source: 'EDGE',
+  },
+  // 210-second gap (occluded behind structure)
+  {
+    observationId: 'OBS-1045-03',
+    trackId: 'TRK-1045',
+    detectionId: 'DET-10403',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T03:56:40Z`,
+    bbox: { x: 0.38, y: 0.42, width: 0.082, height: 0.185 },
+    velocity: 1.45,
+    direction: 'E',
+    quality: 'MODERATE',
+    confidence: 0.89,
+    sequence: 3,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1045-04',
+    trackId: 'TRK-1045',
+    detectionId: 'DET-10404',
+    cameraId: 'CAM-07',
+    observedAt: `${D}T03:58:30Z`,
+    bbox: { x: 0.44, y: 0.43, width: 0.085, height: 0.19 },
+    velocity: 1.45,
+    direction: 'E',
+    quality: 'STRONG',
+    confidence: 0.92,
+    sequence: 4,
+    source: 'EDGE',
+  },
+]
+
+export const TRK_1045: Track = {
+  trackId: 'TRK-1045',
+  cameraId: 'CAM-07',
+  status: 'REACQUIRED',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:52:00Z`,
+  lastSeenAt: `${D}T03:58:30Z`,
+  ageMs: 390000,
+  durationSec: 390,
+  detectionCount: 4,
+  currentDetectionId: 'DET-10404',
+  currentBoundingBox: { x: 0.44, y: 0.43, width: 0.085, height: 0.19 },
+  trajectory: TRK_1045_OBS.map(o => ({
+    x: o.bbox!.x + o.bbox!.width / 2,
+    y: o.bbox!.y + o.bbox!.height,
+    timestamp: o.observedAt,
+    observationId: o.observationId,
+  })),
+  speed: 1.45,
+  velocity: 1.45,
+  direction: 'E',
+  confidence: 0.9,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:58:30Z`,
+  updatedAt: `${D}T03:58:31Z`,
+  dataSource: 'DEMO',
+  missingObservationsNote: 'Track reacquired after 210s occlusion gap between 03:53:10Z and 03:56:40Z.',
+}
+
+// ── S6: CAM-12 Track ENDED (TRK-1055, reached frame edge) ────────────────────
+const TRK_1055_OBS: TrackObservation[] = [
+  {
+    observationId: 'OBS-1055-01',
+    trackId: 'TRK-1055',
+    detectionId: 'DET-10501',
+    cameraId: 'CAM-12',
+    observedAt: `${D}T03:20:00Z`,
+    bbox: { x: 0.8, y: 0.48, width: 0.1, height: 0.16 },
+    velocity: 3.2,
+    direction: 'E',
+    quality: 'STRONG',
+    confidence: 0.85,
+    sequence: 1,
+    source: 'EDGE',
+  },
+  {
+    observationId: 'OBS-1055-02',
+    trackId: 'TRK-1055',
+    detectionId: 'DET-10502',
+    cameraId: 'CAM-12',
+    observedAt: `${D}T03:20:18Z`,
+    bbox: { x: 0.92, y: 0.49, width: 0.07, height: 0.16 },
+    velocity: 3.2,
+    direction: 'E',
+    quality: 'STRONG',
+    confidence: 0.81,
+    sequence: 2,
+    source: 'EDGE',
+  },
+]
+
+export const TRK_1055: Track = {
+  trackId: 'TRK-1055',
+  cameraId: 'CAM-12',
+  status: 'ENDED',
+  objectClass: 'VEHICLE',
+  firstSeenAt: `${D}T03:20:00Z`,
+  lastSeenAt: `${D}T03:20:18Z`,
+  ageMs: 18000,
+  durationSec: 18,
+  detectionCount: 2,
+  currentDetectionId: 'DET-10502',
+  currentBoundingBox: { x: 0.92, y: 0.49, width: 0.07, height: 0.16 },
+  trajectory: TRK_1055_OBS.map(o => ({
+    x: o.bbox!.x + o.bbox!.width / 2,
+    y: o.bbox!.y + o.bbox!.height,
+    timestamp: o.observedAt,
+    observationId: o.observationId,
+  })),
+  speed: 3.2,
+  velocity: 3.2,
+  direction: 'E',
+  confidence: 0.81,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:20:18Z`,
+  updatedAt: `${D}T03:20:20Z`,
+  dataSource: 'DEMO',
+  missingObservationsNote: 'Track ended at frame boundary; vehicle exited camera field of view.',
+}
+
+// ── S7: Multi-camera candidate continuation on CAM-08 (TRK-1081) ────────────
+export const TRK_1081: Track = {
+  trackId: 'TRK-1081',
+  cameraId: 'CAM-08',
+  status: 'ACTIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T02:14:48Z`,
+  lastSeenAt: `${D}T02:15:02Z`,
+  ageMs: 14000,
+  durationSec: 14,
+  detectionCount: 4,
+  currentDetectionId: 'DET-10814',
+  currentBoundingBox: { x: 0.12, y: 0.38, width: 0.09, height: 0.22 },
+  trajectory: [
+    { x: 0.08, y: 0.6, timestamp: `${D}T02:14:48Z` },
+    { x: 0.11, y: 0.6, timestamp: `${D}T02:14:55Z` },
+    { x: 0.16, y: 0.6, timestamp: `${D}T02:15:02Z` },
+  ],
+  speed: 1.35,
+  velocity: 1.35,
+  direction: 'NE',
+  confidence: 0.89,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  candidateEntityId: 'TRK-1042',
+  crossCameraCandidate: {
+    targetCameraId: 'CAM-07',
+    candidateTrackId: 'TRK-1042',
+    continuityConfidence: 0.76,
+    gapDurationSec: 19,
+    sequenceNumber: 2,
+    note: 'Possible continuation of TRK-1042 departing CAM-07 at 02:14:29Z.',
+  },
+  regionProfile: CAM08_SECTOR,
+  observedAt: `${D}T02:15:02Z`,
+  updatedAt: `${D}T02:15:05Z`,
+  dataSource: 'DEMO',
+}
+
+// ── S8: Additional simultaneous tracks on CAM-07 (PERSON, VEHICLE, ANIMAL) ────
+export const TRK_1043: Track = {
+  trackId: 'TRK-1043',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:50:10Z`,
+  lastSeenAt: `${D}T03:55:20Z`,
+  ageMs: 310000,
+  durationSec: 310,
+  detectionCount: 14,
+  currentDetectionId: 'DET-10424',
+  currentBoundingBox: { x: 0.44, y: 0.41, width: 0.09, height: 0.21 },
+  trajectory: [
+    { x: 0.35, y: 0.62, timestamp: `${D}T03:50:10Z` },
+    { x: 0.42, y: 0.62, timestamp: `${D}T03:55:20Z` },
+  ],
+  speed: 1.2,
+  velocity: 1.2,
+  direction: 'E',
+  confidence: 0.88,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  previousClass: 'UNKNOWN',
+  classRevisionReason: 'Frame #1284225 clarified bipedal profile from ambiguous shadow.',
+  classRevisedAt: `${D}T03:51:00Z`,
+  observedAt: `${D}T03:55:20Z`,
+  updatedAt: `${D}T03:55:21Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1044: Track = {
+  trackId: 'TRK-1044',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:54:00Z`,
+  lastSeenAt: `${D}T03:59:00Z`,
+  ageMs: 300000,
+  durationSec: 300,
+  detectionCount: 8,
+  currentDetectionId: 'DET-10425',
+  currentBoundingBox: { x: 0.47, y: 0.42, width: 0.09, height: 0.2 },
+  trajectory: [
+    { x: 0.4, y: 0.62, timestamp: `${D}T03:54:00Z` },
+    { x: 0.51, y: 0.62, timestamp: `${D}T03:59:00Z` },
+  ],
+  speed: 1.1,
+  velocity: 1.1,
+  direction: 'E',
+  confidence: 0.86,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:00Z`,
+  updatedAt: `${D}T03:59:01Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1046: Track = {
+  trackId: 'TRK-1046',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'VEHICLE',
+  firstSeenAt: `${D}T03:56:00Z`,
+  lastSeenAt: `${D}T03:59:15Z`,
+  ageMs: 195000,
+  durationSec: 195,
+  detectionCount: 7,
+  currentDetectionId: 'DET-10422',
+  currentBoundingBox: { x: 0.2, y: 0.35, width: 0.16, height: 0.12 },
+  trajectory: [
+    { x: 0.1, y: 0.47, timestamp: `${D}T03:56:00Z` },
+    { x: 0.28, y: 0.47, timestamp: `${D}T03:59:15Z` },
+  ],
+  speed: 6.5,
+  velocity: 6.5,
+  direction: 'SE',
+  confidence: 0.89,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:15Z`,
+  updatedAt: `${D}T03:59:16Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1047: Track = {
+  trackId: 'TRK-1047',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'VEHICLE',
+  firstSeenAt: `${D}T03:57:30Z`,
+  lastSeenAt: `${D}T03:59:30Z`,
+  ageMs: 120000,
+  durationSec: 120,
+  detectionCount: 5,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.05, y: 0.32, width: 0.14, height: 0.11 },
+  trajectory: [
+    { x: 0.02, y: 0.43, timestamp: `${D}T03:57:30Z` },
+    { x: 0.12, y: 0.43, timestamp: `${D}T03:59:30Z` },
+  ],
+  speed: 5.8,
+  velocity: 5.8,
+  direction: 'SE',
+  confidence: 0.84,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:30Z`,
+  updatedAt: `${D}T03:59:31Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1048: Track = {
+  trackId: 'TRK-1048',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'ANIMAL',
+  firstSeenAt: `${D}T03:50:00Z`,
+  lastSeenAt: `${D}T03:57:00Z`,
+  ageMs: 420000,
+  durationSec: 420,
+  detectionCount: 11,
+  currentDetectionId: 'DET-10423',
+  currentBoundingBox: { x: 0.72, y: 0.58, width: 0.07, height: 0.08 },
+  trajectory: [
+    { x: 0.68, y: 0.66, timestamp: `${D}T03:50:00Z` },
+    { x: 0.75, y: 0.66, timestamp: `${D}T03:57:00Z` },
+  ],
+  speed: 1.8,
+  velocity: 1.8,
+  direction: 'N',
+  confidence: 0.81,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:57:00Z`,
+  updatedAt: `${D}T03:57:01Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1049: Track = {
+  trackId: 'TRK-1049',
+  cameraId: 'CAM-07',
+  status: 'ACTIVE',
+  objectClass: 'ANIMAL',
+  firstSeenAt: `${D}T03:51:20Z`,
+  lastSeenAt: `${D}T03:57:40Z`,
+  ageMs: 380000,
+  durationSec: 380,
+  detectionCount: 9,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.8, y: 0.6, width: 0.065, height: 0.075 },
+  trajectory: [
+    { x: 0.76, y: 0.67, timestamp: `${D}T03:51:20Z` },
+    { x: 0.83, y: 0.67, timestamp: `${D}T03:57:40Z` },
+  ],
+  speed: 1.6,
+  velocity: 1.6,
+  direction: 'NE',
+  confidence: 0.79,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:57:40Z`,
+  updatedAt: `${D}T03:57:41Z`,
+  dataSource: 'DEMO',
+}
+
+// ── S9: Additional sector tracks to reach 20 total tracks (§77) ──────────────
+export const TRK_1091: Track = {
+  trackId: 'TRK-1091',
+  cameraId: 'CAM-12',
+  status: 'ACTIVE',
+  objectClass: 'ANIMAL',
+  firstSeenAt: `${D}T03:45:00Z`,
+  lastSeenAt: `${D}T03:58:00Z`,
+  ageMs: 780000,
+  durationSec: 780,
+  detectionCount: 16,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.4, y: 0.52, width: 0.1, height: 0.12 },
+  trajectory: [{ x: 0.45, y: 0.64, timestamp: `${D}T03:58:00Z` }],
+  speed: 1.9,
+  velocity: 1.9,
+  direction: 'SW',
+  confidence: 0.75,
+  continuityQuality: 'MODERATE',
+  source: 'EDGE',
+  observedAt: `${D}T03:58:00Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1092: Track = {
+  trackId: 'TRK-1092',
+  cameraId: 'CAM-19',
+  status: 'STALE',
+  objectClass: 'OBJECT',
+  firstSeenAt: `${D}T02:00:00Z`,
+  lastSeenAt: `${D}T02:30:00Z`,
+  ageMs: 1800000,
+  durationSec: 1800,
+  detectionCount: 6,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.3, y: 0.6, width: 0.05, height: 0.05 },
+  trajectory: [{ x: 0.32, y: 0.65, timestamp: `${D}T02:30:00Z` }],
+  speed: 0.0,
+  velocity: 0.0,
+  direction: null,
+  confidence: 0.7,
+  continuityQuality: 'WEAK',
+  source: 'CENTRAL',
+  observedAt: `${D}T02:30:00Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1093: Track = {
+  trackId: 'TRK-1093',
+  cameraId: 'CAM-19',
+  status: 'ACTIVE',
+  objectClass: 'VEHICLE',
+  firstSeenAt: `${D}T03:40:00Z`,
+  lastSeenAt: `${D}T03:59:10Z`,
+  ageMs: 1150000,
+  durationSec: 1150,
+  detectionCount: 12,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.55, y: 0.38, width: 0.14, height: 0.1 },
+  trajectory: [{ x: 0.62, y: 0.48, timestamp: `${D}T03:59:10Z` }],
+  speed: 7.2,
+  velocity: 7.2,
+  direction: 'E',
+  confidence: 0.87,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:10Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1094: Track = {
+  trackId: 'TRK-1094',
+  cameraId: 'CAM-08',
+  status: 'ACTIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:30:00Z`,
+  lastSeenAt: `${D}T03:58:45Z`,
+  ageMs: 1725000,
+  durationSec: 1725,
+  detectionCount: 15,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.25, y: 0.42, width: 0.08, height: 0.2 },
+  trajectory: [{ x: 0.29, y: 0.62, timestamp: `${D}T03:58:45Z` }],
+  speed: 1.3,
+  velocity: 1.3,
+  direction: 'NE',
+  confidence: 0.91,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:58:45Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1095: Track = {
+  trackId: 'TRK-1095',
+  cameraId: 'CAM-08',
+  status: 'ACTIVE',
+  objectClass: 'VEHICLE',
+  firstSeenAt: `${D}T03:55:00Z`,
+  lastSeenAt: `${D}T03:59:40Z`,
+  ageMs: 280000,
+  durationSec: 280,
+  detectionCount: 6,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.6, y: 0.36, width: 0.15, height: 0.12 },
+  trajectory: [{ x: 0.67, y: 0.48, timestamp: `${D}T03:59:40Z` }],
+  speed: 8.0,
+  velocity: 8.0,
+  direction: 'E',
+  confidence: 0.93,
+  continuityQuality: 'STRONG',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:40Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1096: Track = {
+  trackId: 'TRK-1096',
+  cameraId: 'CAM-03',
+  status: 'ENDED',
+  objectClass: 'ANIMAL',
+  firstSeenAt: `${D}T02:40:00Z`,
+  lastSeenAt: `${D}T02:48:00Z`,
+  ageMs: 480000,
+  durationSec: 480,
+  detectionCount: 8,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.1, y: 0.7, width: 0.06, height: 0.06 },
+  trajectory: [{ x: 0.13, y: 0.76, timestamp: `${D}T02:48:00Z` }],
+  speed: 1.5,
+  velocity: 1.5,
+  direction: 'SW',
+  confidence: 0.76,
+  continuityQuality: 'MODERATE',
+  source: 'EDGE',
+  observedAt: `${D}T02:48:00Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1097: Track = {
+  trackId: 'TRK-1097',
+  cameraId: 'CAM-12',
+  status: 'ACTIVE',
+  objectClass: 'UNKNOWN',
+  firstSeenAt: `${D}T03:56:00Z`,
+  lastSeenAt: `${D}T03:59:50Z`,
+  ageMs: 230000,
+  durationSec: 230,
+  detectionCount: 4,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.22, y: 0.45, width: 0.07, height: 0.1 },
+  trajectory: [{ x: 0.25, y: 0.55, timestamp: `${D}T03:59:50Z` }],
+  speed: 1.0,
+  velocity: 1.0,
+  direction: 'W',
+  confidence: 0.52,
+  continuityQuality: 'WEAK',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:50Z`,
+  dataSource: 'DEMO',
+}
+
+export const TRK_1098: Track = {
+  trackId: 'TRK-1098',
+  cameraId: 'CAM-07',
+  status: 'TENTATIVE',
+  objectClass: 'PERSON',
+  firstSeenAt: `${D}T03:59:20Z`,
+  lastSeenAt: `${D}T03:59:55Z`,
+  ageMs: 35000,
+  durationSec: 35,
+  detectionCount: 2,
+  currentDetectionId: null,
+  currentBoundingBox: { x: 0.55, y: 0.44, width: 0.08, height: 0.19 },
+  trajectory: [{ x: 0.59, y: 0.63, timestamp: `${D}T03:59:55Z` }],
+  speed: 1.2,
+  velocity: 1.2,
+  direction: 'NE',
+  confidence: 0.65,
+  continuityQuality: 'WEAK',
+  source: 'EDGE',
+  observedAt: `${D}T03:59:55Z`,
+  dataSource: 'DEMO',
+}
+
+// All 20 tracks
+export const MOCK_TRACKS: Track[] = [
+  TRK_1042, // S1, S10
+  TRK_1052, // S2
+  TRK_1061, // S3
+  TRK_1071, // S4
+  TRK_1045, // S5
+  TRK_1055, // S6
+  TRK_1081, // S7
+  TRK_1043, // S8
+  TRK_1044, // S8
+  TRK_1046, // S8
+  TRK_1047, // S8
+  TRK_1048, // S8
+  TRK_1049, // S8
+  TRK_1091, // S9
+  TRK_1092, // S9
+  TRK_1093, // S9
+  TRK_1094, // S9
+  TRK_1095, // S9
+  TRK_1096, // S9
+  TRK_1097, // S9
+  TRK_1098, // S9
+]
+
+export const MOCK_OBSERVATIONS: Record<string, TrackObservation[]> = {
+  'TRK-1042': TRK_1042_OBS,
+  'TRK-1052': TRK_1052_OBS,
+  'TRK-1061': TRK_1061_OBS,
+  'TRK-1071': TRK_1071_OBS,
+  'TRK-1045': TRK_1045_OBS,
+  'TRK-1055': TRK_1055_OBS,
+}
+
+// ── Per-camera tracking feeds ───────────────────────────────────────────────
+export const MOCK_FEEDS: Record<string, TrackingFeed> = {
+  'CAM-07': {
+    cameraId: 'CAM-07',
+    state: 'READY',
+    lastUpdatedAt: `${D}T03:59:55Z`,
+    tracks: [
+      TRK_1042,
+      TRK_1043,
+      TRK_1044,
+      TRK_1045,
+      TRK_1046,
+      TRK_1047,
+      TRK_1048,
+      TRK_1049,
+      TRK_1098,
+    ],
+    providerHealth: 'READY',
+  },
+  'CAM-12': {
+    cameraId: 'CAM-12',
+    state: 'READY',
+    lastUpdatedAt: `${D}T03:59:50Z`,
+    tracks: [TRK_1052, TRK_1055, TRK_1091, TRK_1097],
+    providerHealth: 'READY',
+  },
+  'CAM-19': {
+    cameraId: 'CAM-19',
+    state: 'DEGRADED',
+    lastUpdatedAt: `${D}T03:59:10Z`,
+    tracks: [TRK_1061, TRK_1092, TRK_1093],
+    providerHealth: 'DEGRADED',
+  },
+  'CAM-03': {
+    cameraId: 'CAM-03',
+    state: 'READY',
+    lastUpdatedAt: `${D}T03:42:15Z`,
+    tracks: [TRK_1071, TRK_1096], // 1 lost, 1 ended
+    providerHealth: 'READY',
+  },
+  'CAM-08': {
+    cameraId: 'CAM-08',
+    state: 'READY',
+    lastUpdatedAt: `${D}T03:59:40Z`,
+    tracks: [TRK_1081, TRK_1094, TRK_1095],
+    providerHealth: 'READY',
+  },
+  'CAM-21': {
+    cameraId: 'CAM-21',
+    state: 'UNAVAILABLE',
+    lastUpdatedAt: null,
+    tracks: [],
+    providerHealth: 'UNAVAILABLE',
+  },
+}
+
+export function getMockTrack(trackId: string): Track | null {
+  return MOCK_TRACKS.find(t => t.trackId === trackId) ?? null
+}
+
+export function getMockTrackHistory(trackId: string): TrackObservation[] {
+  const specific = MOCK_OBSERVATIONS[trackId]
+  if (specific) return specific
+  const track = getMockTrack(trackId)
+  if (!track || !track.trajectory) return []
+  return track.trajectory.map((p, idx) => ({
+    observationId: p.observationId ?? `OBS-${trackId}-${String(idx + 1).padStart(2, '0')}`,
+    trackId,
+    detectionId: idx === track.trajectory!.length - 1 ? track.currentDetectionId : null,
+    cameraId: track.cameraId,
+    observedAt: p.timestamp ?? track.observedAt,
+    bbox: track.currentBoundingBox,
+    velocity: p.speed ?? track.velocity,
+    speed: p.speed ?? track.speed,
+    direction: track.direction,
+    quality: track.continuityQuality,
+    confidence: track.confidence,
+    sequence: p.sequence ?? idx + 1,
+    source: track.source,
+  }))
+}
+
+export function getMockTrackFeed(cameraId: string): TrackingFeed | null {
+  return MOCK_FEEDS[cameraId] ?? null
+}

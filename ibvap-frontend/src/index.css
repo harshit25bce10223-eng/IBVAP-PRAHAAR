@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+
+  --color-bg: #080c12;
+  --color-surface: #0d1117;
+  --color-border: #1e2d40;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+
+  --color-cyan-400: #22d3ee;
+  --color-emerald-400: #34d399;
+  --color-amber-400: #f59e0b;
+  --color-orange-400: #fb923c;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-blue-400: #60a5fa;
+  --color-purple-400: #a855f7;
+
+  /* ── PRHAAR centralized semantic tokens (Component 2) ────────────────
+     Single source for health/status color language. Values are mapped to
+     the existing PRHAAR palette so Component 1 and Component 2 share one
+     visual language (spec §12 canonical hexes in comments):
+       good     → existing emerald-400 (canonical #3FCB8C)
+       degraded → existing amber-400   (canonical #F5A623)
+       failed   → existing red-400/500 (canonical #F0455B)
+       accent   → existing cyan-400    (canonical #2FD5E0)
+     No component may use its own status shades. */
+  --color-prhaar-bg: #080c12;
+  --color-prhaar-surface: #0d1117;
+  --color-prhaar-surface-elevated: #111927;
+  --color-prhaar-text-primary: #e2e8f0;
+  --color-prhaar-text-secondary: #94a3b8;
+  --color-prhaar-text-muted: #64748b;
+  --color-prhaar-border: #1e2d40;
+  --color-prhaar-accent: #22d3ee;
+  --color-prhaar-good: #34d399;
+  --color-prhaar-degraded: #f59e0b;
+  --color-prhaar-failed: #f87171;
+  --color-prhaar-focus: #22d3ee;
+
+  /* ── प्रहार command palette (Main Command Dashboard shell) ─────────────────
+     Canonical hexes (spec §3):
+       Deep Security Green  #0B5D3B   → --color-ssb-green
+       Deep Navy            #0B1F33   → --color-ssb-navy
+       Warning Amber        #F4B942   → --color-ssb-amber
+       Alert Red            #D62828   → --color-ssb-red
+       White                #FFFFFF   → --color-ssb-white
+     Derived shades below are neutral/contrast variants of the five canonical
+     hues only (per spec §3); they do not form a second palette. */
+  --color-ssb-navy: #0b1f33;
+  --color-ssb-navy-deep: #071527;
+  --color-ssb-navy-raised: #102b45;
+  --color-ssb-green: #0b5d3b;
+  --color-ssb-green-bright: #35b884;
+  --color-ssb-amber: #f4b942;
+  --color-ssb-amber-bright: #f8c35c;
+  --color-ssb-red: #d62828;
+  --color-ssb-red-bright: #e85d5d;
+  --color-ssb-white: #ffffff;
+  --color-ssb-text: #e9eef4;
+  --color-ssb-text-muted: #9aaebd;
+  --color-ssb-border: #1c3a55;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+  }
+  #root {
+    @apply h-screen w-full flex flex-col;
+  }
+}
+
+@layer utilities {
+  .animate-pulse-dot {
+    animation: pulse-dot 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.9); }
+  }
+  .glow-drop {
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

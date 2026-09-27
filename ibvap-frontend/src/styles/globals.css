@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand palette ───────────────────────────────── */
+  --color-surface-900:   #080a0f;
+  --color-surface-800:   #0d1117;
+  --color-surface-700:   #141b24;
+  --color-surface-600:   #1c2533;
+  --color-surface-500:   #243040;
+  --color-surface-400:   #2e3d52;
+
+  --color-border:        #1e2d40;
+  --color-border-bright: #2a3f58;
+
+  /* ── Accent colours ──────────────────────────────── */
+  --color-cyan-400:      #22d3ee;
+  --color-cyan-500:      #06b6d4;
+  --color-cyan-600:      #0891b2;
+  --color-emerald-400:   #34d399;
+  --color-emerald-500:   #10b981;
+
+  /* ── Status palette ──────────────────────────────── */
+  --color-status-critical: #ef4444;
+  --color-status-warning:  #f59e0b;
+  --color-status-info:     #3b82f6;
+  --color-status-safe:     #10b981;
+  --color-status-offline:  #6b7280;
+
+  /* ── Typography ──────────────────────────────────── */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* ── Base reset ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-900);
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar styling ───────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface-800); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-500); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-surface-400); }
+
+/* ── Glow utilities ──────────────────────────────────── */
+.glow-cyan  { box-shadow: 0 0 12px -2px rgba(34, 211, 238, 0.5); }
+.glow-red   { box-shadow: 0 0 12px -2px rgba(239, 68, 68, 0.6);  }
+.glow-green { box-shadow: 0 0 12px -2px rgba(16, 185, 129, 0.5); }
+
+/* ── Pulse animations ────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.animate-pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+
+/* ── Scan-line overlay (optional ambience) ───────────── */
+@keyframes scanline {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100%); }
+}

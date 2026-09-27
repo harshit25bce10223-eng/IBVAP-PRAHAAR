@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Python virtual environment & bytecode
+venv/
+*/venv/
+.venv/
+*/.venv/
+env/
+ENV/
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Testing & Coverage
+.pytest_cache/
+*/.pytest_cache/
+.coverage
+htmlcov/
+tests/test_dbs/
+test_dbs/
+test_ibvap.db
+
+# Build artifacts
+dist/
+*/dist/
+build/
+*/build/
+dist-ssr/
+*.local
+tsconfig.tsbuildinfo
+
+# Database temporary files
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Environment & Secret files
+.env
+*.env
+.env.*
+!.env.example
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
