@@ -126,4 +126,4 @@ npm run dev
 ---
 
 ## 👥 Authors & Team
-- **Team PRAHAAR** — Smart India Hackathon (SIH)
+- **Team Apex Code** — Smart India Hackathon (SIH)
