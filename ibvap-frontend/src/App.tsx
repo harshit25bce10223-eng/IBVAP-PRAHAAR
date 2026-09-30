@@ -4,10 +4,6 @@ import { AppShell } from '@/components/layout'
 import { LoginPage } from '@/pages/LoginPage'
 import { useAuth } from '@/hooks'
 
-const VirtualFenceDemo = lazy(() =>
-  import('@/pages/VirtualFenceDemo').then(m => ({ default: m.VirtualFenceDemo }))
-)
-
 const SingleCameraDetail = lazy(() =>
   import('@/pages/SingleCameraDetail').then(m => ({ default: m.SingleCameraDetail }))
 )
@@ -127,7 +123,7 @@ function AppRoutes() {
       />
       <Route element={<ProtectedLayout />}>
         <Route path="/camera/:id" element={<SingleCameraDetail />} />
-        <Route path="/virtual-fence" element={<VirtualFenceDemo />} />
+        <Route path="/virtual-fence" element={<SingleCameraDetail />} />
         <Route path="/health" element={<CameraHealthPage />} />
         <Route path="/camera-health" element={<CameraHealthPage />} />
         <Route path="/wall" element={<CameraWall />} />

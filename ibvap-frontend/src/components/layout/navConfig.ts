@@ -167,7 +167,7 @@ export function groupNavItems(items: NavItem[]): Map<string, NavItem[]> {
  */
 export function resolveNavContext(pathname: string): CommandSectionContext {
   if (pathname === '/virtual-fence') {
-    return { section: 'LIVE SURVEILLANCE', label: 'PARAKH · Virtual Fence', sub: 'Interactive Demo' }
+    return { section: 'LIVE SURVEILLANCE', label: 'PARAKH · Virtual Fence', sub: 'Virtual Fence & Risk Engine' }
   }
   if (pathname.startsWith('/camera/')) {
     const cameraId = pathname.split('/')[2]?.toUpperCase() ?? 'CAM'
