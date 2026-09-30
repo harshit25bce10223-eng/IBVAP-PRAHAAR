@@ -10,7 +10,7 @@
 [![Tests](https://img.shields.io/badge/Tests-391_Backend_%7C_132_Frontend-3FCB8C?style=for-the-badge&logo=pytest&logoColor=white)](#)
 [![SIH](https://img.shields.io/badge/Smart_India_Hackathon-Team_Apex_Code-F5A623?style=for-the-badge)](https://www.sih.gov.in)
 
-> 🌐 **Live Production Deployment:** [https://ibvap-frontend.vercel.app](https://ibvap-frontend.vercel.app)  
+> 🌐 **Live Production Deployment:** [https://ibvap-frontend.vercel.app/login](https://ibvap-frontend.vercel.app/login)  
 > 🛡️ **SSB Operational Command Console:** Complete UI/UX with real-time detection, radar HUD trajectories, correlated incident intelligence (SUTRA), Section 65B evidence ledgers (PRAMAAN), and tactical route risk analysis (MARGDARSHAN).
 
 ---
