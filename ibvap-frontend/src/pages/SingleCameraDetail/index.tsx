@@ -276,7 +276,7 @@ export function SingleCameraDetail() {
       <main className="flex-1 flex overflow-hidden">
         {/* Left column: viewport + timeline */}
         <section className="flex-1 flex flex-col min-w-0 p-4 gap-4 overflow-y-auto" style={{ flex: '0 1 70%' }}>
-          <div className="relative" style={{ aspectRatio: FEED_ASPECT, maxHeight: 'calc(100vh - 320px)', minHeight: 280 }}>
+          <div className="relative w-full shrink-0" style={{ aspectRatio: FEED_ASPECT }}>
             {loading ? (
               <div className="absolute inset-0 rounded-xl border border-[#1e2d40] bg-[#0d1117] animate-pulse" aria-label="Loading camera feed" role="status">
                 <span className="sr-only">Loading camera feed…</span>
@@ -301,21 +301,23 @@ export function SingleCameraDetail() {
                 <div className="absolute left-2 bottom-2 z-10">
                   <FenceModeBadge />
                 </div>
-<DetectionStatus
+                <DetectionStatus
                   feedState={feed?.state ?? null}
                   inference={feed?.inference ?? null}
                   lastUpdatedAt={feed?.lastUpdatedAt ?? null}
-                  className="absolute right-2 bottom-2 z-10"
+                  className="absolute right-2 bottom-12 z-10 max-w-[calc(100%-1rem)] flex-wrap justify-end"
                 />
               </CameraFeed>
             )}
           </div>
 
-          <div className="w-full">
+          <div className="w-full shrink-0">
             <FenceZonePanel />
           </div>
 
-          <IncidentTimeline incidents={incidents} events={events} />
+          <div className="w-full shrink-0">
+            <IncidentTimeline incidents={incidents} events={events} />
+          </div>
         </section>
 
         {/* Right rail: uncertainty → health → risk */}
