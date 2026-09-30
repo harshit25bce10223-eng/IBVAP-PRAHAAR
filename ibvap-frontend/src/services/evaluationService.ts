@@ -20,15 +20,22 @@ export interface EvaluationService {
 /** Silent offline fallback — returned when the backend is unreachable. */
 function buildOfflineFallback(observation: TrackObservation): TrackEvaluationResponse {
   return {
-    track_id: observation.track_id,
+    track: {
+      track_id: observation.track_id,
+      camera_id: observation.camera_id,
+      object_type: observation.object_type,
+    },
     evaluation: {
       zones: [],
-      risk_score: 0,
-      rule_results: [],
+      representative_point: {
+        x: observation.bbox.x + observation.bbox.width / 2,
+        y: observation.bbox.y + observation.bbox.height,
+      },
     },
-    incident: { created: false },
+    incident: { created: false, incident_id: null, risk_score: null, severity: null, factors: [] },
     event: { created: false, event_id: null },
-  } as unknown as TrackEvaluationResponse
+    exit_event: { created: false, event_id: null },
+  }
 }
 
 export const evaluationService: EvaluationService = {

@@ -2,11 +2,25 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { api } from '../api'
 import { zoneService } from '../zoneService'
 import { incidentService } from '../incidentService'
+import { evaluationService } from '../evaluationService'
 
 const originalAdapter = api.defaults.adapter
 afterEach(() => { api.defaults.adapter = originalAdapter })
 
 describe('static-host API fallback', () => {
+  it('returns a complete offline observation without fabricating an incident', async () => {
+    api.defaults.adapter = async () => { throw new Error('Backend offline') }
+    const response = await evaluationService.evaluate({
+      track_id: 'DEMO-1', camera_id: 'CAM-07', object_type: 'HUMAN',
+      bbox: { x: 0.2, y: 0.3, width: 0.2, height: 0.4 }, confidence: 0.9,
+      is_night: false, multi_camera_confirmed: false, reliability: 'LOW',
+    })
+    expect(response.track.track_id).toBe('DEMO-1')
+    expect(response.evaluation.representative_point).toEqual({ x: 0.30000000000000004, y: 0.7 })
+    expect(response.evaluation.zones).toEqual([])
+    expect(response.incident).toEqual({ created: false, incident_id: null, risk_score: null, severity: null, factors: [] })
+    expect(response.exit_event.created).toBe(false)
+  })
   it('rejects HTTP 200 HTML for all Virtual Fence list requests', async () => {
     api.defaults.adapter = async config => ({
       data: '<!doctype html><html><body>App shell</body></html>',
