@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useCameraStore, useFenceStore, useRiskStore } from '@/store'
 import { zoneService } from '@/services/zoneService'
 import { incidentService } from '@/services/incidentService'
@@ -86,6 +87,18 @@ export function SingleCameraDetail() {
     setSelectedCamera,
     toggleNightMode,
   } = useCameraStore()
+
+  // Sync URL :id param → store so /camera/CAM-01 shows CAM-01, not CAM-07.
+  // On /virtual-fence (no :id) we leave the store untouched.
+  const { id: urlCameraId } = useParams<{ id?: string }>()
+  useEffect(() => {
+    if (urlCameraId) {
+      const upper = urlCameraId.toUpperCase()
+      if (cameras.some(c => c.id === upper)) {
+        setSelectedCamera(upper)
+      }
+    }
+  }, [urlCameraId, cameras, setSelectedCamera])
 
   const { setZones } = useFenceStore()
   const { incidents, lastEvaluations, setIncidents, setError: setRiskError, error: riskError } = useRiskStore()

@@ -164,10 +164,13 @@ function DraftShape({
 
 function ZoneShape({ zone }: { zone: { zone_id: string; name: string; polygon: ZonePoint[]; active: boolean } }) {
   const { beginEdit } = useFenceStore()
-  const vb = zone.polygon.map(toVb)
+  // Guard: skip any point with NaN or non-finite coordinates to prevent SVG errors
+  const safePolygon = zone.polygon.filter(p => isFinite(p.x) && isFinite(p.y))
+  const vb = safePolygon.map(toVb)
+  if (vb.length < 3) return null   // can't draw a meaningful polygon
   const pts = vb.map(p => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
-  const labelX = vb.reduce((s, p) => s + p.x, 0) / Math.max(1, vb.length)
-  const labelY = vb.reduce((s, p) => s + p.y, 0) / Math.max(1, vb.length)
+  const labelX = vb.reduce((s, p) => s + p.x, 0) / vb.length
+  const labelY = vb.reduce((s, p) => s + p.y, 0) / vb.length
 
   return (
     <g

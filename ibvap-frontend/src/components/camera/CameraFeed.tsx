@@ -145,8 +145,8 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
         )}
       </div>
 
-      {/* Top Center: Military Grid Coordinates & Live Clock */}
-      <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 hidden md:flex items-center gap-2 bg-black/75 px-3 py-0.5 rounded border border-white/10 font-mono text-[10px] text-slate-300">
+      {/* Bottom-right: GPS coords + live clock (was top-center, moved to avoid overlap) */}
+      <div className="absolute bottom-2 right-2 z-20 hidden md:flex items-center gap-2 bg-black/75 px-3 py-1 rounded border border-white/10 font-mono text-[10px] text-slate-300">
         <span className="text-[#2FD5E0] font-bold">28°36'14"N 80°32'18"E</span>
         <span className="text-slate-600">|</span>
         <span className="tabular-nums text-slate-200">{currentTimeStr}</span>

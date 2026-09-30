@@ -376,13 +376,19 @@ def main():
     aggregates = aggregate(records)
     comp = component_tables(records)
 
+    # Canonical determinism set: exclude status_reason (embeds wall-clock-derived
+    # seconds, e.g. "No fresh frames for 45s") — keep it in the full output only.
+    canonical_records = [
+        {**r, "engine": {k: v for k, v in r["engine"].items() if k != "status_reason"}}
+        for r in records
+    ]
     canonical = dict(
         corpus_manifest_sha256=manifest["manifest_sha256"],
         config={k: v for k, v in CONFIG.__dict__.items()},
         module_hashes=module_hashes,
         cv2_version=cv2.__version__,
         numpy_version=np.__version__,
-        records=records,
+        records=canonical_records,
         freeze_noise_sweep=sweep,
     )
     text = json.dumps(canonical, indent=2, sort_keys=True, default=str)

@@ -100,6 +100,19 @@ export function TrackTrajectory({
     }))
   }, [trailPoints, W, H])
 
+  // Estimated path displacement (hypothetical distance).
+  // Declared BEFORE the empty-state early return below: hooks must run in
+  // the same order on every render (rules of hooks) — otherwise the first
+  // live render after an empty state would change the hook count and crash.
+  const estDisplacement = useMemo(() => {
+    if (trailPoints.length < 2) return '0.0'
+    const dx = trailPoints[trailPoints.length - 1].x - trailPoints[0].x
+    const dy = trailPoints[trailPoints.length - 1].y - trailPoints[0].y
+    // Approximate ground scale 1 unit ~= 40m in FOV
+    const dist = Math.sqrt(dx * dx + dy * dy) * 45
+    return dist.toFixed(1)
+  }, [trailPoints])
+
   if (!track || trailPoints.length < 1) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 font-mono gap-1">
@@ -119,16 +132,6 @@ export function TrackTrajectory({
   const pathD = activePoints.length >= 2
     ? activePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
     : null
-
-  // Estimated path displacement (hypothetical distance)
-  const estDisplacement = useMemo(() => {
-    if (trailPoints.length < 2) return '0.0'
-    const dx = trailPoints[trailPoints.length - 1].x - trailPoints[0].x
-    const dy = trailPoints[trailPoints.length - 1].y - trailPoints[0].y
-    // Approximate ground scale 1 unit ~= 40m in FOV
-    const dist = Math.sqrt(dx * dx + dy * dy) * 45
-    return dist.toFixed(1)
-  }, [trailPoints])
 
   const hoveredPoint = hoveredIdx !== null ? trailPoints[hoveredIdx] : null
   const hoveredScreenPt = hoveredIdx !== null ? activePoints[hoveredIdx] : null
