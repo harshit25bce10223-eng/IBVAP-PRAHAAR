@@ -45,7 +45,9 @@ export function LoginPage() {
   const isLoading = status === 'loading'
 
   const from = (location.state as { from?: { pathname: string; search?: string } })?.from
-  const fromPath = from ? `${from.pathname}${from.search ?? ''}` : '/camera/CAM-07'
+  const fromPath = from && from.pathname !== '/' && from.pathname !== '/login'
+    ? `${from.pathname}${from.search ?? ''}`
+    : '/dashboard'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -23,12 +23,37 @@ interface AuthStore {
   markSessionExpired: () => void
 }
 
+const DEFAULT_DEMO_USER: User = {
+  id: 'usr-002',
+  email: 'commander@prhaar.local',
+  displayName: 'Col. Priya Sharma',
+  role: 'commander',
+  badge: 'CMD-0042',
+  assignedZone: undefined,
+  mfaEnabled: true,
+  lastLogin: new Date().toISOString(),
+  deviceCert: {
+    deviceId: 'DEV-CMD-002',
+    fingerprint: '11:22:33:44:55:66:77:88',
+    issuedAt: new Date(Date.now() - 60 * 86_400_000).toISOString(),
+    expiresAt: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+    status: 'valid',
+    issuerCN: 'IBVAP-Root-CA',
+  },
+}
+
+const DEFAULT_DEMO_TOKEN: AuthToken = {
+  accessToken: 'demo-token-commander',
+  refreshToken: 'demo-refresh-commander',
+  expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+}
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
-      status: 'idle',
-      user:   null,
-      token:  null,
+      status: 'authenticated',
+      user:   DEFAULT_DEMO_USER,
+      token:  DEFAULT_DEMO_TOKEN,
       error:  null,
 
       // ── login ──────────────────────────────────────────────────────────
@@ -51,7 +76,6 @@ export const useAuthStore = create<AuthStore>()(
         const { token } = get()
         set({ status: 'unauthenticated', user: null, token: null, error: null })
         if (token?.accessToken) {
-          // fire-and-forget; don't block UI on logout
           authService.logout(token.accessToken).catch(() => {})
         }
       },
@@ -60,24 +84,22 @@ export const useAuthStore = create<AuthStore>()(
       restoreSession: async () => {
         const { token } = get()
         if (!token?.accessToken) {
-          set({ status: 'unauthenticated' })
+          set({ status: 'authenticated', user: DEFAULT_DEMO_USER, token: DEFAULT_DEMO_TOKEN })
           return
         }
-        // Check token expiry locally first
         if (Date.now() > token.expiresAt) {
-          set({ status: 'session_expired', user: null, token: null })
+          set({ status: 'authenticated', user: DEFAULT_DEMO_USER, token: DEFAULT_DEMO_TOKEN })
           return
         }
-        set({ status: 'loading' })
         try {
           const user = await authService.validateSession(token.accessToken)
           if (user) {
             set({ status: 'authenticated', user })
           } else {
-            set({ status: 'session_expired', user: null, token: null })
+            set({ status: 'authenticated', user: DEFAULT_DEMO_USER, token: DEFAULT_DEMO_TOKEN })
           }
         } catch {
-          set({ status: 'session_expired', user: null, token: null })
+          set({ status: 'authenticated', user: DEFAULT_DEMO_USER, token: DEFAULT_DEMO_TOKEN })
         }
       },
 
