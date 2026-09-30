@@ -124,7 +124,7 @@ export function LoginPage() {
           {/* PRAHAAR wordmark */}
           <div className="mb-2">
             <h1 className="text-6xl font-black tracking-tight text-white leading-none">
-              PRH<span className="text-cyan-400">AAR</span>
+              PRA<span className="text-cyan-400">HAAR</span>
             </h1>
             <p className="text-3xl font-bold text-cyan-300/60 tracking-[0.3em] mt-1" lang="hi">
               प्रहार
@@ -136,7 +136,7 @@ export function LoginPage() {
             Intelligent Border Video Analytics Platform
           </p>
           <p className="text-[11px] font-mono text-slate-500 tracking-wider mb-8">
-            Sashastra Seema Bal · Smart India Hackathon 2024
+            Sashastra Seema Bal · Smart India Hackathon 2026
           </p>
 
           {/* Feature pills */}
@@ -203,7 +203,7 @@ export function LoginPage() {
               <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-[#060A10] animate-pulse" />
             </div>
             <h1 className="text-3xl font-black text-white">
-              PRH<span className="text-cyan-400">AAR</span>
+              PRA<span className="text-cyan-400">HAAR</span>
             </h1>
             <p className="text-sm text-cyan-300/50 font-bold tracking-[0.3em]" lang="hi">प्रहार</p>
             <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">
@@ -351,7 +351,7 @@ export function LoginPage() {
               <ShieldCheck className="h-3 w-3 text-emerald-400/60" />
               <span>Restricted Government System · All Access Logged & Audited</span>
             </div>
-            <span className="text-slate-700 font-mono">Team Apex Code · SIH 2024 · IBVAP-PRAHAAR</span>
+            <span className="text-slate-700 font-mono">Team Apex Code · SIH 2026 · IBVAP-PRAHAAR</span>
           </div>
         </div>
       </div>

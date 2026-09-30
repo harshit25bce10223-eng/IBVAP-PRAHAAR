@@ -49,7 +49,7 @@ export const NAV_ITEMS: NavItem[] = [
 
   // ── LIVE SURVEILLANCE ─────────────────────────────────────────────────────
   {
-    id: 'single-camera', label: 'PARAKH · Virtual Fence', href: '/virtual-fence',
+    id: 'single-camera', label: 'PARAKH · Virtual Fence', href: '/camera/CAM-07',
     icon: Video, badge: 'PARAKH', badgeVariant: 'safe', section: 'LIVE SURVEILLANCE',
   },
   {

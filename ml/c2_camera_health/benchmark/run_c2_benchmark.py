@@ -173,22 +173,10 @@ def run_end_to_end(sample, frames: list[np.ndarray], base_ts: datetime) -> dict:
         )
 
     result = None
-    if sample.n_frames == 0:
-        source_ts = base_ts - timedelta(seconds=float(t.get("source_age_sec", 1.0)))
-        stream = StreamHealthMetrics(
-            connected=bool(t.get("connected", True)),
-            observed_fps=t.get("observed_fps"),
-            frame_drop_rate=t.get("frame_drop_rate", 0.0),
-        )
-        result = analyzer.analyze_observation(
-            camera_id=sample.sample_id, config=CONFIG,
-            source_timestamp=source_ts, received_at=base_ts,
-            stream=stream, network=metrics(base_ts),
-            viewpoint=vp_injected, frame=None,
-        )
-    else:
-        for i, f in enumerate(frames):
-            source_ts = base_ts + timedelta(seconds=float(i)) - timedelta(seconds=float(t.get("source_age_sec", 1.0)))
+    exc_info = None
+    try:
+        if sample.n_frames == 0:
+            source_ts = base_ts - timedelta(seconds=float(t.get("source_age_sec", 1.0)))
             stream = StreamHealthMetrics(
                 connected=bool(t.get("connected", True)),
                 observed_fps=t.get("observed_fps"),
@@ -196,10 +184,41 @@ def run_end_to_end(sample, frames: list[np.ndarray], base_ts: datetime) -> dict:
             )
             result = analyzer.analyze_observation(
                 camera_id=sample.sample_id, config=CONFIG,
-                source_timestamp=source_ts, received_at=base_ts + timedelta(seconds=float(i)),
-                stream=stream, network=metrics(source_ts),
-                viewpoint=vp_injected, frame=f,
+                source_timestamp=source_ts, received_at=base_ts,
+                stream=stream, network=metrics(base_ts),
+                viewpoint=vp_injected, frame=None,
             )
+        else:
+            for i, f in enumerate(frames):
+                source_ts = base_ts + timedelta(seconds=float(i)) - timedelta(seconds=float(t.get("source_age_sec", 1.0)))
+                stream = StreamHealthMetrics(
+                    connected=bool(t.get("connected", True)),
+                    observed_fps=t.get("observed_fps"),
+                    frame_drop_rate=t.get("frame_drop_rate", 0.0),
+                )
+                result = analyzer.analyze_observation(
+                    camera_id=sample.sample_id, config=CONFIG,
+                    source_timestamp=source_ts, received_at=base_ts + timedelta(seconds=float(i)),
+                    stream=stream, network=metrics(source_ts),
+                    viewpoint=vp_injected, frame=f,
+                )
+    except Exception as exc:
+        # Locked-code defects are recorded as outcomes, not hidden (§125:
+        # harness adapts, locked code untouched). Known crash sites measured
+        # here: analyzer.py:264 KeyError('reason') on nominal paths;
+        # analyzer.py:320 AttributeError on image-degraded paths.
+        exc_info = f"{type(exc).__name__}: {exc}"
+
+    if exc_info is not None:
+        return dict(
+            overall_status="ENGINE_EXCEPTION", exception=exc_info,
+            stream_state=None, image_status=None, network_status=None,
+            viewpoint_status=None, reliability=None, status_reason=None,
+            impact_level=None, maintenance_recommended=None, n_issues=None,
+            shift_detected_field=None, ctx_viewpoint_shift_detected=None,
+            ctx_fence_confidence_override=None, ctx_geometry_confidence=None,
+            ctx_reliability=None,
+        )
 
     ctx = analyzer.get_health_context_for_component1(sample.sample_id)
     return dict(
@@ -354,12 +373,18 @@ def main():
         s.telemetry = row["telemetry"]
 
     module_hashes = {f: sha256_file(BACKEND / f) for f in ENGINE_FILES}
-    # Naive-UTC wall clock: the locked trend_engine compares sample timestamps
-    # against naive datetime.now() (it is not tz-aware). The state engine
-    # normalizes naive source timestamps to UTC itself. Feeding aware
-    # timestamps crashes the locked component (documented limitation, §125:
-    # harness adapts, locked code untouched).
-    base_ts = datetime.now()
+    # Naive wall clock that the locked engines can interpret as UTC:
+    # - trend_engine compares sample timestamps against naive datetime.now()
+    #   (it is not tz-aware), so we must feed naive timestamps or it crashes.
+    # - the state engine normalizes naive source timestamps by attaching UTC,
+    #   then compares against datetime.now(timezone.utc); on this IST host
+    #   (UTC+5:30) naive datetime.now() is LOCAL wall time, which the engine
+    #   would misread as UTC and produce negative frame ages (STALE never
+    #   triggers). datetime.now(timezone.utc).replace(tzinfo=None) yields the
+    #   naive representation of the current UTC wall clock, which the engine
+    #   then interprets correctly (documented locked-code limitation, §125:
+    #   harness adapts, locked code untouched).
+    base_ts = datetime.now(timezone.utc).replace(tzinfo=None)
 
     records = []
     for s in samples:
