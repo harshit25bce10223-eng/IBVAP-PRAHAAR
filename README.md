@@ -109,6 +109,16 @@
 
 ---
 
+### 🔒 Authentication & Command Console Access
+
+| Command Console Login & Security Gateway |
+|:---:|
+| ![Command Console Login](docs/screenshots/19_login.png) |
+
+> Restricted command console with role-based PKI/LDAP authentication, judge demo profiles, end-to-end encryption, and full PRAHAAR branding with official SSB insignia.
+
+---
+
 ## ⚡ Key Architectural Capabilities
 
 | # | Component | Capability |
@@ -130,7 +140,7 @@ IBVAP-PRAHAAR/
 ├── START_PRAHAAR.bat         # 1-Click launcher (CMD)
 ├── START_PRAHAAR.ps1         # 1-Click launcher (PowerShell)
 ├── docs/
-│   └── screenshots/          # 18 platform screenshots (1920×1080)
+│   └── screenshots/          # 19 platform screenshots (1920×1080)
 ├── images/                   # Project branding assets
 │   └── logo.jpg
 ├── ibvap-backend/            # FastAPI Python Backend
