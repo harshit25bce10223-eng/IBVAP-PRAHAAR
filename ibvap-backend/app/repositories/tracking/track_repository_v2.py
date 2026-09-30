@@ -141,20 +141,30 @@ class TrackRepositoryV2:
         total: int = (await self.session.execute(count_q)).scalar_one()
 
         # Sort
-        sort_col = {
-            "last_seen":     TrackV2.last_seen_at,
-            "first_seen":    TrackV2.first_seen_at,
-            "observations":  TrackV2.observation_count,
-            "camera":        TrackV2.camera_id,
-            "longest": TrackV2.first_seen_at,  # order by start time desc for longest
-        }.get(sort, TrackV2.last_seen_at)
-
+        # 'longest' orders by track DURATION (last_seen − first_seen), matching
+        # the frontend sort contract; other keys are direct column sorts.
+        # NOTE: julianday() is SQLite-specific — this stack is SQLite-only
+        # (DATABASE_URL sqlite+aiosqlite). If the DB is ever migrated to
+        # PostgreSQL, replace with EXTRACT(EPOCH FROM ...) math.
         order_fn = desc if order == "desc" else asc
+        if sort == "longest":
+            duration_expr = (
+                func.julianday(TrackV2.last_seen_at) - func.julianday(TrackV2.first_seen_at)
+            )
+            order_expr = order_fn(duration_expr)
+        else:
+            sort_col = {
+                "last_seen":     TrackV2.last_seen_at,
+                "first_seen":    TrackV2.first_seen_at,
+                "observations":  TrackV2.observation_count,
+                "camera":        TrackV2.camera_id,
+            }.get(sort, TrackV2.last_seen_at)
+            order_expr = order_fn(sort_col)
 
         rows_q = (
             select(TrackV2)
             .where(where_clause)
-            .order_by(order_fn(sort_col))
+            .order_by(order_expr)
             .offset(offset)
             .limit(page_size)
         )
@@ -203,7 +213,12 @@ class TrackRepositoryV2:
             "total_tracks": total_all,
             "by_class": by_class,
             "by_status": by_status,
-            "last_updated_at": last_updated.isoformat() if last_updated else None,
+            # SQLite round-trips drop tzinfo — pin UTC before serializing so
+            # browsers parse it as an absolute instant, not local time.
+            "last_updated_at": (
+                (last_updated if last_updated.tzinfo else last_updated.replace(tzinfo=timezone.utc)).isoformat()
+                if last_updated else None
+            ),
         }
 
     # ── Track history ─────────────────────────────────────────────────────────

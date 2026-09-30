@@ -8,6 +8,8 @@
 
 import type {
   Track,
+  TrackCandidate,
+  TrackLifecycleEvent,
   TrackingFeed,
   TrackObservation,
   TrackQuery,
@@ -43,6 +45,18 @@ export interface ITrackingService {
    * Lazy-loaded on track selection/inspector opening (§194).
    */
   getTrackHistory(trackId: string): Promise<TrackObservation[]>
+
+  /**
+   * Recorded lifecycle state transitions for a track (§8–§10).
+   * Real backend records only — the frontend never synthesizes transitions.
+   */
+  getTrackLifecycleHistory(trackId: string): Promise<TrackLifecycleEvent[]>
+
+  /**
+   * Cross-camera candidate hypotheses for a track (§20).
+   * POSSIBLE_CONTINUATION / POSSIBLE_SAME_ENTITY only — never an identity link.
+   */
+  getTrackCandidates(trackId: string): Promise<TrackCandidate[]>
 
   /**
    * Camera-level tracking feed (tracks + provider availability).

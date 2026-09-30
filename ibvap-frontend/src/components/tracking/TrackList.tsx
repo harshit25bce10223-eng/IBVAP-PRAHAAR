@@ -9,10 +9,10 @@
 
 import { clsx } from 'clsx'
 import { ChevronRight } from 'lucide-react'
-import type { Track, TrackStatus, TrackingFeedState, TrackContinuityQuality, TrackSource } from '@/types/tracking'
+import type { Track, TrackingFeedState, TrackContinuityQuality, TrackSource } from '@/types/tracking'
 import { Badge } from '@/components/ui'
-import { formatClock, formatTrackClassLabel, formatConfidence, formatDuration, formatSpeed } from './trackFormat'
-import { badgeTone, toneForStatus, toneForQuality, toneForSource, toneForFeedState } from './trackTone'
+import { formatClock, formatTrackClassLabel, formatConfidence } from './trackFormat'
+import { badgeTone, toneForStatus } from './trackTone'
 
 interface TrackListProps {
   tracks: Track[]
@@ -118,8 +118,6 @@ export function TrackList({
     <ul className={clsx('space-y-1.5', className)} aria-label="Track list">
       {tracks.map(t => {
         const stateTone = toneForStatus(t.status)
-        const qualityTone = toneForQuality(t.continuityQuality ?? 'UNKNOWN')
-        const sourceTone = toneForSource(t.source)
         const selected = selectedId === t.trackId
         return (
           <li key={t.trackId}>
@@ -168,7 +166,7 @@ export function TrackList({
               </span>
               <span className="shrink-0">
                 <Badge variant={badgeTone(stateTone)} size="sm" dot>
-                  {t.status === 'ACTIVE' ? 'OK' : t.status}
+                  {STATUS_LABEL[t.status]}
                 </Badge>
               </span>
             </button>

@@ -54,6 +54,27 @@ function selectCls(compact?: boolean) {
  * — it only hides boxes/list rows, it never modifies stored data.
  */
 export function DetectionFilters({ query, cameras, onChange, onReset }: DetectionFiltersProps) {
+  // Time sorts label their direction explicitly; the toggle switches between
+  // newest-first ('latest' + desc) and oldest-first ('oldest' + asc) so the
+  // label can never disagree with the rows below it. Other sorts toggle the
+  // order on their own field.
+  const isTimeSort = query.sort === 'latest' || query.sort === 'oldest'
+  const orderLabel = isTimeSort
+    ? query.order === 'desc' ? 'Newest first' : 'Oldest first'
+    : query.order === 'desc' ? 'Descending' : 'Ascending'
+
+  const toggleOrder = () => {
+    if (isTimeSort) {
+      onChange(
+        query.order === 'desc'
+          ? { sort: 'oldest', order: 'asc' }
+          : { sort: 'latest', order: 'desc' }
+      )
+    } else {
+      onChange({ order: query.order === 'asc' ? 'desc' : 'asc' })
+    }
+  }
+
   const isDirty =
     query.search !== DEFAULT_DETECTION_QUERY.search ||
     query.cameraId !== DEFAULT_DETECTION_QUERY.cameraId ||
@@ -62,7 +83,8 @@ export function DetectionFilters({ query, cameras, onChange, onReset }: Detectio
     query.quality !== DEFAULT_DETECTION_QUERY.quality ||
     query.source !== DEFAULT_DETECTION_QUERY.source ||
     query.timeRange !== DEFAULT_DETECTION_QUERY.timeRange ||
-    query.sort !== DEFAULT_DETECTION_QUERY.sort
+    query.sort !== DEFAULT_DETECTION_QUERY.sort ||
+    query.order !== DEFAULT_DETECTION_QUERY.order
 
   return (
     <div className="space-y-2.5 rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3">
@@ -107,6 +129,8 @@ export function DetectionFilters({ query, cameras, onChange, onReset }: Detectio
             <option value="ALL">All sources</option>
             <option value="EDGE">Edge</option>
             <option value="CENTRAL">Central</option>
+            <option value="REMOTE">Remote</option>
+            <option value="DEMO">Demo</option>
           </select>
         </label>
         <label className="flex items-center gap-1.5 text-[11px] text-slate-400">
@@ -136,11 +160,11 @@ export function DetectionFilters({ query, cameras, onChange, onReset }: Detectio
           </select>
         </label>
         <button
-          onClick={() => onChange({ order: query.order === 'asc' ? 'desc' : 'asc' })}
+          onClick={toggleOrder}
           className="rounded border border-white/10 px-2 py-1 text-[11px] text-slate-400 hover:text-slate-200 hover:border-white/20 transition-colors"
-          aria-label={`Order ${query.order === 'asc' ? 'descending' : 'ascending'}`}
+          aria-label={`Sort order: ${orderLabel}. Activate to reverse.`}
         >
-          {query.order === 'desc' ? 'Newest first' : 'Oldest first'}
+          {orderLabel}
         </button>
       </div>
     </div>

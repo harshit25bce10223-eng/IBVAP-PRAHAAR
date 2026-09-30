@@ -77,9 +77,6 @@ class CorrelationConfig(Base):
     # Spatial windows per deployment profile
     spatial_windows: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
-    # Profile this config belongs to
-    profile: Mapped[str] = mapped_column(String(64), default=CorrelationConfigProfile.MIXED_BORDER_SECTOR, nullable=False)
-
     # Active flag
     active: Mapped[bool] = mapped_column(default=True, nullable=False)
 

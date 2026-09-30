@@ -22,6 +22,9 @@ from app.repositories.detection.detection_repository import DetectionRepository 
 from app.models.detection import Detection, DetectionConfig, DetectionSyncState
 from app.core.config import settings
 from app.core.errors import IBVAPError, IBVAPErrorCode
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class DetectionService:
@@ -131,8 +134,6 @@ class DetectionService:
                 
                 frame = frame_data["frame"]
                 frame_id = frame_data["frame_id"]
-                frame_width = frame_data["frame_width"]
-                frame_height = frame_data["frame_height"]
                 observed_at = frame_data["observed_at"]
                 edge_config = frame_data.get("edge_config")
                 camera_health_context = frame_data.get("camera_health_context")
@@ -151,10 +152,9 @@ class DetectionService:
                         frame_height=frame_data.get("frame_height", 720),
                         observed_at=observed_at,
                         edge_config=edge_config,
-                        camera_health_context=frame_data.get("camera_health_context"),
+                        camera_health_context=camera_health_context,
                     )
                     self._frames_processed += 1
-                    self._queue_stats[camera_id]["frames_accepted"] += 1
                 except Exception as e:
                     # Log error but continue processing
                     import logging
@@ -195,15 +195,32 @@ class DetectionService:
         
         provider = await self.initialize_provider(camera_id, config)
         
-        inference_result = await provider.infer(frame, frame_id, camera_id)
+        # Run inference with timeout protection (same contract as process_frame)
+        eff_timeout = getattr(config, "inference_timeout_sec", 10.0)
+        try:
+            inference_result = await asyncio.wait_for(
+                provider.infer(frame, frame_id, camera_id),
+                timeout=eff_timeout,
+            )
+        except asyncio.TimeoutError:
+            raise IBVAPError(
+                IBVAPErrorCode.INFERENCE_TIMEOUT,
+                f"Inference timed out after {eff_timeout}s for camera {camera_id}",
+            )
+        
+        # Prefer explicit frame dimensions (passed by the caller); fall back to
+        # the frame shape only when the caller did not provide them.
+        shape = getattr(frame, "shape", None)
+        eff_frame_width = frame_width if frame_width else (shape[1] if shape is not None and len(shape) > 1 else None)
+        eff_frame_height = frame_height if frame_height else (shape[0] if shape is not None and len(shape) > 0 else None)
         
         normalized = self.normalizer.normalize_result(
             inference_result,
             camera_id=camera_id,
-            frame_width=frame.shape[1] if hasattr(frame, 'shape') else None,
-            frame_height=frame.shape[0] if hasattr(frame, 'shape') else None,
+            frame_width=eff_frame_width,
+            frame_height=eff_frame_height,
             camera_health_context=camera_health_context,
-            edge_config=None,  # Queue processing doesn't use edge config
+            edge_config=edge_config,
         )
         
         # Apply confidence threshold filtering
@@ -221,6 +238,9 @@ class DetectionService:
         if len(filtered) > config.max_detections:
             filtered.sort(key=lambda x: x.confidence or 0, reverse=True)
             filtered = filtered[:config.max_detections]
+        
+        # Edge idempotency (same contract as process_frame)
+        filtered = await self._filter_edge_duplicates(filtered, camera_id, edge_config)
         
         if not filtered:
             return []
@@ -249,7 +269,6 @@ class DetectionService:
                 "evidence_id": det.evidence_id,
                 "class_name": det.class_name,
                 "class_id": det.class_id,
-                "taxonomy_version": det.taxonomy_version,
                 "provider_class": det.provider_class,
                 "confidence": det.confidence,
                 "quality_state": det.quality_state,
@@ -298,6 +317,56 @@ class DetectionService:
         await self._create_detection_events(created)
         
         return created
+
+    async def _filter_edge_duplicates(
+        self,
+        detections: list[NormalizedDetection],
+        camera_id: str,
+        edge_config: dict[str, Any] | None,
+    ) -> list[NormalizedDetection]:
+        """
+        Drop detections already ingested for the same edge event/payload.
+
+        Shared by both processing paths so edge idempotency is identical
+        whether a frame arrives synchronously or through the inference queue.
+        """
+        if not edge_config:
+            return detections
+        
+        final: list[NormalizedDetection] = []
+        for det in detections:
+            # Check edge idempotency
+            if edge_config.get("source_event_id") and edge_config.get("source_sequence"):
+                existing = await self.detection_repo.get_by_source_event(
+                    camera_id,
+                    edge_config["source_event_id"],
+                    edge_config["source_sequence"],
+                )
+                if existing:
+                    # Compare payload hash for content mismatch
+                    if edge_config.get("payload_hash") and existing.sync_payload_hash != edge_config["payload_hash"]:
+                        raise IBVAPError(
+                            IBVAPErrorCode.DETECTION_ID_CONTENT_MISMATCH,
+                            f"Detection ID {existing.detection_id} has different payload",
+                        )
+                    continue  # Skip duplicate
+            
+            # Check payload hash deduplication
+            if edge_config.get("payload_hash"):
+                existing = await self.detection_repo.get_by_payload_hash(
+                    camera_id, edge_config["payload_hash"]
+                )
+                if existing:
+                    if existing.sync_payload_hash != edge_config["payload_hash"]:
+                        raise IBVAPError(
+                            IBVAPErrorCode.DETECTION_ID_CONTENT_MISMATCH,
+                            f"Detection ID {existing.detection_id} has different payload",
+                        )
+                    continue
+            
+            final.append(det)
+        
+        return final
 
     async def process_frame(
         self,
@@ -367,38 +436,7 @@ class DetectionService:
             filtered = filtered[:config.max_detections]
         
         # Check for duplicates (edge idempotency)
-        final_detections = []
-        for det in filtered:
-            # Check edge idempotency
-            if edge_config and edge_config.get("source_event_id") and edge_config.get("source_sequence"):
-                existing = await self.detection_repo.get_by_source_event(
-                    camera_id,
-                    edge_config["source_event_id"],
-                    edge_config["source_sequence"],
-                )
-                if existing:
-                    # Compare payload hash for content mismatch
-                    if edge_config.get("payload_hash") and existing.sync_payload_hash != edge_config["payload_hash"]:
-                        raise IBVAPError(
-                            IBVAPErrorCode.DETECTION_ID_CONTENT_MISMATCH,
-                            f"Detection ID {existing.detection_id} has different payload",
-                        )
-                    continue  # Skip duplicate
-            
-            # Check payload hash deduplication
-            if edge_config and edge_config.get("payload_hash"):
-                existing = await self.detection_repo.get_by_payload_hash(
-                    camera_id, edge_config["payload_hash"]
-                )
-                if existing:
-                    if existing.sync_payload_hash != edge_config["payload_hash"]:
-                        raise IBVAPError(
-                            IBVAPErrorCode.DETECTION_ID_CONTENT_MISMATCH,
-                            f"Detection ID {existing.detection_id} has different payload",
-                        )
-                    continue
-            
-            final_detections.append(det)
+        final_detections = await self._filter_edge_duplicates(filtered, camera_id, edge_config)
         
         if not final_detections:
             return []
@@ -427,7 +465,6 @@ class DetectionService:
                 "evidence_id": det.evidence_id,
                 "class_name": det.class_name,
                 "class_id": det.class_id,
-                "taxonomy_version": det.taxonomy_version,
                 "provider_class": det.provider_class,
                 "confidence": det.confidence,
                 "quality_state": det.quality_state,
@@ -523,32 +560,34 @@ class DetectionService:
         # Try to enqueue with DROP_OLDEST backpressure
         try:
             queue.put_nowait(frame_data)
-            self._frames_received += 1
             self._queue_stats[camera_id]["frames_accepted"] += 1
             return True
         except asyncio.QueueFull:
             # DROP_OLDEST: remove oldest pending frame
             try:
                 queue.get_nowait()
-                queue.put_nowait(frame_data)
-                self._frames_received += 1
+                # Balance the queue's unfinished-task count for the dropped
+                # frame — it will never be processed and never task_done()'d.
+                queue.task_done()
                 self._frames_dropped += 1
                 self._backpressure_events += 1
                 self._queue_stats[camera_id]["frames_dropped"] += 1
                 self._queue_stats[camera_id]["backpressure_events"] += 1
-                return True  # Frame accepted (oldest was dropped)
             except asyncio.QueueEmpty:
-                # Queue was empty somehow, try again
-                try:
-                    queue.put_nowait(frame_data)
-                    self._frames_received += 1
-                    self._queue_stats[camera_id]["frames_accepted"] += 1
-                    return True
-                except asyncio.QueueFull:
-                    self._frames_dropped += 1
-                    self._backpressure_events += 1
-                    self._queue_stats[camera_id]["frames_dropped"] += 1
-                    return False
+                # Queue was concurrently drained; treat as a plain backpressure event
+                self._backpressure_events += 1
+                self._queue_stats[camera_id]["backpressure_events"] += 1
+            
+            # Place the new frame (single producer: space now guaranteed unless
+            # the worker re-filled between get and put)
+            try:
+                queue.put_nowait(frame_data)
+                self._queue_stats[camera_id]["frames_accepted"] += 1
+                return True
+            except asyncio.QueueFull:
+                self._frames_dropped += 1
+                self._queue_stats[camera_id]["frames_dropped"] += 1
+                return False
     
     async def shutdown_camera_queue(self, camera_id: str):
         """Shutdown queue and worker for a camera."""
@@ -623,7 +662,27 @@ class DetectionService:
     async def get_provider_health(self, camera_id: str) -> dict[str, Any] | None:
         provider = await self.get_provider(camera_id)
         if not provider:
-            return None
+            # No live provider in this process. Consult the stored config and
+            # exercise the actual provider boundary before answering — a config
+            # whose provider cannot be loaded reports UNAVAILABLE; it is never
+            # silently replaced by demo output.
+            config = await self.config_repo.get_by_camera(camera_id)
+            if not config:
+                return None
+            try:
+                provider = await self.initialize_provider(camera_id, config)
+            except Exception as exc:
+                logger.warning("Provider unavailable for camera %s: %s", camera_id, exc)
+                return {
+                    "camera_id": camera_id,
+                    "state": "UNAVAILABLE",
+                    "last_successful_inference": None,
+                    "recent_failures": 0,
+                    "queue_depth": 0,
+                    "avg_latency_ms": 0.0,
+                    "model_name": config.model_name,
+                    "model_version": config.model_version,
+                }
         health = await provider.health()
         return {
             "camera_id": camera_id,
@@ -637,9 +696,17 @@ class DetectionService:
         }
     
     async def get_all_provider_health(self) -> dict[str, dict[str, Any]]:
-        health = {}
-        for camera_id in self._providers:
-            health[camera_id] = await self.get_provider_health(camera_id)
+        # Live providers plus cameras that have an active detection config —
+        # a configured camera must not disappear from the health view just
+        # because its provider is not cached in this process.
+        camera_ids = set(self._providers.keys())
+        for config in await self.config_repo.list_active():
+            camera_ids.add(config.camera_id)
+        health: dict[str, dict[str, Any]] = {}
+        for camera_id in sorted(camera_ids):
+            result = await self.get_provider_health(camera_id)
+            if result is not None:
+                health[camera_id] = result
         return health
     
     async def get_inference_metrics(self, hours: int = 24) -> dict[str, Any]:

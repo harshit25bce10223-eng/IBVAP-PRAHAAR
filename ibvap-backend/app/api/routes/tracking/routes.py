@@ -111,8 +111,8 @@ async def list_tracks(
     from_time: Optional[str] = Query(None, description="ISO 8601 start time"),
     to_time: Optional[str] = Query(None, description="ISO 8601 end time"),
     search: Optional[str] = Query(None, max_length=128),
-    sort: str = Query("last_seen", regex="^(last_seen|first_seen|observations|camera|longest)$"),
-    order: str = Query("desc", regex="^(asc|desc)$"),
+    sort: str = Query("last_seen", pattern="^(last_seen|first_seen|observations|camera|longest)$"),
+    order: str = Query("desc", pattern="^(asc|desc)$"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=200, alias="pageSize"),
     svc: TrackingService = Depends(_svc),
@@ -436,12 +436,14 @@ async def ingest_tracking_update(
 
     # Convert request items to DetectionInput
     detection_inputs: list[DetectionInput] = []
+    invalid_timestamps = 0
     for item in body.detections:
         try:
             observed_at = datetime.fromisoformat(item.observedAt)
             if observed_at.tzinfo is None:
                 observed_at = observed_at.replace(tzinfo=timezone.utc)
         except ValueError:
+            invalid_timestamps += 1
             logger.warning("invalid_timestamp detection_id=%s ts=%s", item.detectionId, item.observedAt)
             continue
 
@@ -471,7 +473,7 @@ async def ingest_tracking_update(
         return TrackingIngestResponse(
             cameraId=body.cameraId,
             processedAt=datetime.now(timezone.utc).isoformat(),
-            totalDetections=0,
+            totalDetections=len(body.detections),
             matched=0,
             newTracks=0,
             unmatched=0,
@@ -503,11 +505,11 @@ async def ingest_tracking_update(
     return TrackingIngestResponse(
         cameraId=result.camera_id,
         processedAt=result.processed_at.isoformat(),
-        totalDetections=result.total_detections,
+        totalDetections=result.total_detections + invalid_timestamps,
         matched=result.matched,
         newTracks=result.new_tracks,
         unmatched=result.unmatched,
-        rejected=result.rejected,
+        rejected=result.rejected + invalid_timestamps,
         duplicateRejected=result.duplicate_rejected,
         errors=result.errors,
         providerName=result.provider_name,

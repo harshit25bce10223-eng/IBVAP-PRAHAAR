@@ -6,7 +6,7 @@
 // displayed verbatim and a missing backend value is shown as N/A, never invented.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { DetectionClass, DetectionQuality, TrackStatus, TrackSource, TrackContinuityQuality } from '@/types/tracking'
+import type { DetectionClass, TrackStatus, TrackSource, TrackContinuityQuality } from '@/types/tracking'
 
 const DETECTION_CLASSES: readonly DetectionClass[] = ['PERSON', 'VEHICLE', 'ANIMAL', 'OBJECT', 'UNKNOWN']
 

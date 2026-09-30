@@ -79,13 +79,7 @@ export function SingleCameraDetail() {
     retry: retryTracking,
   } = useCameraTracks(camera.id)
 
-  const {
-    selected: selectedTrack,
-    selectTrack,
-    observations: trackObservations,
-    historyState,
-    historyError,
-  } = useTrackSelection()
+  const { selected: selectedTrack, selectTrack } = useTrackSelection()
 
   const [panelTab, setPanelTab] = useState<'tracks' | 'detections'>('tracks')
 
@@ -348,12 +342,6 @@ export function SingleCameraDetail() {
             health={health}
           />
 
-          {health && (
-            <div className="mb-3">
-              <CameraHealthRail health={health} onOpenDetails={() => setHealthOpen(true)} />
-            </div>
-          )}
-
           <RelatedEventsPanel groups={relatedGroups} state={relatedState} error={relatedError} onRetry={retryRelated} />
 
           <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Tracking and Detections">
@@ -391,6 +379,10 @@ export function SingleCameraDetail() {
                   tracks={cameraTracks}
                   selectedId={selectedTrack?.trackId ?? null}
                   onSelect={t => selectTrack(t, camera.id)}
+                  feedState={trackingFeed?.state}
+                  state={trackingState}
+                  error={trackingError}
+                  onRetry={() => retryTracking()}
                   hideCamera
                 />
                 <p className="mt-2 text-[10px] leading-snug text-slate-500">
@@ -426,7 +418,7 @@ export function SingleCameraDetail() {
                     </select>
                   </label>
                   <label className="flex items-center gap-1 text-[11px] text-slate-500" title="Display filter — frontend only">
-                    Display filter
+                    Min confidence
                     <select
                       className="rounded border border-white/10 bg-[#080c12] px-1.5 py-1 text-[11px] text-slate-300 focus:border-cyan-400/60 focus:outline-none"
                       value={confidenceMin ?? ''}

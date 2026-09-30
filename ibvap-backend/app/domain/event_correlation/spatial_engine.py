@@ -64,7 +64,7 @@ class SpatialRelationEngine:
         dlat = lat2 - lat1
         dlon = lon2 - lon1
         
-        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlat/2)**2
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
         c = 2 * atan2(sqrt(a), sqrt(1-a))
         return R * c
 
@@ -176,22 +176,14 @@ class SpatialRelationEngine:
             lat2, lon2 = loc_b.get("lat"), loc_b.get("lon")
             
             if all(v is not None for v in [lat1, lon1, lat2, lon2]):
-                from math import radians, sin, cos, sqrt, atan2
+                distance = self._haversine_distance(lat1, lon1, lat2, lon2)
                 
-                lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-                dlat = lat2 - lat1
-                dlon = lon2 - lon1
-                
-                a = sin((lat2 - lat1) / 2)**2 + cos(lat1) * cos(lat2) * sin((lon2 - lon1) / 2)**2
-                c = 2 * atan2(sqrt(a), sqrt(1 - a))
-                distance = 6371000 * c  # meters
-                
-                if distance <= 50:  # 50 meters
+                if distance <= self.default_spatial_window:
                     return {
                         "type": "SPATIAL",
                         "subtype": "NEARBY",
                         "distance_meters": distance,
-                        "confidence": max(0, 100 - int(distance / 50 * 100)),
+                        "confidence": max(0, 100 - int(distance / self.default_spatial_window * 100)),
                         "evidence": {"distance_meters": distance},
                     }
         

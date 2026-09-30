@@ -14,12 +14,14 @@
 // - S6: CAM-12 track ENDED, last known position at frame edge (TRK-1055)
 // - S7: Multi-camera candidate CAM-07 -> CAM-08 POSSIBLE SAME ENTITY (TRK-1042 -> TRK-1081)
 // - S8: Multiple simultaneous tracks (PERSON x3, VEHICLE x2, ANIMAL x2) on CAM-07
-// - S9: Large track set (20 tracks across sector, paginated / bounded)
+// - S9: Large track set (21 tracks across sector, paginated / bounded)
 // - S10: Track with full downstream references (event, correlation, incident, evidence)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
   Track,
+  TrackCandidate,
+  TrackLifecycleEvent,
   TrackObservation,
   TrackingFeed,
 } from '@/types/tracking'
@@ -808,7 +810,7 @@ export const TRK_1049: Track = {
   dataSource: 'DEMO',
 }
 
-// ── S9: Additional sector tracks to reach 20 total tracks (§77) ──────────────
+// ── S9: Additional sector tracks to reach 21 total tracks ────────────────────
 export const TRK_1091: Track = {
   trackId: 'TRK-1091',
   cameraId: 'CAM-12',
@@ -993,7 +995,7 @@ export const TRK_1098: Track = {
   dataSource: 'DEMO',
 }
 
-// All 20 tracks
+// All 21 tracks
 export const MOCK_TRACKS: Track[] = [
   TRK_1042, // S1, S10
   TRK_1052, // S2
@@ -1025,6 +1027,274 @@ export const MOCK_OBSERVATIONS: Record<string, TrackObservation[]> = {
   'TRK-1071': TRK_1071_OBS,
   'TRK-1045': TRK_1045_OBS,
   'TRK-1055': TRK_1055_OBS,
+}
+
+// ── Lifecycle transition records (§8–§10) ───────────────────────────────────
+// Real recorded transitions only — these fixtures mirror the scenarios above:
+// S4 (TRK-1071 lost), S5 (TRK-1045 lost → reacquired), S6 (TRK-1055 ended).
+export const MOCK_LIFECYCLE: Record<string, TrackLifecycleEvent[]> = {
+  // S1/S10: active person lifecycle on CAM-07
+  'TRK-1042': [
+    {
+      historyId: 'HST-1042-01',
+      trackId: 'TRK-1042',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections.',
+      triggerDetectionId: 'DET-10411',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T02:14:11Z`,
+    },
+    {
+      historyId: 'HST-1042-02',
+      trackId: 'TRK-1042',
+      revision: 2,
+      oldStatus: 'TENTATIVE',
+      newStatus: 'ACTIVE',
+      reason: 'Continuity confirmed across consecutive observations.',
+      triggerDetectionId: 'DET-10413',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T02:14:15Z`,
+    },
+  ],
+  // S2: animal on degraded CAM-12
+  'TRK-1052': [
+    {
+      historyId: 'HST-1052-01',
+      trackId: 'TRK-1052',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections.',
+      triggerDetectionId: 'DET-10432',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:10:05Z`,
+    },
+    {
+      historyId: 'HST-1052-02',
+      trackId: 'TRK-1052',
+      revision: 2,
+      oldStatus: 'TENTATIVE',
+      newStatus: 'ACTIVE',
+      reason: 'Continuity confirmed across consecutive observations.',
+      triggerDetectionId: 'DET-10433',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:10:09Z`,
+    },
+  ],
+  // S3: tentative long-range target on CAM-19
+  'TRK-1061': [
+    {
+      historyId: 'HST-1061-01',
+      trackId: 'TRK-1061',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections; below continuity threshold.',
+      triggerDetectionId: 'DET-10441',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:52:10Z`,
+    },
+  ],
+  // S4: LOST track on CAM-03 — lost is not an end-of-track (§9)
+  'TRK-1071': [
+    {
+      historyId: 'HST-1071-01',
+      trackId: 'TRK-1071',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections.',
+      triggerDetectionId: 'DET-10301',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:40:00Z`,
+    },
+    {
+      historyId: 'HST-1071-02',
+      trackId: 'TRK-1071',
+      revision: 2,
+      oldStatus: 'TENTATIVE',
+      newStatus: 'ACTIVE',
+      reason: 'Continuity confirmed across consecutive observations.',
+      triggerDetectionId: 'DET-10302',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:42:15Z`,
+    },
+    {
+      historyId: 'HST-1071-03',
+      trackId: 'TRK-1071',
+      revision: 3,
+      oldStatus: 'ACTIVE',
+      newStatus: 'LOST',
+      reason: 'No matching detections within provider tracking window; cause not determined.',
+      triggerDetectionId: null,
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:42:16Z`,
+    },
+  ],
+  // S5: REACQUIRED after a 180s gap (03:53:40Z → 03:56:40Z) — continuity across the gap is a hypothesis (§10)
+  'TRK-1045': [
+    {
+      historyId: 'HST-1045-01',
+      trackId: 'TRK-1045',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections.',
+      triggerDetectionId: 'DET-10401',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:52:00Z`,
+    },
+    {
+      historyId: 'HST-1045-02',
+      trackId: 'TRK-1045',
+      revision: 2,
+      oldStatus: 'TENTATIVE',
+      newStatus: 'ACTIVE',
+      reason: 'Continuity confirmed across consecutive observations.',
+      triggerDetectionId: 'DET-10402',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:53:10Z`,
+    },
+    {
+      historyId: 'HST-1045-03',
+      trackId: 'TRK-1045',
+      revision: 3,
+      oldStatus: 'ACTIVE',
+      newStatus: 'LOST',
+      reason: 'No matching detections within provider tracking window; cause not determined.',
+      triggerDetectionId: null,
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:53:40Z`,
+    },
+    {
+      historyId: 'HST-1045-04',
+      trackId: 'TRK-1045',
+      revision: 4,
+      oldStatus: 'LOST',
+      newStatus: 'REACQUIRED',
+      reason: 'Provider matched a new observation to the lost track hypothesis.',
+      triggerDetectionId: 'DET-10403',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:56:40Z`,
+    },
+  ],
+  // S6: ENDED track on CAM-12 (exited frame)
+  'TRK-1055': [
+    {
+      historyId: 'HST-1055-01',
+      trackId: 'TRK-1055',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections.',
+      triggerDetectionId: 'DET-10501',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:20:00Z`,
+    },
+    {
+      historyId: 'HST-1055-02',
+      trackId: 'TRK-1055',
+      revision: 2,
+      oldStatus: 'TENTATIVE',
+      newStatus: 'ACTIVE',
+      reason: 'Continuity confirmed across consecutive observations.',
+      triggerDetectionId: 'DET-10502',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:20:09Z`,
+    },
+    {
+      historyId: 'HST-1055-03',
+      trackId: 'TRK-1055',
+      revision: 3,
+      oldStatus: 'ACTIVE',
+      newStatus: 'ENDED',
+      reason: 'Track ended — entity exited camera field of view.',
+      triggerDetectionId: null,
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T03:20:20Z`,
+    },
+  ],
+  // S7: candidate track on CAM-08
+  'TRK-1081': [
+    {
+      historyId: 'HST-1081-01',
+      trackId: 'TRK-1081',
+      revision: 1,
+      oldStatus: null,
+      newStatus: 'TENTATIVE',
+      reason: 'New track hypothesis from initial detections.',
+      triggerDetectionId: 'DET-10811',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T02:14:48Z`,
+    },
+    {
+      historyId: 'HST-1081-02',
+      trackId: 'TRK-1081',
+      revision: 2,
+      oldStatus: 'TENTATIVE',
+      newStatus: 'ACTIVE',
+      reason: 'Continuity confirmed across consecutive observations.',
+      triggerDetectionId: 'DET-10813',
+      provider: DEMO_PROVIDER,
+      providerVersion: DEMO_TRACKER_VERSION,
+      timestamp: `${D}T02:15:02Z`,
+    },
+  ],
+}
+
+// ── Cross-camera candidate hypotheses (§20) ─────────────────────────────────
+// POSSIBLE_CONTINUATION / POSSIBLE_SAME_ENTITY only — never a confirmed identity.
+export const MOCK_CANDIDATES: Record<string, TrackCandidate[]> = {
+  'TRK-1042': [
+    {
+      candidateId: 'CAND-1042-01',
+      sourceTrackId: 'TRK-1042',
+      targetCameraId: 'CAM-08',
+      candidateTrackId: 'TRK-1081',
+      relationType: 'POSSIBLE_CONTINUATION',
+      strength: 0.76,
+      reason: 'Possible continuation across sector boundary; gap 19s between CAM-07 exit and CAM-08 entry.',
+      status: 'OPEN',
+      provider: DEMO_PROVIDER,
+      gapDurationSec: 19,
+      createdAt: `${D}T02:14:50Z`,
+      expiresAt: `${D}T03:14:50Z`,
+    },
+  ],
+  'TRK-1081': [
+    {
+      candidateId: 'CAND-1081-01',
+      sourceTrackId: 'TRK-1081',
+      targetCameraId: 'CAM-07',
+      candidateTrackId: 'TRK-1042',
+      relationType: 'POSSIBLE_SAME_ENTITY',
+      strength: 0.76,
+      reason: 'Possible continuation of TRK-1042 departing CAM-07 at 02:14:29Z.',
+      status: 'OPEN',
+      provider: DEMO_PROVIDER,
+      gapDurationSec: 19,
+      createdAt: `${D}T02:14:52Z`,
+      expiresAt: `${D}T03:14:52Z`,
+    },
+  ],
 }
 
 // ── Per-camera tracking feeds ───────────────────────────────────────────────
@@ -1107,6 +1377,14 @@ export function getMockTrackHistory(trackId: string): TrackObservation[] {
     sequence: p.sequence ?? idx + 1,
     source: track.source,
   }))
+}
+
+export function getMockTrackLifecycle(trackId: string): TrackLifecycleEvent[] {
+  return MOCK_LIFECYCLE[trackId] ?? []
+}
+
+export function getMockTrackCandidates(trackId: string): TrackCandidate[] {
+  return MOCK_CANDIDATES[trackId] ?? []
 }
 
 export function getMockTrackFeed(cameraId: string): TrackingFeed | null {

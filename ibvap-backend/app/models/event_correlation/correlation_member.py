@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -38,6 +39,11 @@ class MembershipType(str):
 class CorrelationGroupMember(Base):
     __tablename__ = "correlation_group_members"
     __table_args__ = (
+        UniqueConstraint(
+            "correlation_id",
+            "event_id",
+            name="uq_correlation_members_group_event",
+        ),
         Index("ix_correlation_members_group", "correlation_id"),
         Index("ix_correlation_members_event", "event_id"),
         Index("ix_correlation_members_type", "membership_type"),
@@ -73,17 +79,8 @@ class CorrelationGroupMember(Base):
     # Membership confidence (0-100)
     membership_confidence: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    # Reason for membership
-    reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-
     # Revision for optimistic locking
     revision: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-
-    # Timestamps
-    added_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
-    )
-    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     group: Mapped["CorrelationGroup"] = relationship(

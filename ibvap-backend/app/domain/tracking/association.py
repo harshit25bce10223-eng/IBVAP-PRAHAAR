@@ -41,6 +41,7 @@ from app.domain.tracking.constants import (
     CONTINUITY_UNKNOWN,
     TRACK_STATUS_ACTIVE,
     TRACK_STATUS_TENTATIVE,
+    TRACK_STATUS_UNKNOWN,
 )
 from app.domain.tracking.lifecycle import TrackLifecycleService
 from app.domain.tracking.provider import (
@@ -266,6 +267,25 @@ class TrackAssociationService:
                 error=str(exc),
             )
 
+        # ── Idempotency guard (spec §29) ──────────────────────────────────────
+        # A replayed batch must not re-apply state mutations or lifecycle
+        # transitions for an observation that already exists.
+        # The DB unique constraint on (track_id, detection_id) is authoritative;
+        # this pre-check keeps the replay path side-effect free.
+        if not created and await self._observation_exists(track_id, det.detection_id):
+            logger.debug(
+                "duplicate_rejected_precheck track_id=%s detection_id=%s",
+                track_id, det.detection_id,
+            )
+            return SingleAssociationResult(
+                detection_id=det.detection_id,
+                result=ASSOC_MATCHED,
+                track_id=track_id,
+                observation_id=None,
+                is_new_track=False,
+                duplicate_rejected=True,
+            )
+
         # ── Update track current state ────────────────────────────────────────
         self._update_track_fields(
             track=track,
@@ -374,7 +394,7 @@ class TrackAssociationService:
             camera_id=context.camera_id,
             object_class=det.object_class,
             object_type=det.object_class,  # legacy column compat
-            status=TRACK_STATUS_TENTATIVE,
+            status=TRACK_STATUS_UNKNOWN,  # create_tentative() below writes the UNKNOWN→TENTATIVE history row
             source=source,
             provider=provider_result.provider_name,
             tracker_name=provider_result.provider_name,  # refined later
@@ -398,33 +418,37 @@ class TrackAssociationService:
             created_at=now,
             updated_at=now,
         )
-        self.session.add(track)
         try:
-            await self.session.flush()
-            logger.info(
-                "track_created track_id=%s camera_id=%s class=%s",
-                track_id, context.camera_id, det.object_class
-            )
-            # Record initial TENTATIVE lifecycle entry
-            await self.lifecycle.create_tentative(
-                track,
-                detection_id=det.detection_id,
-                provider=provider_result.provider_name,
-                provider_version=provider_result.provider_version,
-                configuration_version=provider_result.configuration_version,
-            )
-            return track, True
+            # Savepoint: a concurrent INSERT of the same track_id rolls back
+            # only this creation — never the rest of the batch's work (spec §29).
+            async with self.session.begin_nested():
+                self.session.add(track)
+                await self.session.flush()
+                # First lifecycle entry: UNKNOWN → TENTATIVE (history row written)
+                await self.lifecycle.create_tentative(
+                    track,
+                    detection_id=det.detection_id,
+                    provider=provider_result.provider_name,
+                    provider_version=provider_result.provider_version,
+                    configuration_version=provider_result.configuration_version,
+                )
         except IntegrityError:
-            await self.session.rollback()
-            # Concurrent worker created the same track_id first — fetch it
-            from sqlalchemy import select
+            # Concurrent worker created the same track_id first — fetch it.
+            if track in self.session:
+                self.session.expunge(track)
             result2 = await self.session.execute(
                 select(TrackV2).where(TrackV2.track_id == track_id)
             )
             existing2 = result2.scalar_one_or_none()
-            if existing2:
+            if existing2 is not None:
                 return existing2, False
             raise
+
+        logger.info(
+            "track_created track_id=%s camera_id=%s class=%s",
+            track_id, context.camera_id, det.object_class
+        )
+        return track, True
 
     # ── Update track current state ────────────────────────────────────────────
 
@@ -439,31 +463,49 @@ class TrackAssociationService:
         sector_id: str | None,
         region_profile: str | None,
     ) -> None:
-        """Update mutable track fields with latest observation data."""
+        """
+        Update mutable track fields with latest observation data.
+
+        Out-of-order safe (spec §31): an older observation must not regress
+        "current" state — current bbox / detection fields advance only when
+        the observation is at least as new as the track's last seen time.
+        observation_count is incremented by _create_observation() only after
+        the observation row is actually persisted (spec §29 — replays never
+        count).
+        """
         now = datetime.now(timezone.utc)
 
-        track.current_detection_id = det.detection_id
-        track.current_bbox_x = det.bbox_x
-        track.current_bbox_y = det.bbox_y
-        track.current_bbox_width = det.bbox_width
-        track.current_bbox_height = det.bbox_height
-
-        # Legacy JSON bbox (Component 1 compatibility)
-        track.current_bbox_json = json.dumps({
-            "x": det.bbox_x, "y": det.bbox_y,
-            "width": det.bbox_width, "height": det.bbox_height,
-        })
-
-        # Update last seen
-        # Ensure both datetimes are timezone-aware for comparison
         track_last_seen = track.last_seen_at
         if track_last_seen is not None and track_last_seen.tzinfo is None:
             track_last_seen = track_last_seen.replace(tzinfo=timezone.utc)
+        advances = track_last_seen is None or det.observed_at >= track_last_seen
+
+        if advances:
+            track.current_detection_id = det.detection_id
+            track.current_bbox_x = det.bbox_x
+            track.current_bbox_y = det.bbox_y
+            track.current_bbox_width = det.bbox_width
+            track.current_bbox_height = det.bbox_height
+
+            # Legacy JSON bbox (Component 1 compatibility)
+            track.current_bbox_json = json.dumps({
+                "x": det.bbox_x, "y": det.bbox_y,
+                "width": det.bbox_width, "height": det.bbox_height,
+            })
+
+        # Update last seen (strictly newer only)
         if track_last_seen is None or det.observed_at > track_last_seen:
             track.last_seen_at = det.observed_at
             track.last_seen = det.observed_at
 
-        track.observation_count = (track.observation_count or 0) + 1
+        # First-seen correction for late-arriving older observations
+        track_first_seen = track.first_seen_at
+        if track_first_seen is not None and track_first_seen.tzinfo is None:
+            track_first_seen = track_first_seen.replace(tzinfo=timezone.utc)
+        if track_first_seen is None or det.observed_at < track_first_seen:
+            track.first_seen_at = det.observed_at
+            track.first_seen = det.observed_at
+
         track.updated_at = now
 
         # Class — detect reclassification
@@ -502,6 +544,17 @@ class TrackAssociationService:
 
     # ── Create observation ────────────────────────────────────────────────────
 
+    async def _observation_exists(self, track_id: str, detection_id: str) -> bool:
+        """True when the (track_id, detection_id) observation row already exists."""
+        from sqlalchemy import select
+        result = await self.session.execute(
+            select(TrackObservation.observation_id).where(
+                TrackObservation.track_id == track_id,
+                TrackObservation.detection_id == detection_id,
+            ).limit(1)
+        )
+        return result.scalar_one_or_none() is not None
+
     async def _create_observation(
         self,
         *,
@@ -514,18 +567,14 @@ class TrackAssociationService:
         Create a TrackObservation record.
         Returns (observation, is_duplicate=True/False).
         is_duplicate=True means the observation already exists — not an error.
-        Checks for existing observation first to avoid IntegrityError.
+
+        The DB unique constraint on (track_id, detection_id) is the authoritative
+        guard: the INSERT runs inside a savepoint so a concurrent duplicate only
+        rolls back this row, never the rest of the batch (spec §29).
         """
-        from sqlalchemy import select
         
-        # Check if observation already exists (idempotent)
-        existing = await self.session.execute(
-            select(TrackObservation).where(
-                TrackObservation.track_id == track.track_id,
-                TrackObservation.detection_id == det.detection_id,
-            )
-        )
-        if existing.scalar_one_or_none() is not None:
+        # Fast pre-check (side-effect free — see _process_assignment guard)
+        if await self._observation_exists(track.track_id, det.detection_id):
             return None, True
         
         obs = TrackObservation(
@@ -551,8 +600,16 @@ class TrackAssociationService:
             frame_id=det.frame_id,
             frame_number=det.frame_number,
         )
-        self.session.add(obs)
-        await self.session.flush()
+        try:
+            async with self.session.begin_nested():
+                self.session.add(obs)
+                await self.session.flush()
+        except IntegrityError:
+            # Concurrent duplicate — the savepoint rolled back only this insert
+            return None, True
+
+        # Count only observations that were actually persisted (spec §29)
+        track.observation_count = (track.observation_count or 0) + 1
         return obs, False
 
     # ── Provider lifecycle events (ended / lost / reacquired) ─────────────────

@@ -79,6 +79,8 @@ export interface ANPRSummary {
 export interface ANPRFilter {
   search: string
   cameraId: string
+  vehicleId: string
+  trackId: string
   vehicleClass: VehicleClass | ''
   quality: PlateQuality | ''
   confidenceMin: number
@@ -94,6 +96,8 @@ export interface ANPRFilter {
 export const DEFAULT_ANPR_FILTER: ANPRFilter = {
   search: '',
   cameraId: '',
+  vehicleId: '',
+  trackId: '',
   vehicleClass: '',
   quality: '',
   confidenceMin: 0,
@@ -106,7 +110,49 @@ export const DEFAULT_ANPR_FILTER: ANPRFilter = {
   limit: 50,
 }
 
+// §24 SEARCH SEMANTICS — five explicit result labels. Mirrors the backend
+// repository classification exactly. Partial matching is never reported as
+// exact identity.
+export type PlateSearchMatchType =
+  | 'EXACT_NORMALIZED_MATCH'
+  | 'RAW_READ_MATCH'
+  | 'PARTIAL_MATCH'
+  | 'CANDIDATE_MATCH'
+  | 'RELATED_SIGHTING'
+
 export interface VehicleSearchResult {
   sighting: VehicleSighting
-  matchType: 'EXACT_NORMALIZED_MATCH' | 'TOP_CANDIDATE_MATCH' | 'PARTIAL_MATCH' | 'RELATED_SIGHTING'
+  matchType: PlateSearchMatchType
+}
+
+// §19/§42 — camera vehicle feed (mirrors GET /anpr/cameras/{id}/vehicles/feed).
+export interface ANPRCameraFeed {
+  cameraId: string
+  state: string
+  lastUpdatedAt: string | null
+  sightings: VehicleSighting[]
+  providerHealth: string | null
+}
+
+// GET /anpr/cameras/{id}/vehicles/summary — counts only, never OCR accuracy.
+export interface ANPRCameraSummary {
+  cameraId: string
+  totalSightings: number
+  byStatus: Record<string, number>
+  byQuality: Record<string, number>
+  byClass: Record<string, number>
+  lastUpdatedAt: string | null
+}
+
+// §28 PROVIDER STATUS — mirrors GET /anpr/health (ANPRProviderHealthResponse).
+export interface ANPRProviderHealth {
+  state: string // READY | DEGRADED | UNAVAILABLE | OFFLINE | UNKNOWN
+  provider: string
+  providerVersion: string | null
+  lastSuccessfulUpdate: string | null
+  failureCount: number
+  queueDepth: number
+  processingLatencyMs: number | null
+  camerasActive: number
+  note: string | null
 }

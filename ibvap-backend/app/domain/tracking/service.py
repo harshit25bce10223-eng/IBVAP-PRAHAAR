@@ -33,6 +33,8 @@ from app.domain.tracking.association import AssociationBatchResult, TrackAssocia
 from app.domain.tracking.constants import (
     CANDIDATE_POSSIBLE_CONTINUATION,
     CANDIDATE_POSSIBLE_SAME_ENTITY,
+    TRACK_SOURCE_UNKNOWN,
+    TRACK_SOURCES_SET,
     TRACK_STATUS_ACTIVE,
     TRACK_STATUS_ENDED,
     TRACK_STATUS_INVALID,
@@ -261,7 +263,12 @@ class TrackingService:
         return {
             "camera_id": camera_id,
             "state": feed_state,
-            "last_updated_at": last_updated.isoformat() if last_updated else None,
+            "last_updated_at": (
+                # SQLite round-trips drop tzinfo — pin UTC before serializing
+                # so browsers parse it as an absolute instant, not local time.
+                (last_updated if last_updated.tzinfo else last_updated.replace(tzinfo=timezone.utc)).isoformat()
+                if last_updated else None
+            ),
             "tracks": tracks,
             "provider_health": provider_health,
         }
@@ -330,17 +337,21 @@ class TrackingService:
         strength: float | None = None,
         reason: str | None = None,
         provider: str | None = None,
+        source: str = TRACK_SOURCE_UNKNOWN,
         gap_duration_sec: float | None = None,
         expires_at: datetime | None = None,
     ) -> TrackCandidate:
         """
         Record a cross-camera continuation hypothesis.
         Never implies identity — only POSSIBLE_CONTINUATION or POSSIBLE_SAME_ENTITY.
+        Source must be a valid track source (LIVE / EDGE / CENTRAL / DEMO / UNKNOWN).
         """
         if relation_type not in {
             CANDIDATE_POSSIBLE_CONTINUATION, CANDIDATE_POSSIBLE_SAME_ENTITY
         }:
             raise ValueError(f"Invalid relation_type: {relation_type}")
+        if source not in TRACK_SOURCES_SET:
+            raise ValueError(f"Invalid source: {source}")
 
         cand = TrackCandidate(
             source_track_id=source_track_id,
@@ -350,7 +361,7 @@ class TrackingService:
             strength=strength,
             reason=reason,
             status="OPEN",
-            source="SYSTEM",
+            source=source,
             provider=provider,
             gap_duration_sec=gap_duration_sec,
             expires_at=expires_at,

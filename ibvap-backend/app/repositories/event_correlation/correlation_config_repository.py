@@ -3,7 +3,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import select
@@ -80,7 +80,7 @@ class CorrelationConfigRepository:
             if hasattr(config, key):
                 setattr(config, key, value)
         config.revision += 1
-        config.updated_at = datetime.now()
+        config.updated_at = datetime.now(timezone.utc)
         await self.session.flush()
         return config
 
@@ -98,7 +98,7 @@ class CorrelationConfigRepository:
         config.active = active
         config.revision += 1
         if active:
-            config.activated_at = datetime.now()
+            config.activated_at = datetime.now(timezone.utc)
         await self.session.flush()
         return config
 

@@ -1,10 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Component 7 — Vehicle Investigation Detail Page (/vehicle/:vehicleId)
-// Shows multi-camera chronology, top plate candidate, and event correlation
+// §12 — Vehicle Summary header (top plate candidate, class, camera, track,
+// observed time, quality, observation status) + explicit no-physical-presence
+// note. §16 — chronological multi-camera observation chronology.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ShieldAlert, MapPin } from 'lucide-react'
+import { ArrowLeft, ShieldAlert, MapPin, ExternalLink } from 'lucide-react'
 import { useANPRStore } from '@/store/anprState'
 import {
   VehicleHistoryTimeline,
@@ -12,6 +14,16 @@ import {
   VehicleClassBadge,
 } from '@/components/anpr'
 import { Badge } from '@/components/ui'
+
+function fmtDateTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString('en-IN', {
+      dateStyle: 'short', timeStyle: 'medium', hour12: false,
+    })
+  } catch {
+    return iso
+  }
+}
 
 export function VehicleDetail() {
   const { vehicleId } = useParams<{ vehicleId: string }>()
@@ -30,7 +42,11 @@ export function VehicleDetail() {
     }
   }, [vehicleId, fetchVehicleHistory])
 
-  if (vehicleHistoryState === 'loading') {
+  // Only use history that actually matches the routed vehicle id.
+  const history =
+    vehicleHistory && vehicleHistory.vehicleId === vehicleId ? vehicleHistory : null
+
+  if (!history && vehicleHistoryState !== 'error') {
     return (
       <div className="h-full flex items-center justify-center bg-[#080c12] p-6">
         <div className="flex flex-col items-center gap-3 text-slate-400 font-mono">
@@ -41,7 +57,7 @@ export function VehicleDetail() {
     )
   }
 
-  if (vehicleHistoryState === 'error' || !vehicleHistory) {
+  if (!history) {
     return (
       <div className="h-full flex items-center justify-center bg-[#080c12] p-6">
         <div className="max-w-md w-full rounded-xl border border-red-500/20 bg-red-500/5 p-6 text-center">
@@ -70,43 +86,99 @@ export function VehicleDetail() {
     )
   }
 
-  const latestSighting = vehicleHistory.sightings[0] ?? null
+  // Newest observation is the reference for the summary header.
+  const latestSighting = history.sightings.length > 0
+    ? [...history.sightings].sort((a, b) => (a.observedAt < b.observedAt ? 1 : -1))[0]
+    : null
 
   return (
     <div className="h-full flex flex-col overflow-y-auto bg-[#080c12] p-4 md:p-6 gap-6">
       {/* Top Header */}
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1e2d40] pb-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="rounded-md border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 hover:bg-slate-700 transition-colors"
-            title="Go back"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs font-mono uppercase tracking-wider text-slate-500">Vehicle Record</span>
-              <h1 className="text-xl font-bold font-mono text-cyan-300">{vehicleId}</h1>
-              <Badge variant="cyan" size="sm">
-                {vehicleHistory.totalSightings} Sightings
-              </Badge>
+      <header className="border-b border-[#1e2d40] pb-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="rounded-md border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 hover:bg-slate-700 transition-colors"
+              title="Go back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500">Vehicle Record</span>
+                <h1 className="text-xl font-bold font-mono text-cyan-300">{vehicleId}</h1>
+                <Badge variant="cyan" size="sm">
+                  {history.totalSightings} Observations
+                </Badge>
+              </div>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                First observed: {history.firstSeen ? fmtDateTime(history.firstSeen) : 'N/A'} · Last observed: {history.lastSeen ? fmtDateTime(history.lastSeen) : 'N/A'}
+              </p>
             </div>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">
-              First seen: {vehicleHistory.firstSeen ? new Date(vehicleHistory.firstSeen).toLocaleTimeString() : 'N/A'} · Last seen: {vehicleHistory.lastSeen ? new Date(vehicleHistory.lastSeen).toLocaleTimeString() : 'N/A'}
-            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/gis`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1.5 text-xs font-mono text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              <span>View on Digital Twin →</span>
+            </Link>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link
-            to={`/gis`}
-            className="inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1.5 text-xs font-mono text-cyan-300 hover:bg-cyan-500/20 transition-colors"
-          >
-            <MapPin className="h-3.5 w-3.5" />
-            <span>View on Digital Twin →</span>
-          </Link>
-        </div>
+        {/* §12 — Vehicle Summary header strip (from the newest observation) */}
+        {latestSighting && (
+          <dl className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3 text-xs font-mono">
+            <div>
+              <dt className="text-[9px] text-slate-600 uppercase">Top Plate Candidate</dt>
+              <dd className="text-ssb-green-bright mt-0.5">
+                {latestSighting.plateRead?.displayRead ?? 'UNREADABLE'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[9px] text-slate-600 uppercase">Vehicle Class</dt>
+              <dd className="mt-0.5"><VehicleClassBadge vehicleClass={latestSighting.vehicleClass} /></dd>
+            </div>
+            <div>
+              <dt className="text-[9px] text-slate-600 uppercase">Last Camera</dt>
+              <dd className="text-cyan-300 mt-0.5">{latestSighting.cameraId}</dd>
+            </div>
+            <div>
+              <dt className="text-[9px] text-slate-600 uppercase">Last Observed</dt>
+              <dd className="text-slate-300 mt-0.5">{fmtDateTime(latestSighting.observedAt)}</dd>
+            </div>
+            <div>
+              <dt className="text-[9px] text-slate-600 uppercase">Plate Quality</dt>
+              <dd className="text-slate-300 mt-0.5">
+                {(latestSighting.plateRead?.quality ?? 'UNKNOWN').replace(/_/g, ' ')}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[9px] text-slate-600 uppercase">Track ID</dt>
+              <dd className="mt-0.5">
+                {latestSighting.vehicleTrackId ? (
+                  <Link
+                    to={'/track/' + latestSighting.vehicleTrackId}
+                    className="inline-flex items-center gap-1 text-cyan-400 hover:underline"
+                  >
+                    {latestSighting.vehicleTrackId}
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
+                ) : (
+                  <span className="text-slate-600">—</span>
+                )}
+              </dd>
+            </div>
+          </dl>
+        )}
+
+        <p className="text-[10px] font-mono text-slate-500">
+          Observation record — sightings reflect where and when plates were observed. This is not real-time tracking and
+          does not assert the vehicle's current physical presence.
+        </p>
       </header>
 
       {/* Grid: Left Column Summary, Right Column Timeline */}
@@ -118,17 +190,14 @@ export function VehicleDetail() {
               <h3 className="text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-slate-800/60 pb-1.5">
                 Latest Plate Read
               </h3>
-              <PlateDisplay
-                plateRead={latestSighting.plateRead}
-                candidates={latestSighting.plateCandidates}
-              />
+              <PlateDisplay plateRead={latestSighting.plateRead} />
             </section>
           )}
 
           {latestSighting && (
             <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4 space-y-3">
               <h3 className="text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-slate-800/60 pb-1.5">
-                Vehicle Physical Profile
+                Observed Attributes — Latest Sighting
               </h3>
               <dl className="grid grid-cols-2 gap-3 text-xs font-mono">
                 <div>
@@ -150,6 +219,9 @@ export function VehicleDetail() {
                   <dd className="text-cyan-300 mt-1">{latestSighting.cameraId}</dd>
                 </div>
               </dl>
+              <p className="text-[9px] text-slate-600 font-mono">
+                Provider-reported attributes for the most recent observation, not a live vehicle state.
+              </p>
             </section>
           )}
         </div>
@@ -163,15 +235,21 @@ export function VehicleDetail() {
                   Cross-Camera Sighting Chronology
                 </h3>
                 <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  Chronological track and observation sequence across border sensors
+                  Chronological observation sequence across border sensors
                 </p>
               </div>
               <span className="text-xs font-mono text-slate-400">
-                {vehicleHistory.sightings.length} records
+                {history.sightings.length} records
               </span>
             </div>
 
-            <VehicleHistoryTimeline history={vehicleHistory} />
+            {history.sightings.length > 0 ? (
+              <VehicleHistoryTimeline history={history} />
+            ) : (
+              <div className="text-xs font-mono text-slate-600 italic">
+                No sightings recorded for this vehicle identifier.
+              </div>
+            )}
           </section>
         </div>
       </div>

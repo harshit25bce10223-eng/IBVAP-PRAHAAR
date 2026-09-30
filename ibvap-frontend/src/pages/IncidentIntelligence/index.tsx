@@ -49,7 +49,11 @@ export function IncidentIntelligence() {
             Correlated Events · Explainable Risk · Evidence Integrity
           </p>
         </div>
-        <div className="text-right">
+        <div className="text-right flex flex-col items-end gap-1">
+          {/* Prototype data badge — mock service until the real API phase. */}
+          <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
+            Demo mode
+          </span>
           <span className="block text-[9px] font-mono tracking-[0.2em] text-ssb-text-muted/60 uppercase">
             Primary Incident · {data.incidentId}
           </span>

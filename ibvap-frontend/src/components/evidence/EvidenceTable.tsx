@@ -36,11 +36,12 @@ export function EvidenceTable({
             <Th label="Incident ID" />
             <SortTh label="Captured at" active={sort === 'captured_at'} order={order} onClick={() => onSort('captured_at')} />
             <SortTh label="Camera" active={sort === 'camera'} order={order} onClick={() => onSort('camera')} />
+            <Th label="Track" />
             <Th label="Type" />
-            <Th label="Source" />
             <Th label="Hash" />
             <SortTh label="Integrity" active={sort === 'integrity'} order={order} onClick={() => onSort('integrity')} />
             <Th label="Anchor" />
+            <Th label="Last Verified" />
             <Th label="Status" />
           </tr>
         </thead>
@@ -70,14 +71,17 @@ export function EvidenceTable({
                 <td className="px-2 py-2 font-mono text-[11px] text-slate-400">{r.incidentId}</td>
                 <td className="px-2 py-2 font-mono text-[11px] text-slate-400 tabular-nums">{formatClock(r.capturedAt)}</td>
                 <td className="px-2 py-2 font-mono text-[11px] text-slate-200">{r.cameraId}</td>
+                <td className="px-2 py-2 font-mono text-[11px] text-slate-400">{r.trackId ?? '—'}</td>
                 <td className="px-2 py-2 text-[11px] text-slate-400">{humanize(r.type)}</td>
-                <td className="px-2 py-2 text-[11px] text-slate-400">{humanize(r.source)}</td>
                 <td className="px-2 py-2">
                   <HashCell hash={r.recordedHash} />
                 </td>
                 <td className={clsx('px-2 py-2 font-mono text-[11px]', integrity.text)}>{r.integrity}</td>
                 <td className={clsx('px-2 py-2 font-mono text-[11px]', r.anchor?.state ? TONE[toneForAnchor(r.anchor.state)].text : 'text-slate-500')}>
                   {r.anchor?.state ?? '—'}
+                </td>
+                <td className="px-2 py-2 font-mono text-[10px] text-slate-500 tabular-nums">
+                  {r.lastVerifiedAt ? formatClock(r.lastVerifiedAt) : '—'}
                 </td>
                 <td className={clsx('px-2 py-2 pr-3 font-mono text-[11px]', TONE[toneForRecordStatus(r.status)].text)}>
                   {r.status.replace('_', ' ')}

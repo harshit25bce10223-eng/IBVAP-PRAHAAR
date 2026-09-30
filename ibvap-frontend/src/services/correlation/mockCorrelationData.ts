@@ -39,6 +39,11 @@ interface MemberInput {
   confidence?: number | null
   evidenceIds?: string[]
   healthContext?: CameraReliabilityContext | null
+  detectionId?: string | null
+  anprPlate?: string | null
+  anprPlateConfidence?: number | null
+  anprQuality?: string | null
+  anprSightingId?: string | null
 }
 
 function member(ii: MemberInput): CorrelationEventMember {
@@ -58,6 +63,11 @@ function member(ii: MemberInput): CorrelationEventMember {
     confidence: ii.confidence ?? null,
     evidenceIds: ii.evidenceIds ?? [],
     healthContext: ii.healthContext ?? null,
+    detectionId: ii.detectionId ?? null,
+    anprPlate: ii.anprPlate ?? null,
+    anprPlateConfidence: ii.anprPlateConfidence ?? null,
+    anprQuality: ii.anprQuality ?? null,
+    anprSightingId: ii.anprSightingId ?? null,
   }
 }
 
@@ -82,6 +92,7 @@ const EV_10421 = member({
   id: 'EV-10421', kind: 'DETECTION', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
   cameraId: 'CAM-07', at: `${D}T02:14:11Z`, severity: 'HIGH', trackId: 'TRK-1042',
   reliability: 'HIGH', confidence: 0.91, evidenceIds: ['EVD-10481'],
+  detectionId: 'DET-7821',
 })
 const EV_10422 = member({
   id: 'EV-10422', kind: 'ZONE_ENTRY', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
@@ -99,6 +110,7 @@ const EV_10431 = member({
   id: 'EV-10431', kind: 'DETECTION', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
   cameraId: 'CAM-07', at: `${D}T02:16:01Z`, severity: 'MEDIUM', trackId: 'TRK-1043',
   reliability: 'HIGH', confidence: 0.84, evidenceIds: ['EVD-10483'],
+  detectionId: 'DET-7831',
 })
 const EV_10432 = member({
   id: 'EV-10432', kind: 'REID_CANDIDATE', source: 'RE_ID', modality: 'VIDEO',
@@ -116,11 +128,14 @@ const EV_10441 = member({
   id: 'EV-10441', kind: 'DETECTION', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
   cameraId: 'CAM-12', at: `${D}T02:20:05Z`, severity: 'MEDIUM', trackId: 'TRK-1044',
   reliability: 'MEDIUM', confidence: 0.78, evidenceIds: ['EVD-10485'],
+  detectionId: 'DET-7841',
 })
 const EV_10442 = member({
   id: 'EV-10442', kind: 'ANPR_READ', source: 'ANPR', modality: 'ANPR',
   cameraId: 'CAM-12', at: `${D}T02:20:18Z`, severity: 'MEDIUM', trackId: 'TRK-1044',
   reliability: 'LOW', confidence: 0.66, evidenceIds: ['EVD-10486'],
+  anprPlate: 'BA-12-PA-4521', anprPlateConfidence: 0.66, anprQuality: 'FAIR',
+  anprSightingId: 'SIGHT-4412',
 })
 const EV_10443 = member({
   id: 'EV-10443', kind: 'AUDIO_ANOMALY', source: 'AUDIO', modality: 'AUDIO',
@@ -138,6 +153,8 @@ const EV_10451 = member({
   id: 'EV-10451', kind: 'ANPR_READ', source: 'ANPR', modality: 'ANPR',
   cameraId: 'CAM-12', at: `${D}T02:17:43Z`, severity: 'LOW',
   reliability: 'MEDIUM', confidence: 0.81, evidenceIds: ['EVD-10488'],
+  anprPlate: 'SK-03-PB-1180', anprPlateConfidence: 0.81, anprQuality: 'GOOD',
+  anprSightingId: 'SIGHT-4420',
 })
 
 // ── Scenario 5 — UNCERTAIN (temporal strong, spatial weak) ───────────────────
@@ -145,6 +162,7 @@ const EV_10461 = member({
   id: 'EV-10461', kind: 'DETECTION', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
   cameraId: 'CAM-03', at: `${D}T02:23:02Z`, severity: 'MEDIUM', trackId: 'TRK-1045',
   reliability: 'MEDIUM', confidence: 0.6,
+  detectionId: 'DET-7851',
 })
 const EV_10462 = member({
   id: 'EV-10462', kind: 'AUDIO_ANOMALY', source: 'AUDIO', modality: 'AUDIO',
@@ -155,6 +173,8 @@ const EV_10463 = member({
   id: 'EV-10463', kind: 'ANPR_READ', source: 'ANPR', modality: 'ANPR',
   cameraId: 'CAM-12', at: `${D}T02:23:16Z`, severity: 'MEDIUM', trackId: null,
   reliability: 'LOW', confidence: 0.55,
+  anprPlate: 'BA-11-CH-9087', anprPlateConfidence: 0.55, anprQuality: 'POOR',
+  anprSightingId: 'SIGHT-4431',
 })
 
 // ── Scenario 6 — CORRELATION REVISED / DISSOLVED ────────────────────────────
@@ -167,6 +187,8 @@ const EV_10472 = member({
   id: 'EV-10472', kind: 'ANPR_READ', source: 'ANPR', modality: 'ANPR',
   cameraId: 'CAM-08', at: `${D}T02:19:11Z`, severity: 'LOW', trackId: null,
   reliability: 'LOW', confidence: 0.5,
+  anprPlate: 'WB-73-AG-3320', anprPlateConfidence: 0.5, anprQuality: 'POOR',
+  anprSightingId: 'SIGHT-4435',
 })
 
 // ── Scenario 7 — LOW-SEVERITY CORRELATED (correlation ≠ severity, §69) ──────
@@ -186,7 +208,7 @@ const EV_10491 = member({
   id: 'EV-10491', kind: 'DETECTION', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
   cameraId: 'CAM-12', at: `${D}T02:31:10Z`, severity: 'MEDIUM', trackId: 'TRK-1048',
   reliability: 'LOW', confidence: 0.62, healthContext: CAM12DEGRADED,
-  evidenceIds: ['EVD-10489'],
+  evidenceIds: ['EVD-10489'], detectionId: 'DET-7861',
 })
 const EV_10492 = member({
   id: 'EV-10492', kind: 'ZONE_ENTRY', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
@@ -217,6 +239,11 @@ const LARGE_MEMBERS: CorrelationEventMember[] = Array.from({ length: 20 }, (_, i
     severity: 'MEDIUM',
     trackId: 'TRK-1050',
     reliability: 'MEDIUM',
+    detectionId: i % 4 === 0 ? `DET-79${String(i + 1).padStart(2, '0')}` : null,
+    anprPlate: i % 4 === 2 ? `BA-05-PC-${String(4100 + i)}` : null,
+    anprPlateConfidence: i % 4 === 2 ? 0.6 : null,
+    anprQuality: i % 4 === 2 ? 'FAIR' : null,
+    anprSightingId: i % 4 === 2 ? `SIGHT-45${String(i).padStart(2, '0')}` : null,
   })
 )
 
@@ -224,7 +251,7 @@ const LARGE_MEMBERS: CorrelationEventMember[] = Array.from({ length: 20 }, (_, i
 const EV_10511 = member({
   id: 'EV-110021', kind: 'DETECTION', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
   cameraId: 'CAM-07', at: `${D}T03:09:18Z`, severity: 'LOW', trackId: 'TRK-1051',
-  reliability: 'HIGH', confidence: 0.8,
+  reliability: 'HIGH', confidence: 0.8, detectionId: 'DET-7871',
 })
 const EV_10512 = member({
   id: 'EV-110022', kind: 'ZONE_ENTRY', source: 'VIRTUAL_FENCE', modality: 'VIDEO',
@@ -258,8 +285,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('ENTITY', 'possible continuation', 'Track continuity across signals'),
     ],
     confidence: { value: 87, note: 'Based on temporal, spatial and entity relationship signals.' },
+    explanationSummary: 'Detection, zone entry and track continuation on CAM-07 within 32 seconds share track context.',
+    correlationStrength: 'HIGH',
     temporalWindowSec: 60,
-    risk: { score: 82, severity: 'HIGH' },
+    risk: { score: 82, severity: 'HIGH', incidentIds: [] },
     uncertainty: { reliability: 'HIGH', note: null },
     trackCandidate: { trackId: 'TRK-1042', confidence: 0.87, label: 'possible same entity' },
     cameraChain: ['CAM-07'],
@@ -306,8 +335,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('CAMERA', 'cross-camera', 'Observation continued on adjacent camera'),
     ],
     confidence: { value: 78, note: 'Based on temporal and cross-camera entity relationship signals.' },
+    explanationSummary: 'Detection on CAM-07 followed by a possible same-entity candidate on CAM-08 within 20 seconds.',
+    correlationStrength: 'MEDIUM',
     temporalWindowSec: 60,
-    risk: { score: 64, severity: 'MEDIUM' },
+    risk: { score: 64, severity: 'MEDIUM', incidentIds: [] },
     uncertainty: { reliability: 'MEDIUM', note: 'Cross-camera entity continuity is a candidate relation; identity is not confirmed.' },
     trackCandidate: { trackId: 'TRK-1043', confidence: 0.72, label: 'possible same entity' },
     cameraChain: ['CAM-07', 'CAM-08'],
@@ -354,8 +385,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('CONTEXTUAL', 'multimodal', 'VIDEO + ANPR + AUDIO help establish context'),
     ],
     confidence: { value: 81, note: 'Multimodal enrichment supports grouping.' },
+    explanationSummary: 'Video detection on CAM-12 supported by an ANPR read and an audio anomaly within 39 seconds.',
+    correlationStrength: 'HIGH',
     temporalWindowSec: 60,
-    risk: { score: 55, severity: 'MEDIUM' },
+    risk: { score: 55, severity: 'MEDIUM', incidentIds: [] },
     uncertainty: { reliability: 'MEDIUM', note: 'ANPR and audio reliability are low; plate is a candidate, not verified.' },
     trackCandidate: { trackId: 'TRK-1044', confidence: 0.78, label: 'possible same entity' },
     cameraChain: ['CAM-12'],
@@ -395,8 +428,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('CONTEXTUAL', 'no support', 'No sufficient relationship evidence to group this signal'),
     ],
     confidence: null,
+    explanationSummary: null,
+    correlationStrength: 'NONE',
     temporalWindowSec: null,
-    risk: { score: 18, severity: 'LOW' },
+    risk: { score: 18, severity: 'LOW', incidentIds: [] },
     uncertainty: { reliability: 'MEDIUM', note: null },
     trackCandidate: null,
     cameraChain: null,
@@ -438,8 +473,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('ENTITY', 'insufficient', 'No reliable entity continuity'),
     ],
     confidence: null,
+    explanationSummary: 'Temporal proximity is strong across three cameras, but spatial and entity support are insufficient for a firm grouping.',
+    correlationStrength: null,
     temporalWindowSec: 60,
-    risk: { score: 40, severity: 'MEDIUM' },
+    risk: { score: 40, severity: 'MEDIUM', incidentIds: [] },
     uncertainty: { reliability: 'LOW', note: 'Temporal proximity is strong; spatial and entity continuity are weak.' },
     trackCandidate: null,
     cameraChain: null,
@@ -482,8 +519,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('CONTEXTUAL', 'not sustained', 'Additional observations did not sustain the relationship'),
     ],
     confidence: null,
+    explanationSummary: 'Initially linked by temporal proximity; the relationship was not sustained by later observations.',
+    correlationStrength: null,
     temporalWindowSec: 60,
-    risk: { score: null, severity: null },
+    risk: { score: null, severity: null, incidentIds: [] },
     uncertainty: { reliability: 'LOW', note: 'Previous correlation was not sustained.' },
     trackCandidate: null,
     cameraChain: null,
@@ -527,8 +566,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
     ],
     // Correlation is not severity: this correlated group is LOW risk (§69).
     confidence: { value: 85, note: 'Track continuity supports grouping.' },
+    explanationSummary: 'Zone exit followed by track continuation on CAM-12 within 7 seconds; grouping sustained by entity continuity.',
+    correlationStrength: 'HIGH',
     temporalWindowSec: 60,
-    risk: { score: 12, severity: 'LOW' },
+    risk: { score: 12, severity: 'LOW', incidentIds: [] },
     uncertainty: { reliability: 'HIGH', note: null },
     trackCandidate: { trackId: 'TRK-1047', confidence: 0.85, label: 'possible same entity' },
     cameraChain: ['CAM-12'],
@@ -575,8 +616,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('CONTEXTUAL', 'health context', 'Reading camera has degraded reliability'),
     ],
     confidence: { value: 71, note: 'Temporal and cross-camera signals support grouping; image quality is reduced.' },
+    explanationSummary: 'Detection on CAM-12 followed by a re-ID candidate and zone entry on CAM-07 within 23 seconds.',
+    correlationStrength: 'MEDIUM',
     temporalWindowSec: 60,
-    risk: { score: 58, severity: 'MEDIUM' },
+    risk: { score: 58, severity: 'MEDIUM', incidentIds: [] },
     uncertainty: { reliability: 'MEDIUM', note: 'One supporting camera has degraded image quality. Camera reliability may reduce confidence in associated observations.' },
     trackCandidate: { trackId: 'TRK-1048', confidence: 0.7, label: 'possible same entity' },
     cameraChain: ['CAM-12', 'CAM-07'],
@@ -622,8 +665,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('ENTITY', 'possible continuation', 'Track continuity across 20 signals'),
     ],
     confidence: { value: 90, note: 'High-density temporal and entity relationship signals.' },
+    explanationSummary: 'High-density sequence of 20 signals across CAM-19 and CAM-03 within 2m 49s sharing track and zone context.',
+    correlationStrength: 'HIGH',
     temporalWindowSec: 180,
-    risk: { score: 76, severity: 'HIGH' },
+    risk: { score: 76, severity: 'HIGH', incidentIds: [] },
     uncertainty: { reliability: 'MEDIUM', note: 'Dense sequence; individual reading reliability varies.' },
     trackCandidate: { trackId: 'TRK-1050', confidence: 0.82, label: 'possible same entity' },
     cameraChain: ['CAM-19', 'CAM-03'],
@@ -669,8 +714,10 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
       expl('SPATIAL', 'same zone', 'ZONE-B'),
     ],
     confidence: null,
+    explanationSummary: null,
+    correlationStrength: 'LOW',
     temporalWindowSec: 60,
-    risk: { score: 22, severity: 'LOW' },
+    risk: { score: 22, severity: 'LOW', incidentIds: [] },
     uncertainty: { reliability: 'HIGH', note: null },
     trackCandidate: null,
     cameraChain: ['CAM-07'],
@@ -695,6 +742,15 @@ export const MOCK_GROUPS: CorrelationGroup[] = [
 
 export const MOCK_GROUP_BY_ID: Record<string, CorrelationGroup> = Object.fromEntries(
   MOCK_GROUPS.map(g => [g.correlationId, g])
+)
+
+/**
+ * Newest fixture timestamp. Fixtures are pinned to a fixed demo date, so the
+ * DEMO provider evaluates time-range filters against this anchor rather than
+ * the real clock — otherwise every windowed filter would return zero groups.
+ */
+export const MOCK_TIME_ANCHOR_MS = Math.max(
+  ...MOCK_GROUPS.map(g => new Date(g.startedAt).getTime())
 )
 
 export const MOCK_MEMBER_BY_ID: Record<string, CorrelationEventMember> = Object.fromEntries(

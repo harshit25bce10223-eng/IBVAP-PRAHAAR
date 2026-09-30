@@ -6,7 +6,7 @@
 import { clsx } from 'clsx'
 import type { DetectionClass, TrackStatus, TrackContinuityQuality } from '@/types/tracking'
 import { TRACK_CLASS_STROKE, TRACK_CLASS_CHIP } from './trackTone'
-import { toneForStatus, toneForQuality, dotTone, textTone } from './trackTone'
+import { toneForStatus, toneForQuality, dotTone } from './trackTone'
 
 /**
  * Legend for overlay class colors. Neutral hues: a class is an observation,

@@ -278,6 +278,10 @@ class EvidenceDetailResponse(BaseModel):
     anchor: dict | None = None
     createdByService: str | None = None
     metadata: dict | None = None
+    provenance: dict | None = None
+    milestones: list[dict] = []
+    custody: list[dict] = []
+    verificationHistory: list[dict] = []
 
 
 # ── Verification ─────────────────────────────────────────────────────────────

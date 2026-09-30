@@ -80,6 +80,11 @@ class DetectionFeedState(str):
     OFFLINE = "OFFLINE"
     STALE = "STALE"
     UNKNOWN = "UNKNOWN"
+    # Feed-level availability, kept distinct from object presence:
+    # NO_OBJECTS = detector answered with zero boxes (NOT unavailable)
+    # UNCONFIGURED = detection not configured on this camera
+    NO_OBJECTS = "NO_OBJECTS"
+    UNCONFIGURED = "UNCONFIGURED"
 
 
 class InferenceState(str):
@@ -177,7 +182,7 @@ class Detection(Base):
 
     # Schema versioning
     schema_version: Mapped[str] = mapped_column(String(16), default="1.0", nullable=False)
-    taxonomy_version: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # (taxonomy_version is declared once, in the Classification block above)
 
     # Context
     region_profile: Mapped[str | None] = mapped_column(String(64), nullable=True)

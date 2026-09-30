@@ -184,3 +184,20 @@ class TestAnchorConsistency:
         assert res["anchor_id"].startswith("ANC-")
         assert res["root_hash"] == "a" * 64
         assert res["tree_size"] == 10
+
+
+class TestGlobalAuditRouteAndDetailFields:
+    """Audit route ordering and EvidenceDetailResponse enriched schema."""
+
+    def test_global_audit_route_registered(self):
+        from app.api.routes.evidence import routes as routes_module
+        source = inspect.getsource(routes_module)
+        assert '@router.get("/audit"' in source
+
+    def test_evidence_detail_response_has_provenance_and_history(self):
+        from app.schemas.evidence.schemas import EvidenceDetailResponse
+        fields = EvidenceDetailResponse.model_fields
+        assert "provenance" in fields
+        assert "milestones" in fields
+        assert "custody" in fields
+        assert "verificationHistory" in fields

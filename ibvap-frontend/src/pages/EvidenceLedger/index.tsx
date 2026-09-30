@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { FileSearch } from 'lucide-react'
+import { isRealEvidenceMode } from '@/services/evidence'
 import { Drawer, EmptyState, ErrorState, PageHeader, Skeleton } from '@/components/ui'
 import { EvidenceDetail, EvidenceFilters, EvidenceTable, AuditLogTab } from '@/components/evidence'
 import { TONE, toneForLedger } from '@/components/evidence/evidenceTone'
@@ -25,6 +27,20 @@ export function EvidenceLedger() {
   } = useEvidenceLedger()
   const [tab, setTab] = useState<'evidence' | 'audit'>('evidence')
   const [selected, setSelected] = useState<EvidenceRecord | null>(null)
+  const [searchParams] = useSearchParams()
+  const urlHydrated = useRef(false)
+
+  // Deep links (e.g. /evidence?search=EVD-10484 from RiskFactorsPanel and
+  // DetectionInspector) hydrate the ledger search once on mount, mirroring
+  // the Event Log. After that, the filters are the single source of truth.
+  useEffect(() => {
+    if (urlHydrated.current) return
+    urlHydrated.current = true
+    const search = searchParams.get('search')
+    if (search !== null && search.trim() !== '') {
+      setQuery({ search: search.trim() })
+    }
+  }, [searchParams, setQuery])
 
   const cameras = useMemo(() => {
     const ids = new Set((page?.records ?? []).map(r => r.cameraId))
@@ -47,9 +63,15 @@ export function EvidenceLedger() {
         title="Evidence & Audit Ledger"
         subtitle="Tamper-evident evidence records"
         badge={
-          <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
-            Demo mode
-          </span>
+          isRealEvidenceMode ? (
+            <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-emerald-400">
+              Live backend
+            </span>
+          ) : (
+            <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
+              Demo mode
+            </span>
+          )
         }
       />
 

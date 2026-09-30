@@ -5,8 +5,14 @@
 // Neutral tones by class; status tones for state badges only.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { DetectionClass, TrackStatus, TrackContinuityQuality, TrackSource, TrackingFeedState } from '@/types/tracking'
-import type { DetectionQuality } from '@/types/detection'
+import type {
+  DetectionClass,
+  TrackStatus,
+  TrackCameraHealthContext,
+  TrackContinuityQuality,
+  TrackSource,
+  TrackingFeedState,
+} from '@/types/tracking'
 
 /** Neutral class stroke colors for track overlays. A class is an observation, never a severity (§41). */
 export const TRACK_CLASS_STROKE: Record<DetectionClass, string> = {
@@ -79,6 +85,23 @@ export function toneForFeedState(state: TrackingFeedState): TrackTone {
 
 export function toneForSource(source: TrackSource): TrackTone {
   return SOURCE_TONE[source] ?? 'default'
+}
+
+/**
+ * §15 camera-health badge tone for the Track Intelligence context panel.
+ * Health is camera context (Component 2) — it never implies track severity.
+ */
+export function toneForCameraHealth(status: TrackCameraHealthContext['status']): TrackTone {
+  switch (status) {
+    case 'ONLINE':
+      return 'emerald'
+    case 'DEGRADED':
+      return 'warning'
+    case 'OFFLINE':
+      return 'critical'
+    default:
+      return 'default'
+  }
 }
 
 /** Dot color helper for status indicators. */

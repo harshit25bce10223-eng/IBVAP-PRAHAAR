@@ -4,34 +4,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 from typing import Any
 
-from app.domain.event_correlation.temporal_engine import temporal_engine, TemporalRelationEngine
-from app.domain.event_correlation.spatial_engine import spatial_engine, SpatialRelationEngine
-from app.domain.event_correlation.entity_engine import entity_engine, EntityRelationEngine
+from app.domain.event_correlation.temporal_engine import TemporalRelationEngine
+from app.domain.event_correlation.spatial_engine import SpatialRelationEngine
+from app.domain.event_correlation.entity_engine import EntityRelationEngine
 from app.domain.event_correlation.compatibility import (
     get_compatibility,
-    get_event_type_compatibility,
     DEFAULT_COMPATIBILITY_MATRIX,
 )
-from app.models.event_correlation import (
-    CorrelationGroup,
-    CorrelationGroupMember,
-    CorrelationRelationship,
-    CorrelationHistory,
-    CorrelationGroupMember as CorrelationGroupMemberModel,
-    CorrelationRelationship as CorrelationRelationshipModel,
-    CorrelationHistory as CorrelationHistoryModel,
-)
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from datetime import datetime, timedelta
-from typing import Any
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Data Classes
-# ─────────────────────────────────────────────────────────────────────────────
+UNKNOWN_TOKEN = "UNKNOWN"
+
 
 @dataclass
 class CorrelationCandidate:
@@ -56,14 +41,35 @@ class CorrelationResult:
     reason: str = ""
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Correlation Rule Engine
-# ─────────────────────────────────────────────────────────────────────────────
+def _to_aware(value: Any) -> datetime | None:
+    """Normalize a datetime (str, naive, aware) to an aware UTC datetime.
+
+    Aware values from any offset are converted to UTC (not just re-labelled):
+    aiosqlite stores wall-clock strings and drops tzinfo, so comparisons against
+    values re-read from the database are only correct in UTC.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+    return None
+
 
 class CorrelationRuleEngine:
     """
-    Orchestrates the correlation process by combining signals from
-    temporal, spatial, and entity engines.
+    Orchestrates the correlation process by combining signals from temporal,
+    spatial, and entity engines.
+
+    Scoring is gated: a genuinely-correlated relationship must satisfy the
+    temporal window AND share at least one spatial or entity overlap. Mere
+    simultaneity across unrelated sectors is NOT a correlation.
     """
 
     def __init__(
@@ -76,7 +82,7 @@ class CorrelationRuleEngine:
         self.temporal = temporal_engine or TemporalRelationEngine()
         self.spatial = spatial_engine or SpatialRelationEngine()
         self.entity = entity_engine or EntityRelationEngine()
-        
+
         # Configuration
         self.config = config or {}
         self.min_correlation_score = self.config.get("min_correlation_score", 50)
@@ -85,101 +91,89 @@ class CorrelationRuleEngine:
         self.temporal_window = self.config.get("temporal_window_seconds", 60)
         self.max_group_size = self.config.get("max_group_size", 50)
 
-    def _calculate_compatibility(self, event_a: dict, event_b: dict) -> int:
-        """Calculate overall compatibility score between two events."""
-        source_a = event_a.get("source", "UNKNOWN")
-        source_b = event_b.get("source", "UNKNOWN")
-        type_a = event_a.get("event_type") or event_a.get("kind", "UNKNOWN")
-        type_b = event_b.get("event_type") or event_b.get("kind", "UNKNOWN")
+    # ─────────────────────────────────────────────────────────────────────────
+    # Main entry point
+    # ─────────────────────────────────────────────────────────────────────────
 
-        # Source compatibility
-        source_score = 0
-        if hasattr(self, 'compatibility_matrix'):
-            source_score = self.compatibility_matrix.get(source_a, {}).get(source_b, 20)
-        else:
-            from app.domain.event_correlation.compatibility import get_compatibility
-            source_score = get_compatibility(source_a, source_b)
-
-        # Event type compatibility
-        type_score = 0
-        if hasattr(event_a, 'get') and hasattr(event_b, 'get'):
-            type_a = event_a.get("event_type") or event_a.get("kind", "UNKNOWN")
-            type_b = event_b.get("event_type") or event_b.get("kind", "UNKNOWN")
-            type_score = get_event_type_compatibility(type_a, type_b)
-
-        # Weighted combination
-        return int(source_score * 0.4 + type_score * 0.6)
-
-    def evaluate_event(self, event: dict, existing_groups: list[dict]) -> dict:
-        """
-        Evaluate an incoming event against existing correlation groups.
-        
-        Returns a CorrelationResult indicating the action to take.
-        """
-        # Find candidate groups
+    def evaluate_event(self, event: dict, existing_groups: list[dict]) -> CorrelationResult:
+        """Evaluate an incoming event against existing correlation groups."""
         candidates = self.find_candidate_groups(event, existing_groups)
-        
+
         if not candidates:
             return CorrelationResult(
                 group_id=None,
                 status="STANDALONE",
                 action="CREATED",
-                reason="No correlation candidates found",
+                revision=1,
+                reason="No candidate groups within temporal/spatial/source coverage",
             )
 
-        # Evaluate each candidate
-        best_candidate = None
-        best_score = 0
-        
-        for candidate in candidates:
-            score = self.score_candidate(target_event, candidate)
-            if score > best_score:
-                best_score = score
-                best_candidate = candidate
+        best = candidates[0]
+        score = best["score"]
+        group = best["group_data"]
 
-        if best_score >= self.min_correlation_score and best_candidate:
+        if score >= self.min_correlation_score:
+            relationships = self.build_relationships(event, group)
+            support = len(group.get("member_events") or []) + 1
+            if support < self.min_support_events:
+                status = "UNCERTAIN"
+                reason = (
+                    f"Joined {group.get('correlation_id')} (score {score}) but only "
+                    f"{support} supporting events (minimum {self.min_support_events}); "
+                    f"correlation held provisional"
+                )
+            else:
+                status = "CORRELATED" if score >= 70 else "RELATED"
+                reason = (
+                    f"Correlated with {group.get('correlation_id')} "
+                    f"(score {score}): {self._reason_summary(relationships)}"
+                )
+            completeness = "COMPLETE" if len(relationships) >= 2 else "PARTIAL"
             return CorrelationResult(
-                group_id=best_candidate["group_id"],
-                status="CORRELATED",
+                group_id=group.get("correlation_id"),
+                status=status,
                 action="UPDATED",
-                relationships=self.build_relationships(target_event, best_candidate),
-                confidence=best_score,
-                completeness="COMPLETE",
-                reason=f"Correlated with group {best_candidate['group_id']} (score: {best_score})",
+                revision=int(group.get("revision", 0)) + 1,
+                relationships=relationships,
+                confidence=score,
+                completeness=completeness,
+                reason=reason,
             )
 
         return CorrelationResult(
             group_id=None,
             status="STANDALONE",
             action="CREATED",
-            reason="No sufficient correlation found",
+            revision=1,
+            reason=f"Best candidate score {score} below threshold {self.min_correlation_score}",
         )
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Candidate selection
+    # ─────────────────────────────────────────────────────────────────────────
 
     def find_candidate_groups(self, event: dict, existing_groups: list[dict]) -> list[dict]:
         """Find existing correlation groups that could be related to this event."""
         candidates = []
-        
         for group in existing_groups:
-            # Check temporal proximity
-            group_start = group.get("started_at")
-            event_time = event.get("event_time") or event.get("ts")
-            
-            if group_start and event_time:
-                time_diff = abs((event_time - group_start).total_seconds())
-                if time_diff > 300:  # max_group_duration
-                    continue
+            if not isinstance(group, dict) or not group.get("correlation_id"):
+                continue
 
-            # Check spatial overlap
+            temporal = self._temporal_vs_group(event, group)
+            if not temporal:
+                continue
+
+            if self._exceeds_max_duration(event, group):
+                continue
+
             if not self._spatially_compatible(event, group):
                 continue
 
-            # Check source compatibility
             if not self._source_compatible(event, group):
                 continue
 
-            # Score this group
-            score = self._score_group_match(event, group)
-            if score >= 30:  # Minimum threshold for consideration
+            score = self._score_group_match(event, group, temporal)
+            if score >= 30:
                 candidates.append({
                     "group_id": group.get("correlation_id"),
                     "group_data": group,
@@ -188,150 +182,282 @@ class CorrelationRuleEngine:
 
         return sorted(candidates, key=lambda x: -x["score"])
 
+    def _temporal_vs_group(self, event: dict, group: dict) -> dict | None:
+        """Classify the event against the group's observed time span.
+
+        Correlation is based on observed time, not arrival order, so an event
+        that falls anywhere inside (or adjacent to) the group's span is a
+        candidate even when it arrives out of order.
+        """
+        anchor = {"event_id": group.get("correlation_id")}
+        bounds = _to_aware(group.get("started_at")), _to_aware(group.get("ended_at"))
+        best: dict | None = None
+        for bound in bounds:
+            if bound is None:
+                continue
+            anchor["event_time"] = bound
+            rel = self.temporal.classify_relation(event, anchor, window_seconds=self.temporal_window)
+            if rel:
+                if best is None or rel.get("confidence", 0) > best.get("confidence", 0):
+                    best = rel
+        return best
+
+    def _exceeds_max_duration(self, event: dict, group: dict) -> bool:
+        """True when joining this event would extend the group's observed span
+        beyond the configured maximum situation duration. Such events start a
+        separate situation instead of chaining one group forever.
+        """
+        if not self.max_group_duration:
+            return False
+        started = _to_aware(group.get("started_at"))
+        latest = _to_aware(group.get("ended_at"))
+        event_time = _to_aware(event.get("event_time"))
+        if started is None or event_time is None:
+            return False
+        lower = min(started, event_time)
+        upper = max(latest or started, event_time)
+        return (upper - lower).total_seconds() > self.max_group_duration
+
     def _spatially_compatible(self, event: dict, group: dict) -> bool:
-        """Check if event is spatially compatible with group."""
-        # Same sector
-        event_sector = event.get("sector_id")
-        group_sector = group.get("sector_id")
-        if event_sector and group_sector and event_sector == group_sector:
-            return True
-        
-        # Same camera
-        event_cam = event.get("camera_id")
-        group_cameras = group.get("camera_ids", [])
-        if event_cam and event_cam in group_cameras:
+        """Block candidate groups that share no spatial overlap with the event.
+
+        When either side has no spatial context, the gate is not enforced
+        (temporal + source + entity signals decide).
+        """
+        cam = event.get("camera_id")
+        cams = group.get("camera_ids") or []
+        zone = event.get("zone_id")
+        zones = group.get("zone_ids") or []
+        sector = event.get("sector_id")
+        sectors = group.get("sector_ids") or []
+
+        has_event = any(bool(v) and str(v) != UNKNOWN_TOKEN for v in (cam, zone, sector))
+        has_group = any(bool(v) and str(v) != UNKNOWN_TOKEN for v in (cams, zones, sectors))
+        if not has_event or not has_group:
             return True
 
-        # Adjacent cameras
-        event_cam = event.get("camera_id")
-        group_cameras = group.get("camera_ids", [])
-        for cam in group_cameras:
-            # Would check camera adjacency here
-            pass
-
-        return True  # Default to compatible for now
-
-    def _source_compatible(self, event: dict, group: dict) -> bool:
-        """Check if event source is compatible with group sources."""
-        event_source = event.get("source", "UNKNOWN")
-        group_sources = group.get("sources", [])
-        
-        if not group_sources:
+        if cam and cam != UNKNOWN_TOKEN and cam in cams:
             return True
-        
-        # Check compatibility matrix
-        for group_source in group_sources:
-            score = get_compatibility(event.get("source", "UNKNOWN"), group_source)
-            if score >= 30:
-                return True
-        
+        if cam and cam != UNKNOWN_TOKEN and self._adjacent_to_group(cam, cams):
+            return True
+        if zone and zone != UNKNOWN_TOKEN and zone in zones:
+            return True
+        if sector and sector != UNKNOWN_TOKEN and sector in sectors:
+            return True
         return False
 
-    def _score_group_match(self, event: dict, group: dict) -> int:
+    def _source_compatible(self, event: dict, group: dict) -> bool:
+        """Check if event source is compatible with group sources.
+
+        Unknown sources are treated as neutral (never hard-blocked); known
+        incompatible pairs (e.g. CAMERA_HEALTH x DETECTION) are blocked.
+        """
+        group_sources = group.get("sources") or []
+        if not group_sources:
+            return True
+        event_source = event.get("source", "UNKNOWN")
+        for group_source in group_sources:
+            if event_source not in DEFAULT_COMPATIBILITY_MATRIX:
+                return True
+            if group_source not in DEFAULT_COMPATIBILITY_MATRIX:
+                return True
+            if get_compatibility(event_source, group_source) >= 30:
+                return True
+        return False
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Scoring
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _score_group_match(self, event: dict, group: dict, temporal_rel: dict | None = None) -> int:
         """Score how well an event matches an existing group."""
-        score = 0
-        
-        # Temporal score
-        temporal_score = self._temporal_score(event, group)
-        score += temporal_score * 0.4
-        
-        # Spatial score
-        spatial_score = self._spatial_score(event, group)
-        score += spatial_score * 0.3
-        
-        # Entity score
-        entity_score = self._entity_score(event, group)
-        score += entity_score * 0.2
-        
-        # Compatibility score
+        temporal = temporal_rel or self._temporal_vs_group(event, group)
+        if not temporal:
+            return 0
+
+        temporal_score = temporal.get("confidence", 0)
+        spatial_score = self._spatial_score_vs_group(event, group)
+        entity_score = self._entity_score_vs_group(event, group)
+
+        # Gate: temporal proximity alone is never a correlation.
+        if spatial_score == 0 and entity_score == 0:
+            return 0
+
         compat_score = self._compatibility_score(event, group)
-        score += compat_score * 0.1
-        
+        score = 0.45 * temporal_score + 0.30 * spatial_score + 0.15 * entity_score + 0.10 * compat_score
         return int(score)
 
-    def _temporal_score(self, event: dict, group: dict) -> int:
-        """Score based on temporal proximity to group."""
-        group_start = group.get("started_at")
-        event_time = event.get("event_time") or event.get("ts")
-        
-        if not group_start or not event_time:
-            return 50
-        
-        if isinstance(group_start, str):
-            group_start = datetime.fromisoformat(group_start.replace("Z", "+00:00"))
-        if isinstance(event_time, str):
-            event_time = datetime.fromisoformat(event_time.replace("Z", "+00:00"))
-        
-        diff = abs((event_time - group_start).total_seconds())
-        if diff <= 60:
+    def _spatial_score_vs_group(self, event: dict, group: dict) -> int:
+        """Score spatial overlap between event and group aggregates."""
+        cam = event.get("camera_id")
+        cams = group.get("camera_ids") or []
+        zone = event.get("zone_id")
+        zones = group.get("zone_ids") or []
+        sector = event.get("sector_id")
+        sectors = group.get("sector_ids") or []
+
+        if cam and cam != UNKNOWN_TOKEN and cam in cams:
             return 100
-        elif diff <= 300:
-            return 70
-        elif diff <= 600:
-            return 40
+        if zone and zone != UNKNOWN_TOKEN and zone in zones:
+            return 90
+        if sector and sector != UNKNOWN_TOKEN and sector in sectors:
+            return 60
+        if cam and cam != UNKNOWN_TOKEN and self._adjacent_to_group(cam, cams):
+            return 60
         return 0
 
-    def _spatial_score(self, event: dict, group: dict) -> int:
-        """Score based on spatial compatibility."""
-        score = 0
-        
-        # Same camera
-        event_cam = event.get("camera_id")
-        group_cameras = group.get("camera_ids", [])
-        if event_cam and event_cam in group_cameras:
-            score += 50
-        
-        # Same zone
-        event_zone = event.get("zone_id")
-        group_zones = group.get("zone_ids", [])
-        if event_zone and event_zone in group_zones:
-            score += 30
-        
-        # Same sector
-        event_sector = event.get("sector_id")
-        group_sector = group.get("sector_id")
-        if event_sector and group_sector and event_sector == group_sector:
-            score += 20
-        
-        return min(score, 100)
-
-    def _entity_score(self, event: dict, group: dict) -> int:
-        """Score based on entity continuity."""
-        event_track = event.get("track_id")
-        group_tracks = group.get("track_ids", [])
-        
-        if event_track and event_track in group_tracks:
+    def _entity_score_vs_group(self, event: dict, group: dict) -> int:
+        """Score entity continuity (track / Re-ID) with the group."""
+        track = event.get("track_id")
+        tracks = group.get("track_ids") or []
+        if track and track != UNKNOWN_TOKEN and track in tracks:
             return 100
-        
-        # Check for Re-ID candidates
-        reid = event.get("reid_candidate")
-        if reid and reid.get("track_id") in group_tracks:
+        reid = event.get("reid_candidate") or {}
+        candidate_track = reid.get("track_id") or reid.get("candidate_id")
+        if candidate_track and candidate_track in tracks:
             return 80
-        
         return 0
 
     def _compatibility_score(self, event: dict, group: dict) -> int:
-        """Score based on source/type compatibility."""
-        event_source = event.get("source", "UNKNOWN")
-        group_sources = group.get("sources", [])
-        
+        """Score based on source compatibility."""
+        group_sources = group.get("sources") or []
         if not group_sources:
             return 50
-        
-        max_score = 0
-        for group_source in group_sources:
-            score = get_compatibility(event.get("source", "UNKNOWN"), group_source)
-            max_score = max(max_score, score)
-        
-        return max_score
+        event_source = event.get("source", "UNKNOWN")
+        if event_source not in DEFAULT_COMPATIBILITY_MATRIX:
+            return 50
+        scores = []
+        for src in group_sources:
+            if src not in DEFAULT_COMPATIBILITY_MATRIX:
+                return 50
+            scores.append(get_compatibility(event_source, src))
+        return max(scores)
+
+    def _adjacent_to_group(self, camera_id: str, group_cameras: list) -> bool:
+        """Check if a camera is adjacent (per topology) to any group camera."""
+        adjacency = getattr(self.spatial, "camera_adjacency", {}) or {}
+        for cam in group_cameras:
+            if camera_id in adjacency.get(cam, []) or cam in adjacency.get(camera_id, []):
+                return True
+        return False
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Relationship construction
+    # ─────────────────────────────────────────────────────────────────────────
 
     def build_relationships(self, event: dict, group: dict) -> list[dict]:
-        """Build relationships between event and group members."""
-        relationships = []
-        
-        # This would create relationships with existing group members
-        # For now, return basic relationships
-        return []
+        """Build concrete relationships between the event and group members.
+
+        Every relationship carries a real explanation, so operators can see
+        WHY two events were linked.
+        """
+        relationships: list[dict] = []
+        seen: set[tuple[str, str]] = set()
+        event_id = event.get("event_id")
+
+        members = group.get("member_events") or []
+        if len(members) > self.max_group_size:
+            members = members[-self.max_group_size:]
+
+        for member in members:
+            member_id = member.get("event_id")
+            if not member_id or member_id == event_id:
+                continue
+
+            temporal = self.temporal.classify_relation(event, member, window_seconds=self.temporal_window)
+            if temporal:
+                key = (member_id, "TEMPORAL")
+                if key not in seen:
+                    seen.add(key)
+                    relationships.append({
+                        "from_event_id": event_id,
+                        "to_event_id": member_id,
+                        "type": "TEMPORAL",
+                        "subtype": temporal.get("subtype"),
+                        "strength": temporal.get("confidence"),
+                        "evidence": temporal,
+                        "explanation": self._explain("TEMPORAL", event, member, temporal),
+                    })
+
+            spatial = self.spatial.classify_relation(event, member)
+            if spatial:
+                key = (member_id, "SPATIAL")
+                if key not in seen:
+                    seen.add(key)
+                    relationships.append({
+                        "from_event_id": event_id,
+                        "to_event_id": member_id,
+                        "type": "SPATIAL",
+                        "subtype": spatial.get("subtype"),
+                        "strength": spatial.get("confidence"),
+                        "evidence": spatial,
+                        "explanation": self._explain("SPATIAL", event, member, spatial),
+                    })
+
+            entity = self.entity.classify_relation(event, member)
+            if entity:
+                key = (member_id, "ENTITY")
+                if key not in seen:
+                    seen.add(key)
+                    relationships.append({
+                        "from_event_id": event_id,
+                        "to_event_id": member_id,
+                        "type": "ENTITY",
+                        "subtype": entity.get("subtype"),
+                        "strength": entity.get("strength"),
+                        "evidence": entity,
+                        "explanation": self._explain("ENTITY", event, member, entity),
+                    })
+
+        return relationships
+
+    @staticmethod
+    def _explain(rel_type: str, event: dict, member: dict, rel: dict) -> str:
+        """Build a human-readable explanation for a relationship."""
+        event_id = event.get("event_id", "?")
+        member_id = member.get("event_id", "?")
+        if rel_type == "TEMPORAL":
+            delta = rel.get("time_diff_seconds")
+            delta_txt = f"{delta:.1f}s apart" if delta is not None else "overlapping in time"
+            return (
+                f"Event {event_id} and {member_id} are {delta_txt} "
+                f"(TEMPORAL {rel.get('subtype')}, confidence {rel.get('confidence')})"
+            )
+        if rel_type == "SPATIAL":
+            subtype = rel.get("subtype")
+            evidence = rel.get("evidence") or {}
+            if subtype == "SAME_CAMERA":
+                return f"Both events observed by camera {evidence.get('camera_id')}"
+            if subtype == "SAME_ZONE":
+                return f"Both events inside zone {evidence.get('zone_id')}"
+            if subtype == "SAME_SECTOR":
+                return f"Both events inside sector {evidence.get('sector_id')}"
+            if subtype == "ADJACENT_CAMERA":
+                return (
+                    f"Events on adjacent cameras {evidence.get('camera_a')} / "
+                    f"{evidence.get('camera_b')} (POSSIBLE CONTINUATION)"
+                )
+            distance = rel.get("distance_meters")
+            if distance is not None:
+                return f"Events within {distance:.0f}m of each other"
+            return f"Spatial relation {subtype}"
+        if rel_type == "ENTITY":
+            subtype = rel.get("subtype")
+            evidence = rel.get("evidence") or {}
+            if subtype == "SAME_TRACK":
+                return f"Same track {evidence.get('track_id')} across both events"
+            similarity = evidence.get("similarity")
+            return (
+                f"Re-ID candidate {evidence.get('candidate_id')} "
+                f"(similarity {similarity:.0%}) links the events"
+            )
+        return f"Related to {member_id}"
+
+    def _reason_summary(self, relationships: list[dict]) -> str:
+        if not relationships:
+            return "no explicit relations"
+        types = sorted({rel["type"] for rel in relationships})
+        return f"{len(relationships)} explicit relations ({', '.join(types)})"
 
 
 # Global rule engine instance

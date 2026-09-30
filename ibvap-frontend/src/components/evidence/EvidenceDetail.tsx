@@ -46,13 +46,33 @@ export function EvidenceDetail({ record }: { record: EvidenceRecord }) {
           <span className={clsx('font-mono text-[11px]', integrityTone.text)}>{record.integrity}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono text-[11px] text-slate-500">
-          <span title="Incident reference">{record.incidentId}</span>
+          {record.incidentId ? (
+            <Link
+              to={`/incident/${encodeURIComponent(record.incidentId)}`}
+              className="text-cyan-400 hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 rounded"
+              title="View Incident Detail"
+            >
+              {record.incidentId} →
+            </Link>
+          ) : (
+            <span title="Incident reference">—</span>
+          )}
           <Link
             to={`/camera/${record.cameraId}`}
             className="text-cyan-400 hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 rounded"
+            title="View Camera Detail"
           >
             {record.cameraId} →
           </Link>
+          {record.trackId && (
+            <Link
+              to={`/track/${encodeURIComponent(record.trackId)}`}
+              className="text-cyan-400 hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 rounded"
+              title="View Track Detail"
+            >
+              {record.trackId} →
+            </Link>
+          )}
           <span>{humanize(record.type)}</span>
           <span>{formatClock(record.capturedAt)}</span>
         </div>

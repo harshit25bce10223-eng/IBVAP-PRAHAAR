@@ -9,7 +9,7 @@ import { MockANPRService, RealANPRService, getANPRService } from '@/services/anp
 
 describe('Component 7 — ANPR Domain Contract', () => {
   it('covers all required mock scenarios with deterministic IDs', () => {
-    expect(ALL_MOCK_SIGHTINGS.length).toBeGreaterThanOrEqual(10)
+    expect(ALL_MOCK_SIGHTINGS.length).toBe(14)
 
     const ids = ALL_MOCK_SIGHTINGS.map(s => s.sightingId)
     const uniqueIds = new Set(ids)
@@ -69,6 +69,22 @@ describe('Component 7 — ANPR Domain Contract', () => {
     expect(s7?.plateRead?.quality).toBe('PARTIAL')
   })
 
+  it('includes low-sun glare capture scenario (§29)', () => {
+    const s11 = ALL_MOCK_SIGHTINGS.find(s => s.sightingId === 'SGT-0011')
+    expect(s11).toBeDefined()
+    expect(s11?.plateRead?.quality).toBe('GLARE')
+    expect(s11?.plateRead?.displayRead).toBe('HR51BR8842')
+    expect(s11?.confidence).toBe(0.57)
+  })
+
+  it('includes dirty-plate capture scenario (§29)', () => {
+    const s12 = ALL_MOCK_SIGHTINGS.find(s => s.sightingId === 'SGT-0012')
+    expect(s12).toBeDefined()
+    expect(s12?.plateRead?.quality).toBe('DIRTY')
+    expect(s12?.vehicleClass).toBe('TRACTOR')
+    expect(s12?.confidence).toBe(0.42)
+  })
+
   it('includes multi-camera sightings for the same vehicle', () => {
     const vehSightings = ALL_MOCK_SIGHTINGS.filter(s => s.vehicleId === 'VEH-A001')
     expect(vehSightings.length).toBeGreaterThanOrEqual(2)
@@ -99,6 +115,12 @@ describe('Component 7 — MockANPRService', () => {
     expect(summary.camerasReporting).toBeGreaterThan(0)
   })
 
+  it('summary counts are internally consistent (no fabricated metrics)', async () => {
+    const summary = await service.getSummary()
+    expect(summary.totalReads).toBe(14)
+    expect(summary.readablePlates + summary.partialReads + summary.unreadablePlates).toBe(summary.totalReads)
+  })
+
   it('filters sightings by camera_id', async () => {
     const page = await service.listSightings({ cameraId: 'CAM-07' })
     expect(page.sightings.length).toBeGreaterThan(0)
@@ -115,6 +137,28 @@ describe('Component 7 — MockANPRService', () => {
     }
   })
 
+  it('filters sightings by trackId', async () => {
+    const page = await service.listSightings({ trackId: 'TRK-1042' })
+    expect(page.sightings.length).toBe(2) // SGT-0001 + SGT-0008A
+    for (const s of page.sightings) {
+      expect(s.vehicleTrackId).toBe('TRK-1042')
+    }
+  })
+
+  it('applies confidenceMin threshold', async () => {
+    const page = await service.listSightings({ confidenceMin: 0.9 })
+    expect(page.sightings.length).toBe(4)
+    for (const s of page.sightings) {
+      expect(s.confidence).toBeGreaterThanOrEqual(0.9)
+    }
+  })
+
+  it('applies observed-time window', async () => {
+    const page = await service.listSightings({ from: '2026-09-19T22:00:00Z' })
+    const ids = page.sightings.map(s => s.sightingId).sort()
+    expect(ids).toEqual(['SGT-0004', 'SGT-0006'])
+  })
+
   it('filters sightings by search query matching plate', async () => {
     const page = await service.listSightings({ search: 'HR26' })
     expect(page.sightings.length).toBeGreaterThan(0)
@@ -124,7 +168,7 @@ describe('Component 7 — MockANPRService', () => {
   it('returns vehicle history for known vehicleId', async () => {
     const history = await service.getVehicleHistory('VEH-A001')
     expect(history.vehicleId).toBe('VEH-A001')
-    expect(history.totalSightings).toBeGreaterThanOrEqual(3)
+    expect(history.totalSightings).toBe(3)
   })
 
   it('returns single sighting by id', async () => {
@@ -135,13 +179,112 @@ describe('Component 7 — MockANPRService', () => {
   it('throws error for non-existent sighting', async () => {
     await expect(service.getSighting('NON-EXISTENT')).rejects.toThrow('not found')
   })
+})
 
-  it('performs plate search returning ranked results', async () => {
+// §24 — five explicit match labels; classification mirrors the backend
+// repository phases (exact normalized → raw read → partial → candidate →
+// related). Partial/candidate results are never reported as exact.
+// NOTE: in the mock dataset every multi-sighting vehicle shares one identical
+// plate text, so phase E (RELATED_SIGHTING) adds no new rows in these cases;
+// its behavior is exercised at the backend level instead.
+describe('Component 7 — Plate Search Classification (§24)', () => {
+  const service = new MockANPRService()
+
+  it('classifies exact normalized match', async () => {
+    const results = await service.searchPlate('RJ14AB1052')
+    expect(results.length).toBe(1)
+    expect(results[0].matchType).toBe('EXACT_NORMALIZED_MATCH')
+    expect(results[0].sighting.sightingId).toBe('SGT-0003')
+  })
+
+  it('classifies raw read match (no exact read) as RAW_READ_MATCH', async () => {
     const results = await service.searchPlate('RJ14')
-    expect(results.length).toBeGreaterThan(0)
-    expect(['EXACT_NORMALIZED_MATCH', 'TOP_CANDIDATE_MATCH', 'PARTIAL_MATCH']).toContain(
-      results[0].matchType
-    )
+    expect(results.length).toBe(1)
+    expect(results[0].matchType).toBe('RAW_READ_MATCH')
+    expect(results[0].sighting.sightingId).toBe('SGT-0003')
+  })
+
+  it('classifies candidate-only text as CANDIDATE_MATCH, never exact', async () => {
+    const results = await service.searchPlate('RJ14AB105Z')
+    expect(results.length).toBe(1)
+    expect(results[0].matchType).toBe('CANDIDATE_MATCH')
+  })
+
+  it('returns all exact reads for a fully repeated plate', async () => {
+    const results = await service.searchPlate('HR26AK4521')
+    expect(results.length).toBe(4) // SGT-0001, SGT-0008A/B/C — all VEH-A001 records
+    for (const r of results) {
+      expect(r.matchType).toBe('EXACT_NORMALIZED_MATCH')
+      expect(r.sighting.vehicleId).toBe('VEH-A001')
+    }
+  })
+
+  it('returns empty results for a non-matching query', async () => {
+    const results = await service.searchPlate('ZZ99ZZ9999')
+    expect(results.length).toBe(0)
+  })
+})
+
+describe('Component 7 — New service surfaces (§19/§28/§42)', () => {
+  const service = new MockANPRService()
+
+  it('returns provider health without fabricated latency', async () => {
+    const health = await service.getProviderHealth()
+    expect(health.state).toBe('READY')
+    expect(health.provider).toBe('ANPR-DEMO')
+    expect(health.processingLatencyMs).toBeNull()
+    expect(health.note).toContain('not a production ANPR model')
+  })
+
+  it('returns ranked candidates for a sighting', async () => {
+    const candidates = await service.getSightingCandidates('SGT-0003')
+    expect(candidates.length).toBe(3)
+    expect(candidates[0].rank).toBe(1)
+    expect(candidates[0].confidence).toBeGreaterThan(candidates[1].confidence)
+    expect(candidates[2].normalizedRead).toBeNull()
+  })
+
+  it('rejects candidates for unknown sighting', async () => {
+    await expect(service.getSightingCandidates('NON-EXISTENT')).rejects.toThrow('not found')
+  })
+
+  it('returns the newest sighting for a vehicle', async () => {
+    const newest = await service.getVehicle('VEH-A001')
+    expect(newest.sightingId).toBe('SGT-0008C') // 17:34 — latest of the four records
+  })
+
+  it('rejects unknown vehicle', async () => {
+    await expect(service.getVehicle('NON-EXISTENT')).rejects.toThrow('not found')
+  })
+
+  it('returns a camera feed with reported state and provider health', async () => {
+    const feed = await service.getCameraFeed('CAM-07')
+    expect(feed.cameraId).toBe('CAM-07')
+    expect(feed.state).toBe('READY')
+    expect(feed.providerHealth).toBe('READY')
+    expect(feed.sightings.length).toBe(4)
+    expect(feed.sightings[0].sightingId).toBe('SGT-0004') // newest (22:41) first
+    expect(feed.lastUpdatedAt).toBe('2026-09-19T22:41:08Z')
+    for (const s of feed.sightings) {
+      expect(s.cameraId).toBe('CAM-07')
+    }
+  })
+
+  it('aggregates camera summary counts without accuracy claims', async () => {
+    const summary = await service.getCameraSummary('CAM-07')
+    expect(summary.totalSightings).toBe(4)
+    expect(summary.byStatus['NO_MATCH']).toBe(2)
+    expect(summary.byStatus['WATCHLIST_MATCH']).toBe(1)
+    expect(summary.byQuality['GOOD']).toBe(3) // SGT-0004 has no read → excluded
+    expect(summary.byClass['MOTORCYCLE']).toBe(1)
+    expect(summary.lastUpdatedAt).toBe('2026-09-19T22:41:08Z')
+  })
+
+  it('returns an empty camera summary for an unknown camera', async () => {
+    const summary = await service.getCameraSummary('CAM-99')
+    expect(summary.totalSightings).toBe(0)
+    expect(summary.lastUpdatedAt).toBeNull()
+    expect(Object.keys(summary.byStatus).length).toBe(0)
   })
 })
 

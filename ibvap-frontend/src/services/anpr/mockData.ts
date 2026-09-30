@@ -1,9 +1,10 @@
 ﻿// ─────────────────────────────────────────────────────────────────────────────
 // Component 7 — ANPR Mock Data
-// 10 deterministic sightings covering every scenario in the spec.
+// 14 deterministic sightings covering every scenario in the spec, including
+// glare and dirty-plate capture conditions (§29).
 // NO Math.random(). All IDs and timestamps are fixed strings.
 // ─────────────────────────────────────────────────────────────────────────────
-import type { VehicleSighting, ANPRSummary, VehicleHistory } from '@/types/anpr'
+import type { VehicleSighting, ANPRSummary, VehicleHistory, ANPRProviderHealth } from '@/types/anpr'
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 function plateRead(
@@ -67,7 +68,7 @@ export const S1: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S2: Low-confidence OCR MP09CD7731, 0.48 confidence, FAIR quality, SUV
@@ -97,7 +98,7 @@ export const S2: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S3: Two candidates RJ14AB1052 (0.91) and RJ14AB1062 (0.66), FAIR quality
@@ -128,7 +129,7 @@ export const S3: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S4: UNREADABLE plate, null plateRead, motorcycle, night scene
@@ -155,7 +156,7 @@ export const S4: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S5: Truck, MOTION_BLUR quality, confidence 0.61
@@ -185,7 +186,7 @@ export const S5: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S6: Night scene, degraded camera health, SUV, LOW_LIGHT quality
@@ -214,7 +215,7 @@ export const S6: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S7: DEGRADED camera, partial plate DL8C__123, PARTIAL quality
@@ -243,7 +244,7 @@ export const S7: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S8a,b,c: Multi-camera history (same vehicleId VEH-A001 / HR26AK4521 on 3 cameras)
@@ -270,7 +271,7 @@ export const S8a: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 export const S8b: VehicleSighting = {
@@ -296,7 +297,7 @@ export const S8b: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 export const S8c: VehicleSighting = {
@@ -322,7 +323,7 @@ export const S8c: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S9: Incident-linked sighting, incidentRef: 'INC-024'
@@ -351,7 +352,7 @@ export const S9: VehicleSighting = {
   incidentRef: 'INC-024',
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // S10: Evidence-linked sighting, evidenceRef: 'EVD-0091'
@@ -381,23 +382,104 @@ export const S10: VehicleSighting = {
   incidentRef: null,
   thumbnailUrl: null,
   plateCropUrl: null,
-  sourceProvider: 'ANPR-ENGINE-v2',
+  sourceProvider: 'ANPR-DEMO',
+}
+
+// S11: LOW SUN GLARE — evening backlight, read 0.57, GLARE quality (§29)
+export const S11: VehicleSighting = {
+  sightingId: 'SGT-0011',
+  vehicleId: 'VEH-A011',
+  vehicleTrackId: 'TRK-1052',
+  cameraId: 'CAM-09',
+  observedAt: '2026-09-19T18:04:00Z',
+  receivedAt: '2026-09-19T18:04:02Z',
+  vehicleClass: 'PERSONAL_CAR',
+  vehicleColor: 'WHITE',
+  vehicleDirection: 'WEST',
+  plateRead: plateRead('HR51BR8842', 'HR51BR8842', 0.57, 'GLARE', 'VALID_FORMAT', '2026-09-19T18:04:00Z'),
+  plateCandidates: [
+    candidate(1, 'HR51BR8842', 'HR51BR8842', 0.57, 'VALID_FORMAT'),
+    candidate(2, 'HR51BR884Z', null, 0.36, 'INVALID_FORMAT'),
+  ],
+  confidence: 0.57,
+  detectionQuality: 'MEDIUM',
+  cameraHealthState: 'HEALTHY',
+  locationContext: 'East Perimeter Road — low sun glare',
+  watchlistStatus: 'NOT_CHECKED',
+  evidenceRef: null,
+  eventRef: null,
+  correlationRef: null,
+  incidentRef: null,
+  thumbnailUrl: null,
+  plateCropUrl: null,
+  sourceProvider: 'ANPR-DEMO',
+}
+
+// S12: MUD-COVERED PLATE — dirty plate on tractor, read 0.42, DIRTY quality (§29)
+export const S12: VehicleSighting = {
+  sightingId: 'SGT-0012',
+  vehicleId: 'VEH-A012',
+  vehicleTrackId: 'TRK-1053',
+  cameraId: 'CAM-13',
+  observedAt: '2026-09-19T19:20:00Z',
+  receivedAt: '2026-09-19T19:20:02Z',
+  vehicleClass: 'TRACTOR',
+  vehicleColor: 'OTHER',
+  vehicleDirection: 'SOUTH',
+  plateRead: plateRead('UP11TC0977', 'UP11TC0977', 0.42, 'DIRTY', 'POSSIBLE_FORMAT', '2026-09-19T19:20:00Z'),
+  plateCandidates: [
+    candidate(1, 'UP11TC0977', 'UP11TC0977', 0.42, 'POSSIBLE_FORMAT'),
+    candidate(2, 'UP11TC09TT', null, 0.29, 'INVALID_FORMAT'),
+  ],
+  confidence: 0.42,
+  detectionQuality: 'LOW',
+  cameraHealthState: 'DEGRADED',
+  locationContext: 'West Flank CAM-13 — mud-covered plate',
+  watchlistStatus: 'NOT_CHECKED',
+  evidenceRef: null,
+  eventRef: null,
+  correlationRef: null,
+  incidentRef: null,
+  thumbnailUrl: null,
+  plateCropUrl: null,
+  sourceProvider: 'ANPR-DEMO',
 }
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
 
 export const ALL_MOCK_SIGHTINGS: VehicleSighting[] = [
-  S1, S2, S3, S4, S5, S6, S7, S8a, S8b, S8c, S9, S10,
+  S1, S2, S3, S4, S5, S6, S7, S8a, S8b, S8c, S9, S10, S11, S12,
 ]
 
+// Counts computed honestly from the dataset above:
+//   totalReads              = 14 sightings (one plate observation each)
+//   readablePlates          = 12 (non-null read, quality not PARTIAL/UNREADABLE)
+//   partialReads            = 1  (SGT-0007)
+//   unreadablePlates        = 1  (SGT-0004 — no read captured)
+//   uniqueTrackedSightings  = 13 distinct vehicleTrackId values
+//   camerasReporting        = CAM-07, 08, 09, 11, 12, 13
 export const MOCK_SUMMARY: ANPRSummary = {
-  totalReads: 12,
-  readablePlates: 9,
+  totalReads: 14,
+  readablePlates: 12,
   partialReads: 1,
   unreadablePlates: 1,
-  uniqueTrackedSightings: 10,
+  uniqueTrackedSightings: 13,
   camerasReporting: 6,
   lastUpdated: '2026-09-19T23:05:04Z',
+}
+
+// §28 PROVIDER STATUS — deterministic demo provider health. Latency is null
+// because the demo provider does not measure inference latency; no fake READY.
+export const MOCK_PROVIDER_HEALTH: ANPRProviderHealth = {
+  state: 'READY',
+  provider: 'ANPR-DEMO',
+  providerVersion: 'demo-1.0',
+  lastSuccessfulUpdate: '2026-09-19T23:05:04Z',
+  failureCount: 0,
+  queueDepth: 0,
+  processingLatencyMs: null,
+  camerasActive: 6,
+  note: 'Deterministic demo provider — not a production ANPR model.',
 }
 
 export const MOCK_VEHICLE_HISTORY_VEH_A001: VehicleHistory = {

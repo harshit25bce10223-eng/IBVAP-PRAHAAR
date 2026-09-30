@@ -7,9 +7,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { clsx } from 'clsx'
-import type { Track, TrackPoint } from '@/types/tracking'
-import { FEED_VIEWBOX } from '@/components/camera/feedViewport'
-import { pointsToContainer, pointToVB } from './geometry'
+import type { Track } from '@/types/tracking'
+import { pointsToContainer } from './geometry'
 import { TRACK_CLASS_STROKE } from './trackTone'
 import { formatClock } from './trackFormat'
 
@@ -57,7 +56,7 @@ export function TrackTrajectory({
     >
       <defs>
         <marker
-          id="trail-arrowhead"
+          id={`trail-arrowhead-${track.trackId}`}
           markerWidth="6"
           markerHeight="6"
           refX="5"
@@ -75,12 +74,12 @@ export function TrackTrajectory({
         strokeWidth={1.5}
         strokeDasharray="4 4"
         opacity={0.7}
-        markerEnd="url(#trail-arrowhead)"
+        markerEnd={`url(#trail-arrowhead-${track.trackId})`}
       />
       {showTimestamps && containerPoints.map((p, idx) => (
         <g key={idx} className="pointer-events-none">
           <circle cx={p.x} cy={p.y} r={3} fill={TRACK_CLASS_STROKE[track.objectClass]} opacity={0.8} />
-          {trajectory[idx]?.timestamp && (
+          {trailPoints[idx]?.timestamp && (
             <text
               x={p.x + 5}
               y={p.y - 5}
@@ -88,7 +87,7 @@ export function TrackTrajectory({
               fontFamily="JetBrains Mono, monospace"
               fill="#cbd5e1"
             >
-              {formatClock(trajectory[idx].timestamp!)}
+              {formatClock(trailPoints[idx].timestamp!)}
             </text>
           )}
         </g>

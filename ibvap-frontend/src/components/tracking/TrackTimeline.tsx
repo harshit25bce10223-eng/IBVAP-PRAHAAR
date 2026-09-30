@@ -6,19 +6,23 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { clsx } from 'clsx'
-import type { TrackObservation } from '@/types/tracking'
-import { formatClock, formatTrackClassLabel, formatConfidence, formatSpeed, formatSourceLabel } from './trackFormat'
+import { ChevronRight } from 'lucide-react'
+import type { Track, TrackObservation } from '@/types/tracking'
+import { formatClock, formatConfidence, formatSpeed, formatSourceLabel } from './trackFormat'
 import { TRACK_CLASS_STROKE, TRACK_CLASS_CHIP } from './trackTone'
 
 interface TrackTimelineProps {
   observations: TrackObservation[]
+  /** Track class — observations do not carry a class; the chip shows the
+   *  track's class when provided, and is omitted otherwise (never assumed). */
+  objectClass?: Track['objectClass'] | null
   /** Optional filter to highlight a specific observation */
   highlightedId?: string | null
   /** Compact mode for inspector embedding */
   compact?: boolean
 }
 
-export function TrackTimeline({ observations, highlightedId, compact = false }: TrackTimelineProps) {
+export function TrackTimeline({ observations, objectClass, highlightedId, compact = false }: TrackTimelineProps) {
   if (observations.length === 0) {
     return (
       <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#0d1117] p-4 text-center', !compact && 'min-h-[120px]')}>
@@ -32,7 +36,7 @@ export function TrackTimeline({ observations, highlightedId, compact = false }: 
       {observations
         .slice()
         .sort((a, b) => new Date(a.observedAt).getTime() - new Date(b.observedAt).getTime())
-        .map((obs, idx) => {
+        .map((obs) => {
           const highlighted = highlightedId === obs.observationId
           return (
             <div
@@ -45,14 +49,17 @@ export function TrackTimeline({ observations, highlightedId, compact = false }: 
                   : 'border-white/[0.06] bg-white/[0.02] hover:border-cyan-400/25 hover:bg-white/[0.04]'
               )}
             >
-              <span
-                className={clsx(
-                  'rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase shrink-0',
-                  TRACK_CLASS_STROKE['PERSON'] && 'bg-sky-500/10 text-sky-300',
-                )}
-              >
-                {TRACK_CLASS_CHIP['PERSON']}
-              </span>
+              {objectClass && (
+                <span
+                  className="rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase shrink-0"
+                  style={{
+                    backgroundColor: `${TRACK_CLASS_STROKE[objectClass]}1A`,
+                    color: TRACK_CLASS_STROKE[objectClass],
+                  }}
+                >
+                  {TRACK_CLASS_CHIP[objectClass]}
+                </span>
+              )}
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="flex items-center gap-1.5 truncate text-[11px] text-slate-200">
                   {formatClock(obs.observedAt)}
@@ -80,6 +87,3 @@ export function TrackTimeline({ observations, highlightedId, compact = false }: 
     </div>
   )
 }
-
-// Need to import ChevronRight
-import { ChevronRight } from 'lucide-react'

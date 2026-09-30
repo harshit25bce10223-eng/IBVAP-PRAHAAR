@@ -65,6 +65,20 @@ export function CorrelationEventDrawer({ open, onClose, member, group }: Correla
                 <span className="text-slate-500">N/A</span>
               )}
             </Detail>
+            <Detail label="Severity">
+              {member.severity ? (
+                <SeverityBadge severity={member.severity} />
+              ) : (
+                <span className="text-slate-500">NOT SCORED</span>
+              )}
+            </Detail>
+            <Detail label="Detection ref (C5)">
+              {member.detectionId ? (
+                <span className="font-mono text-slate-300">{member.detectionId}</span>
+              ) : (
+                <span className="text-slate-500">not referenced</span>
+              )}
+            </Detail>
           </dl>
 
           {member.confidence !== null && (
@@ -103,9 +117,44 @@ export function CorrelationEventDrawer({ open, onClose, member, group }: Correla
             </div>
           )}
 
-          <Detail label="Severity">
-            <SeverityBadge severity={member.severity} />
-          </Detail>
+          {(member.anprPlate || member.anprSightingId) && (
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                ANPR read (C7)
+              </label>
+              <div className="mt-1.5 space-y-1 rounded-md border border-white/10 bg-white/5 px-3 py-2">
+                {member.anprPlate && (
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <Link
+                      to={`/anpr?search=${encodeURIComponent(member.anprPlate)}`}
+                      className="font-mono text-sm font-semibold tracking-wider text-cyan-300 hover:text-cyan-200"
+                    >
+                      {member.anprPlate}
+                    </Link>
+                    {member.anprPlateConfidence !== null && (
+                      <span className="font-mono text-[11px] text-slate-400">
+                        confidence {Math.round(
+                          member.anprPlateConfidence <= 1
+                            ? member.anprPlateConfidence * 100
+                            : member.anprPlateConfidence
+                        )}
+                        %
+                      </span>
+                    )}
+                    {member.anprQuality && (
+                      <span className="font-mono text-[11px] text-slate-500">quality {member.anprQuality}</span>
+                    )}
+                  </div>
+                )}
+                {member.anprSightingId && (
+                  <p className="font-mono text-[10px] text-slate-500">sighting {member.anprSightingId}</p>
+                )}
+                <p className="text-[10px] text-slate-500">
+                  Reported by the ANPR source — shown verbatim, never an identity claim.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Evidence</label>

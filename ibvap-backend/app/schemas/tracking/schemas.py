@@ -14,10 +14,26 @@
 # ─────────────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+def _iso_utc(dt: datetime | None) -> str | None:
+    """Serialize a datetime as ISO-8601 with an explicit UTC offset.
+
+    SQLite returns naive datetimes for DateTime(timezone=True) columns. A naive
+    string like "2026-09-28T14:55:01" is parsed by browsers as LOCAL time,
+    which shifted every displayed timestamp by the local offset. Found in §27
+    browser QA: Track Detail showed firstSeenAt converted to IST but
+    updatedAt/observations/history rendered as raw UTC (5.5h apart).
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.isoformat()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -115,8 +131,8 @@ class TrackObservationResponse(BaseModel):
             track_id=obs.track_id,
             detection_id=obs.detection_id,
             camera_id=obs.camera_id,
-            observed_at_iso=obs.observed_at.isoformat() if obs.observed_at else "",
-            received_at_iso=obs.received_at.isoformat() if obs.received_at else None,
+            observed_at_iso=_iso_utc(obs.observed_at) or "",
+            received_at_iso=_iso_utc(obs.received_at),
             bbox=bbox,
             velocity=obs.velocity,
             speed=obs.speed,
@@ -152,8 +168,8 @@ class TrackResponse(BaseModel):
     observedAt: str = Field(validation_alias="observed_at_iso")
     updatedAt: Optional[str] = Field(None, validation_alias="updated_at_iso")
 
-    ageMs: Optional[int] = None
-    durationSec: Optional[float] = None
+    ageMs: Optional[int] = Field(None, validation_alias="age_ms")
+    durationSec: Optional[float] = Field(None, validation_alias="duration_sec")
     detectionCount: int = Field(validation_alias="observation_count")
 
     currentDetectionId: Optional[str] = Field(None, validation_alias="current_detection_id")
@@ -229,7 +245,7 @@ class TrackResponse(BaseModel):
                 TrackPoint(
                     x=obs.bbox_x + obs.bbox_width / 2.0 if obs.bbox_x is not None else 0.0,
                     y=obs.bbox_y + obs.bbox_height / 2.0 if obs.bbox_y is not None else 0.0,
-                    timestamp=obs.observed_at.isoformat() if obs.observed_at else None,
+                    timestamp=_iso_utc(obs.observed_at),
                     observation_id=obs.observation_id,
                     sequence=obs.sequence,
                     speed=obs.speed,
@@ -259,8 +275,8 @@ class TrackResponse(BaseModel):
             age_ms = int((now - last_seen).total_seconds() * 1000)
 
         observed_at_iso = last_seen.isoformat() if last_seen else ""
-        updated_at_iso = track.updated_at.isoformat() if track.updated_at else None
-        class_revised_at_iso = track.class_revised_at.isoformat() if track.class_revised_at else None
+        updated_at_iso = _iso_utc(track.updated_at)
+        class_revised_at_iso = _iso_utc(track.class_revised_at)
 
         return cls(
             track_id=track.track_id,
@@ -380,7 +396,7 @@ class TrackHistoryEntryResponse(BaseModel):
             provider=h.provider,
             provider_version=h.provider_version,
             configuration_version=h.configuration_version,
-            timestamp=h.timestamp.isoformat() if h.timestamp else "",
+            timestamp=_iso_utc(h.timestamp) or "",
         )
 
 
@@ -426,8 +442,8 @@ class TrackCandidateResponse(BaseModel):
             status=c.status,
             provider=c.provider,
             gap_duration_sec=c.gap_duration_sec,
-            createdAt=c.created_at.isoformat() if c.created_at else "",
-            expiresAt=c.expires_at.isoformat() if c.expires_at else None,
+            createdAt=_iso_utc(c.created_at) or "",
+            expiresAt=_iso_utc(c.expires_at),
         )
 
 
@@ -575,8 +591,8 @@ class TrackingConfigResponse(BaseModel):
             active=cfg.active,
             revision=cfg.revision,
             configuration_version=cfg.configuration_version,
-            createdAt=cfg.created_at.isoformat() if cfg.created_at else "",
-            updatedAt=cfg.updated_at.isoformat() if cfg.updated_at else "",
+            createdAt=_iso_utc(cfg.created_at) or "",
+            updatedAt=_iso_utc(cfg.updated_at) or "",
         )
 
 

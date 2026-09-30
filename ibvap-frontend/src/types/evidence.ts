@@ -136,6 +136,8 @@ export interface LedgerAnchor {
 export interface EvidenceRecord {
   evidenceId: string
   incidentId: string
+  eventId?: string | null
+  trackId?: string | null
   capturedAt: string
   cameraId: string
   zoneId: string | null

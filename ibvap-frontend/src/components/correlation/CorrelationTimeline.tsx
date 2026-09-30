@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { formatClock } from './correlationFormat'
+import { compareByObservedTime, formatClock } from './correlationFormat'
 import { humanizeEventKind, humanizeSource } from './CorrelationSummary'
 import { CONNECTIVITY_LABEL, toneForConnectivity, TONE } from './correlationTone'
 import type { CorrelationGroup, CorrelationEventMember } from '@/types/eventCorrelation'
@@ -16,12 +16,12 @@ interface CorrelationTimelineProps {
  * grouping, never causality (§81).
  */
 export function CorrelationTimeline({ group, onSelectMember }: CorrelationTimelineProps) {
-  const signals = [...group.memberEvents].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  )
+  const signals = [...group.memberEvents].sort(compareByObservedTime)
   const hasIncident = group.incidentId !== null
   const connTone = toneForConnectivity(group.connectivity)
-  const primaryId = group.primaryEventId ?? signals[0]?.eventId ?? null
+  // Only the backend-designated primary event is highlighted. If the backend
+  // designated none, no member is promoted by the frontend.
+  const primaryId = group.primaryEventId
 
   return (
     <ol className="relative" aria-label="Correlation timeline">

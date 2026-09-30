@@ -92,6 +92,10 @@ export function useCorrelationDetail(correlationId: string | undefined) {
     if (correlationId) fetchRelationships(correlationId).catch(() => {})
   }, [correlationId, fetchRelationships])
 
+  const retry = useCallback(() => {
+    if (correlationId) fetchGroup(correlationId).catch(() => {})
+  }, [correlationId, fetchGroup])
+
   return {
     group,
     detailState,
@@ -100,6 +104,7 @@ export function useCorrelationDetail(correlationId: string | undefined) {
     relationships: relationshipsForGroup,
     relationshipState,
     reviewRelationships,
+    retry,
   }
 }
 

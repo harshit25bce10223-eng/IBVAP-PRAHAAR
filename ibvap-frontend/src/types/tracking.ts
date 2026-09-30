@@ -14,7 +14,7 @@
 // - Evidence: "Cryptographically verifiable ledger entry" (Component 3)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { DetectionBBox, DetectionClass, DetectionQuality } from './detection'
+import type { DetectionBBox, DetectionClass } from './detection'
 
 /**
  * Canonical track lifecycle states (§19, §20).
@@ -110,6 +110,50 @@ export interface CrossCameraCandidate {
   gapDurationSec?: number | null
   sequenceNumber?: number
   note?: string
+}
+
+/**
+ * Single lifecycle transition record (§8–§10) as persisted by the backend
+ * (TrackHistory). Real recorded transitions only — never synthesized by the
+ * frontend. `oldStatus` is null for the first entry of a track.
+ */
+export interface TrackLifecycleEvent {
+  historyId: string
+  trackId: string
+  /** Monotonic record revision assigned by the lifecycle engine. */
+  revision: number
+  oldStatus: TrackStatus | null
+  newStatus: TrackStatus
+  /** Recorded reason for the transition when the backend supplies one. */
+  reason: string | null
+  triggerDetectionId?: string | null
+  provider?: string | null
+  providerVersion?: string | null
+  configurationVersion?: string | null
+  /** When the transition was recorded (backend clock). */
+  timestamp: string
+}
+
+/** Relation hypotheses only — never confirmed identity (§20, §67). */
+export type TrackCandidateRelation = 'POSSIBLE_CONTINUATION' | 'POSSIBLE_SAME_ENTITY'
+
+/**
+ * Cross-camera candidate record (§20) as returned by
+ * GET /api/v1/tracks/{id}/candidates. A hypothesis, not an identity link.
+ */
+export interface TrackCandidate {
+  candidateId: string
+  sourceTrackId: string
+  targetCameraId: string
+  candidateTrackId: string | null
+  relationType: TrackCandidateRelation | string
+  strength: number | null
+  reason: string | null
+  status: string
+  provider: string | null
+  gapDurationSec: number | null
+  createdAt: string
+  expiresAt: string | null
 }
 
 /** Component 2 Camera Health context attached to a track (§58, §85). */

@@ -1,4 +1,4 @@
-﻿# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # PRHAAR â€” Evidence API Routes
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 from __future__ import annotations
@@ -80,6 +80,15 @@ async def verify_ledger(
 ):
     """Verify ledger chain integrity."""
     return await service.verify_ledger()
+
+
+@router.get("/audit", response_model=list[AuditEntry])
+async def list_all_audit(
+    limit: int = Query(100, ge=1, le=500),
+    service: EvidenceService = Depends(get_evidence_service),
+):
+    """Get global audit trail across evidence records."""
+    return await service.list_audit(limit)
 
 
 # â”€â”€ Evidence CRUD (dynamic /{evidence_id} routes AFTER static routes) â”€â”€â”€â”€â”€â”€â”€â”€
@@ -275,7 +284,7 @@ async def ingest_evidence(
     stream = io.BytesIO(content)
 
     service = __import__("app.domain.evidence.service", fromlist=["EvidenceService"]).EvidenceService(session)
-    record = await __import__("app.domain.evidence.service", fromlist=["EvidenceService"]).EvidenceService(session).create_evidence(
+    record = await service.create_evidence(
         incident_id=incident_id,
         event_id=event_id,
         camera_id=camera_id,
@@ -288,10 +297,13 @@ async def ingest_evidence(
         mime_type=mime_type,
         file_size_bytes=len(content),
     )
+    await session.commit()
 
     return EvidenceIngestResponse(
-        accepted=True,
         evidenceId=record.evidence_id,
+        status=record.status,
+        hash=record.content_hash,
+        accepted=True,
         currentStatus=record.status,
     )
 

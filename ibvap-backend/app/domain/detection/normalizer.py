@@ -72,24 +72,6 @@ class NormalizedDetection:
     inference_latency_ms: int | None = None
     queue_latency_ms: int | None = None
     payload_json: str | None = None
-    schema_version: str
-    region_profile: str | None
-    sector_id: str | None
-    camera_health_state: str | None
-    camera_health_reliability: str | None
-    camera_viewpoint_shift: bool | None
-    camera_health_captured_at: str | None
-    sync_state: str
-    sync_payload_hash: str | None
-    edge_device_id: str | None
-    source_event_id: str | None
-    source_sequence: int | None
-    observed_at: str
-    received_at: str
-    processed_at: str | None
-    inference_latency_ms: int | None
-    queue_latency_ms: int | None
-    payload_json: str | None
 
 
 class BBoxFormat:
@@ -278,7 +260,14 @@ class DetectionNormalizer:
         return round(confidence, 4)
     
     def normalize_timestamp(self, timestamp: str | None) -> str:
-        """Ensure timestamp is ISO format with timezone."""
+        """
+        Ensure timestamp is ISO format with timezone.
+
+        A missing timestamp is stamped with the current time (the detection is
+        being observed now). An unparseable timestamp raises instead of being
+        silently replaced — a wrong clock value must never be presented as the
+        observation time.
+        """
         if timestamp is None:
             return datetime.now(timezone.utc).isoformat()
         if isinstance(timestamp, str):
@@ -288,12 +277,12 @@ class DetectionNormalizer:
             # Try parsing
             try:
                 dt = datetime.fromisoformat(timestamp)
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-                return dt.isoformat()
-            except ValueError:
-                return datetime.now(timezone.utc).isoformat()
-        return datetime.now(timezone.utc).isoformat()
+            except ValueError as exc:
+                raise ValueError(f"Unparseable timestamp: {timestamp!r}") from exc
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.isoformat()
+        raise ValueError(f"Timestamp must be an ISO string, got {type(timestamp).__name__}")
     
     def compute_payload_hash(self, detection_data: dict[str, Any]) -> str:
         """Compute hash for edge sync idempotency."""

@@ -6,7 +6,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.detection import Detection, DetectionConfig, DetectionSyncState
@@ -63,8 +63,11 @@ class DetectionRepository:
         self,
         camera_id: str | None = None,
         class_name: str | None = None,
+        class_names: list[str] | None = None,
         source: str | None = None,
         state: str | None = None,
+        quality: str | None = None,
+        search: str | None = None,
         region_profile: str | None = None,
         sector_id: str | None = None,
         event_id: str | None = None,
@@ -85,10 +88,28 @@ class DetectionRepository:
             stmt = stmt.where(Detection.camera_id == camera_id)
         if class_name:
             stmt = stmt.where(Detection.class_name == class_name)
+        if class_names:
+            stmt = stmt.where(Detection.class_name.in_(class_names))
         if source:
             stmt = stmt.where(Detection.source == source)
         if state:
             stmt = stmt.where(Detection.detection_state == state)
+        if quality:
+            stmt = stmt.where(Detection.quality_state == quality)
+        if search:
+            _pattern = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    Detection.detection_id.ilike(_pattern),
+                    Detection.camera_id.ilike(_pattern),
+                    Detection.frame_id.ilike(_pattern),
+                    Detection.class_name.ilike(_pattern),
+                    Detection.track_id.ilike(_pattern),
+                    Detection.event_id.ilike(_pattern),
+                    Detection.incident_id.ilike(_pattern),
+                    Detection.evidence_id.ilike(_pattern),
+                )
+            )
         if region_profile:
             stmt = stmt.where(Detection.region_profile == region_profile)
         if sector_id:

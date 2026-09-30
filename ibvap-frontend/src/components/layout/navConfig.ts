@@ -48,9 +48,11 @@ export const NAV_ITEMS: NavItem[] = [
   },
 
   // ── LIVE SURVEILLANCE ─────────────────────────────────────────────────────
+  // Shortcut to the default fence camera. No "LIVE" badge: the page itself
+  // discloses the feed's data mode, and the nav must not overstate it.
   {
     id: 'single-camera', label: 'Virtual Fence · CAM-07', href: '/camera/CAM-07',
-    icon: Video, badge: 'LIVE', badgeVariant: 'safe', section: 'LIVE SURVEILLANCE',
+    icon: Video, section: 'LIVE SURVEILLANCE',
   },
   {
     id: 'wall', label: 'Live Camera Wall', href: '/wall',
@@ -110,13 +112,15 @@ export const NAV_ITEMS: NavItem[] = [
   },
 
   // ── ANALYTICS ─────────────────────────────────────────────────────────────
+  // AI Detections is the C5 observation workspace — a read-only detector
+  // output log, comparable to the C4 event log, so it is not role-gated.
+  {
+    id: 'detections', label: 'Detection Intelligence', href: '/detections',
+    icon: Radar, badge: 'C5', badgeVariant: 'cyan', section: 'ANALYTICS',
+  },
   {
     id: 'analytics', label: 'AI Performance Analytics', href: '/analytics',
     icon: BarChart3, section: 'ANALYTICS', minRole: 'commander', comingSoon: true,
-  },
-  {
-    id: 'detections', label: 'AI Detections', href: '/detections',
-    icon: Radar, section: 'ANALYTICS', minRole: 'commander', comingSoon: true,
   },
 
   // ── SYSTEM INTEGRATION ────────────────────────────────────────────────────
@@ -184,6 +188,9 @@ export function resolveNavContext(pathname: string): CommandSectionContext {
   }
   if (pathname === '/incident-intel') {
     return { section: 'INCIDENTS', label: 'Incident Intelligence', sub: 'INC-024 · Risk & Evidence' }
+  }
+  if (pathname === '/detections') {
+    return { section: 'ANALYTICS', label: 'Detection Intelligence', sub: 'Fleet-Wide Detector Output' }
   }
   if (pathname === '/gis') {
     return { section: 'GIS / DIGITAL TWIN', label: 'GIS / Digital Twin', sub: 'Live Operational Map' }

@@ -15,6 +15,7 @@ import {
   TrackOverlay,
   TrackInspector,
 } from '@/components/tracking'
+import { detectionService } from '@/services/detection'
 import { buildFeedSummary } from '@/services/detection/detectionSummary'
 
 /**
@@ -74,9 +75,15 @@ export function CameraWall() {
           <p className="text-sm text-slate-500 mt-0.5">Detector output across all cameras — observations, not alerts</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
-            Demo mode
-          </span>
+          {detectionService.source === 'DEMO' ? (
+            <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
+              Demo mode
+            </span>
+          ) : (
+            <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-emerald-400">
+              Live backend
+            </span>
+          )}
           <button
             onClick={() => setOverlayOn(v => !v)}
             className="flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1.5 text-[11px] text-slate-300 hover:border-cyan-400/40 hover:text-cyan-300 transition-colors"
@@ -106,16 +113,18 @@ export function CameraWall() {
           </select>
         </label>
         <label className="flex items-center gap-1.5 text-[11px] text-slate-400" title="Display filter — frontend only">
-          <span className="text-slate-500">Display filter</span>
+          <span className="text-slate-500">Min confidence</span>
           <select
             className="rounded border border-white/10 bg-[#080c12] px-2 py-1.5 text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none"
             value={confidenceMin ?? ''}
             onChange={e => setConfidenceMin(e.target.value === '' ? null : Number(e.target.value))}
           >
+            {/* Overlay filters compare against the 0–1 confidence ratio, so the
+                option values are ratios too (the label carries the percent). */}
             <option value="">Confidence: any</option>
-            <option value={50}>Show ≥ 50%</option>
-            <option value={70}>Show ≥ 70%</option>
-            <option value={85}>Show ≥ 85%</option>
+            <option value={0.5}>Show ≥ 50%</option>
+            <option value={0.7}>Show ≥ 70%</option>
+            <option value={0.85}>Show ≥ 85%</option>
           </select>
         </label>
       </div>

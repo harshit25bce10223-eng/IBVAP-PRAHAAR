@@ -126,10 +126,6 @@ class CorrelationGroup(Base):
     # Sources involved
     sources: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
-    # Sector and region
-    sector_id: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
-    region_profile: Mapped[str | None] = mapped_column(String(64), nullable=True)
-
     # Health context for supporting cameras
     health_context: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
@@ -150,10 +146,6 @@ class CorrelationGroup(Base):
     configuration_version: Mapped[str] = mapped_column(String(32), default="1.0", nullable=False)
 
     # Timestamps
-    started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
-    )
-    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -174,9 +166,3 @@ class CorrelationGroup(Base):
     history: Mapped[list["CorrelationHistory"]] = relationship(
         "CorrelationHistory", back_populates="group", cascade="all, delete-orphan"
     )
-
-
-class CorrelationCompleteness(str):
-    COMPLETE = "COMPLETE"
-    PARTIAL = "PARTIAL"
-    UNKNOWN = "UNKNOWN"

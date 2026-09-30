@@ -157,6 +157,31 @@ describe('detection mock provider', () => {
   })
 })
 
+// ── list sort semantics (mock mirrors the backend ordering, §30) ────────────
+
+describe('list sort semantics', () => {
+  async function times(query: Partial<DetectionQuery>): Promise<number[]> {
+    const page = await mockDetectionService.listDetections({ ...DEFAULT_DETECTION_QUERY, pageSize: 100, ...query })
+    return page.detections.map(d => new Date(d.timestamp).getTime())
+  }
+
+  it("default 'latest' desc is newest-first", async () => {
+    const t = await times({})
+    expect(t.length).toBeGreaterThan(1)
+    for (let i = 1; i < t.length; i++) expect(t[i - 1]).toBeGreaterThanOrEqual(t[i])
+  })
+
+  it("'latest' asc shows oldest-first — the order toggle is honored", async () => {
+    const t = await times({ sort: 'latest', order: 'asc' })
+    for (let i = 1; i < t.length; i++) expect(t[i - 1]).toBeLessThanOrEqual(t[i])
+  })
+
+  it("'oldest' pins ascending even if the order toggle says desc — its label always holds", async () => {
+    const t = await times({ sort: 'oldest', order: 'desc' })
+    for (let i = 1; i < t.length; i++) expect(t[i - 1]).toBeLessThanOrEqual(t[i])
+  })
+})
+
 // ── geometry ────────────────────────────────────────────────────────────────
 
 describe('overlay geometry', () => {

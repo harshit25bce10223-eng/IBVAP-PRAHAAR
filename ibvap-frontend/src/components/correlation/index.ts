@@ -19,6 +19,7 @@ export { TONE, CORRELATION_BLURB, CORRELATION_LABEL, CONNECTIVITY_LABEL, GROUP_S
 export { toneForConnectivity, toneForIncidentState, toneForCorrelation, toneForReliability, toneForGroupState, toneForSeverity } from './correlationTone'
 export type { CorrelationTone } from './correlationTone'
 export {
+  compareByObservedTime,
   formatClock,
   formatClockShort,
   formatDate,

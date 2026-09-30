@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { formatClockShort } from './correlationFormat'
+import { compareByObservedTime, formatClockShort } from './correlationFormat'
 import { humanizeEventKind } from './CorrelationSummary'
 import type { CorrelationEventMember, CorrelationGroup, CorrelationRelationship, CorrelationRelationType } from '@/types/eventCorrelation'
 
@@ -29,9 +29,7 @@ interface CorrelationGraphProps {
  * alternative scan surface (§175).
  */
 export function CorrelationGraph({ group, relationships, onSelect }: CorrelationGraphProps) {
-  const nodes = [...group.memberEvents].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  )
+  const nodes = [...group.memberEvents].sort(compareByObservedTime)
   const edges = (relationships.length > 0 ? relationships : group.relationships).slice(0, 24)
   const byId = new Map(nodes.map(n => [n.eventId, n]))
 

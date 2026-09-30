@@ -33,9 +33,10 @@ export type DetectionOcclusion = 'LOW' | 'MEDIUM' | 'HIGH'
 
 /**
  * Detector-placement context. Not a health signal by itself; the camera
- * health interface owns camera health.
+ * health interface owns camera health. REMOTE = provider hosted off-site;
+ * DEMO = demo provider — both are surfaced verbatim, never remapped.
  */
-export type DetectionSource = 'EDGE' | 'CENTRAL' | 'UNKNOWN'
+export type DetectionSource = 'EDGE' | 'CENTRAL' | 'REMOTE' | 'DEMO' | 'UNKNOWN'
 
 /** Detector validity state of a single detection box (provider-supplied). */
 export type DetectionState =
@@ -105,7 +106,9 @@ export interface DetectionResult {
   receivedAt: string | null
   /** Last mutation, if the provider keeps updating the record. */
   updatedAt: string | null
-  /** Frame identity within the camera stream (provider-supplied). */
+  /** Frame identity within the camera stream (provider-supplied, §11). */
+  frameId: string | null
+  /** Stream frame counter / rate when the provider reports them. */
   frameNumber: number | null
   fps: number | null
   frameWidth: number | null
@@ -132,6 +135,12 @@ export interface DetectionResult {
   evidenceId: string | null
   /** Optional downstream link — e.g. IEventCorrelationService correlation id. */
   correlationId: string | null
+  /**
+   * Read-only Component 7 soft reference (§14): a C7 ANPR sighting that cites
+   * this detection. Displayed verbatim; C7 remains authoritative and no ANPR
+   * logic is implemented here.
+   */
+  anprRef: string | null
   cameraHealth: DetectionCameraHealthContext | null
   regionProfile: string | null
   /** Day/night/low-light context when the source provides it. Never implied. */

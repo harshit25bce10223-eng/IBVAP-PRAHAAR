@@ -51,3 +51,10 @@ tsconfig.tsbuildinfo
 Thumbs.db
 *.swp
 *.swo
+
+# Evidence local storage
+evidence_storage/
+*/evidence_storage/
+
+# Editor / Tool metadata
+.kiro/

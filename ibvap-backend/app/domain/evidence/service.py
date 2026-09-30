@@ -290,6 +290,21 @@ class EvidenceService:
             anchor=anchor_data,
             createdByService=record.created_by_service,
             metadata=__import__("json").loads(record.metadata_json) if record.metadata_json else None,
+            provenance=provenance,
+            milestones=provenance.get("milestones", []),
+            custody=provenance.get("custody", []),
+            verificationHistory=[
+                {
+                    "attemptId": v.verification_id,
+                    "at": v.verified_at.isoformat() if v.verified_at else None,
+                    "result": v.outcome,
+                    "actor": v.verifier_service or "system",
+                    "context": v.reason,
+                    "recordedHash": v.recorded_hash,
+                    "computedHash": v.computed_hash,
+                }
+                for v in verification_history
+            ],
         )
 
     async def list_evidence(self, query: EvidenceQuery) -> tuple[list[EvidenceSummary], int]:

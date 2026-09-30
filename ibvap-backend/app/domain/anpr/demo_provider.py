@@ -2,6 +2,13 @@
 # PRHAAR Component 7 — DemoANPRProvider
 #
 # Deterministic demo provider — no real OCR, fixed fixtures for testing.
+#
+# Scenarios covered (spec §29): clear plate · low confidence · multiple
+# candidates · partial read · unreadable plate · night (LOW_LIGHT) · glare.
+#
+# The provider produces the final plate observation payload
+# (PlateReadInput + candidates) that the service persists. It never writes
+# to the database directly.
 # ─────────────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
@@ -24,6 +31,7 @@ from app.domain.anpr.provider import (
     ANPRProvider,
     ANPRProviderHealthInfo,
     ANPRProviderMetadata,
+    PlateCandidateInput,
     PlateReadInput,
     VehicleSightingInput,
 )
@@ -32,11 +40,16 @@ logger = get_logger("prhaar.anpr.demo_provider")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fixed demo plate fixtures — deterministic, never random
+#
+# A fixture with "raw_read": None represents an UNREADABLE observation
+# (no plate read produced). "candidates" carries the deterministic OCR
+# candidate list; rank is derived from list order (1-based).
 # ─────────────────────────────────────────────────────────────────────────────
 
-_DEMO_PLATES: dict[str, dict] = {
+_DEMO_PLATES: dict[str, list[dict[str, Any]]] = {
     # Camera -> list of plate fixtures
     "CAM-07": [
+        # Clear plate, high confidence — multiple candidates (ambiguous digit)
         {
             "raw_read": "HR26AK4521",
             "normalized_read": "HR26AK4521",
@@ -47,7 +60,12 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "PERSONAL_CAR",
             "vehicle_color": "WHITE",
             "vehicle_direction": "NORTH",
+            "candidates": [
+                {"raw_read": "HR26AK4521", "normalized_read": "HR26AK4521", "confidence": 0.92, "format_status": "VALID_FORMAT"},
+                {"raw_read": "HR26AK452I", "normalized_read": "HR26AK452I", "confidence": 0.61, "format_status": "POSSIBLE_FORMAT"},
+            ],
         },
+        # Ambiguous trailing character — low confidence with alternative candidate
         {
             "raw_read": "HR26AK452I",
             "normalized_read": "HR26AK452I",
@@ -58,7 +76,12 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "PERSONAL_CAR",
             "vehicle_color": "WHITE",
             "vehicle_direction": "NORTH",
+            "candidates": [
+                {"raw_read": "HR26AK452I", "normalized_read": "HR26AK452I", "confidence": 0.61, "format_status": "POSSIBLE_FORMAT"},
+                {"raw_read": "HR26AK4521", "normalized_read": "HR26AK4521", "confidence": 0.44, "format_status": "POSSIBLE_FORMAT"},
+            ],
         },
+        # Clear plate, SUV
         {
             "raw_read": "GJ01BV2209",
             "normalized_read": "GJ01BV2209",
@@ -69,9 +92,20 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "SUV",
             "vehicle_color": "BLACK",
             "vehicle_direction": "INBOUND",
+            "candidates": [
+                {"raw_read": "GJ01BV2209", "normalized_read": "GJ01BV2209", "confidence": 0.87, "format_status": "VALID_FORMAT"},
+            ],
+        },
+        # Unreadable — no plate read produced (night motorcycle)
+        {
+            "raw_read": None,
+            "vehicle_class": "MOTORCYCLE",
+            "vehicle_color": "BLACK",
+            "vehicle_direction": "NORTH",
         },
     ],
     "CAM-08": [
+        # Low-confidence OCR, possible character confusion
         {
             "raw_read": "MP09CD7731",
             "normalized_read": "MP09CD7731",
@@ -82,7 +116,12 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "SUV",
             "vehicle_color": "GREY",
             "vehicle_direction": "SOUTH",
+            "candidates": [
+                {"raw_read": "MP09CD7731", "normalized_read": "MP09CD7731", "confidence": 0.48, "format_status": "POSSIBLE_FORMAT"},
+                {"raw_read": "MP09C07731", "normalized_read": None, "confidence": 0.31, "format_status": "INVALID_FORMAT"},
+            ],
         },
+        # Same plate seen on second camera (multi-camera demo)
         {
             "raw_read": "HR26AK4521",
             "normalized_read": "HR26AK4521",
@@ -93,9 +132,28 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "PERSONAL_CAR",
             "vehicle_color": "WHITE",
             "vehicle_direction": "NORTH",
+            "candidates": [
+                {"raw_read": "HR26AK4521", "normalized_read": "HR26AK4521", "confidence": 0.89, "format_status": "VALID_FORMAT"},
+            ],
+        },
+        # Glare scenario — plate partially compromised by glare
+        {
+            "raw_read": "PB10GR7788",
+            "normalized_read": "PB10GR7788",
+            "display_read": "PB10GR7788",
+            "confidence": 0.42,
+            "quality": "GLARE",
+            "format_status": "POSSIBLE_FORMAT",
+            "vehicle_class": "TRUCK",
+            "vehicle_color": "WHITE",
+            "vehicle_direction": "SOUTH",
+            "candidates": [
+                {"raw_read": "PB10GR7788", "normalized_read": "PB10GR7788", "confidence": 0.42, "format_status": "POSSIBLE_FORMAT"},
+            ],
         },
     ],
     "CAM-09": [
+        # O/0 ambiguity — multiple candidates (spec §5 example)
         {
             "raw_read": "RJ14AB1O52",
             "normalized_read": "RJ14AB1052",
@@ -106,7 +164,13 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "PERSONAL_CAR",
             "vehicle_color": "SILVER",
             "vehicle_direction": "EAST",
+            "candidates": [
+                {"raw_read": "RJ14AB1O52", "normalized_read": "RJ14AB1052", "confidence": 0.91, "format_status": "POSSIBLE_FORMAT"},
+                {"raw_read": "RJ14AB1062", "normalized_read": "RJ14AB1062", "confidence": 0.66, "format_status": "POSSIBLE_FORMAT"},
+                {"raw_read": "RJ14AB105Z", "normalized_read": None, "confidence": 0.43, "format_status": "INVALID_FORMAT"},
+            ],
         },
+        # Clear bus plate
         {
             "raw_read": "MH43AA8801",
             "normalized_read": "MH43AA8801",
@@ -117,9 +181,14 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "BUS",
             "vehicle_color": "YELLOW",
             "vehicle_direction": "OUTBOUND",
+            "candidates": [
+                {"raw_read": "MH43AA8801", "normalized_read": "MH43AA8801", "confidence": 0.78, "format_status": "VALID_FORMAT"},
+                {"raw_read": "MH43AA8B01", "normalized_read": None, "confidence": 0.52, "format_status": "INVALID_FORMAT"},
+            ],
         },
     ],
     "CAM-11": [
+        # Motion blur — low confidence truck
         {
             "raw_read": "DL1LT7821",
             "normalized_read": "DL1LT7821",
@@ -130,7 +199,12 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "TRUCK",
             "vehicle_color": "RED",
             "vehicle_direction": "INBOUND",
+            "candidates": [
+                {"raw_read": "DL1LT7821", "normalized_read": "DL1LT7821", "confidence": 0.61, "format_status": "VALID_FORMAT"},
+                {"raw_read": "DL1LT782I", "normalized_read": None, "confidence": 0.39, "format_status": "INVALID_FORMAT"},
+            ],
         },
+        # Same plate on third camera (multi-camera demo)
         {
             "raw_read": "HR26AK4521",
             "normalized_read": "HR26AK4521",
@@ -141,9 +215,13 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "PERSONAL_CAR",
             "vehicle_color": "WHITE",
             "vehicle_direction": "NORTH",
+            "candidates": [
+                {"raw_read": "HR26AK4521", "normalized_read": "HR26AK4521", "confidence": 0.91, "format_status": "VALID_FORMAT"},
+            ],
         },
     ],
     "CAM-12": [
+        # Night scene — LOW_LIGHT quality
         {
             "raw_read": "UP32GH0034",
             "normalized_read": "UP32GH0034",
@@ -154,9 +232,13 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "SUV",
             "vehicle_color": "BLACK",
             "vehicle_direction": "OUTBOUND",
+            "candidates": [
+                {"raw_read": "UP32GH0034", "normalized_read": "UP32GH0034", "confidence": 0.53, "format_status": "VALID_FORMAT"},
+            ],
         },
     ],
     "CAM-13": [
+        # Partial plate — not enough data to normalize
         {
             "raw_read": "DL8C__123",
             "normalized_read": None,
@@ -167,20 +249,41 @@ _DEMO_PLATES: dict[str, dict] = {
             "vehicle_class": "VAN",
             "vehicle_color": "BLUE",
             "vehicle_direction": "WEST",
+            "candidates": [
+                {"raw_read": "DL8C__123", "normalized_read": None, "confidence": 0.34, "format_status": "NOT_ENOUGH_DATA"},
+            ],
         },
     ],
 }
 
-# Sequence counters per camera
-_DEMO_SEQUENCES: dict[str, int] = {}
+# Fallback fixture set for unknown cameras (keeps demo usable with arbitrary IDs)
+_DEFAULT_FIXTURES = _DEMO_PLATES["CAM-07"]
+
+
+def _camera_token(camera_id: str) -> str:
+    """Short camera token for demo ID generation (CAM-07 → 07)."""
+    return camera_id.replace("CAM-", "").strip("-") or "00"
+
+
+def _plate_token(plate: str | None) -> str | None:
+    """Alphanumeric plate token for demo vehicle grouping (demo use only)."""
+    if not plate:
+        return None
+    token = "".join(ch for ch in plate.upper() if ch.isalnum())
+    return token or None
 
 
 class DemoANPRProvider(ANPRProvider):
     """
     Deterministic demo ANPR provider — no real OCR model.
 
-    Cycles through fixed plate fixtures per camera.
+    Cycles through fixed plate fixtures per camera and produces the final
+    plate observation payload (read + candidates) for each sighting.
     Used for development, testing, and frontend development only.
+
+    NOTE: No production OCR model is active. Vehicle grouping below is a
+    demo-only plate-linked convenience; real vehicle identity resolution
+    is a separate AI/ML phase.
     """
 
     _PROVIDER_NAME = "ANPR-DEMO"
@@ -192,8 +295,10 @@ class DemoANPRProvider(ANPRProvider):
         self._last_update: datetime | None = None
         self._failure_count = 0
         self._total_recognitions = 0
-        # Per-camera sequence index
+        # Per-camera observation sequence (increments for every sighting)
         self._sequences: dict[str, int] = {}
+        # Cameras that have actually produced observations (real health signal)
+        self._cameras_seen: set[str] = set()
 
     async def initialize(self) -> None:
         await asyncio.sleep(0)  # yield to event loop
@@ -203,6 +308,54 @@ class DemoANPRProvider(ANPRProvider):
 
     def ready(self) -> bool:
         return self._ready
+
+    # ── Fixture → payload ─────────────────────────────────────────────────────
+
+    def _plate_read_from_fixture(
+        self,
+        fixture: dict[str, Any],
+        sighting: VehicleSightingInput,
+    ) -> PlateReadInput | None:
+        """
+        Build the plate observation payload for a fixture.
+        Returns None for the UNREADABLE scenario (no plate read produced).
+        """
+        raw = fixture.get("raw_read")
+        if raw is None:
+            return None  # UNREADABLE — no plate read
+
+        candidates_raw = fixture.get("candidates") or [
+            {
+                "raw_read": raw,
+                "normalized_read": fixture.get("normalized_read"),
+                "confidence": fixture["confidence"],
+                "format_status": fixture.get("format_status", "UNKNOWN_FORMAT"),
+            }
+        ]
+        candidates = [
+            PlateCandidateInput(
+                rank=i,
+                raw_read=c["raw_read"],
+                normalized_read=c.get("normalized_read"),
+                confidence=c["confidence"],
+                character_confidence=c.get("character_confidence"),
+                format_status=c.get("format_status", "UNKNOWN_FORMAT"),
+            )
+            for i, c in enumerate(candidates_raw, start=1)
+        ]
+
+        return PlateReadInput(
+            raw_read=raw,
+            normalized_read=fixture.get("normalized_read"),
+            display_read=fixture.get("display_read") or raw,
+            confidence=fixture["confidence"],
+            quality=fixture.get("quality", "UNKNOWN"),
+            format_status=fixture.get("format_status", "UNKNOWN_FORMAT"),
+            observed_at=sighting.observed_at,
+            candidates=candidates,
+        )
+
+    # ── Recognition ───────────────────────────────────────────────────────────
 
     async def recognize(
         self,
@@ -214,52 +367,50 @@ class DemoANPRProvider(ANPRProvider):
 
         start = time.monotonic()
         camera_id = camera_context.camera_id
+        fixtures = _DEMO_PLATES.get(camera_id, _DEFAULT_FIXTURES)
+        seq = self._sequences.get(camera_id, 0)
+        self._cameras_seen.add(camera_id)
+
         results: list[ANPRObservationResult] = []
-
-        # Get plate fixtures for this camera
-        fixtures = _DEMO_PLATES.get(camera_id, _DEMO_PLATES.get("CAM-07", []))
-        if not self._sequences.get(camera_id):
-            self._sequences[camera_id] = 0
-
-        seq = self._sequences[camera_id]
+        cam_token = _camera_token(camera_id)
 
         for sighting in sightings:
-            # Use provided plate read if available, else cycle through fixtures
+            seq += 1  # per-observation sequence — unique within and across batches
+
             if sighting.plate_read:
-                plate_fixture = {
-                    "raw_read": sighting.plate_read.raw_read,
-                    "normalized_read": sighting.plate_read.normalized_read,
-                    "display_read": sighting.plate_read.display_read,
-                    "confidence": sighting.plate_read.confidence,
-                    "quality": sighting.plate_read.quality,
-                    "format_status": sighting.plate_read.format_status,
-                    "vehicle_class": sighting.vehicle_class,
-                    "vehicle_color": sighting.vehicle_color,
-                    "vehicle_direction": sighting.vehicle_direction,
-                }
+                # Caller supplied a plate read — pass through unchanged
+                # (raw_read preserved; candidates carried over if present)
+                plate_read: PlateReadInput | None = PlateReadInput(
+                    raw_read=sighting.plate_read.raw_read,
+                    normalized_read=sighting.plate_read.normalized_read,
+                    display_read=sighting.plate_read.display_read,
+                    confidence=sighting.plate_read.confidence,
+                    character_confidence=sighting.plate_read.character_confidence,
+                    format_status=sighting.plate_read.format_status,
+                    quality=sighting.plate_read.quality,
+                    crop_reference=sighting.plate_read.crop_reference,
+                    source_frame_ref=sighting.plate_read.source_frame_ref,
+                    observed_at=sighting.plate_read.observed_at,
+                    candidates=list(sighting.plate_read.candidates or []),
+                )
             else:
-                # Cycle through fixtures
-                fixture = fixtures[seq % len(fixtures)]
-                seq += 1
-                plate_fixture = fixture
+                fixture = fixtures[(seq - 1) % len(fixtures)] if fixtures else None
+                plate_read = self._plate_read_from_fixture(fixture, sighting) if fixture else None
 
-            # Create plate read input from fixture
-            plate_read = PlateReadInput(
-                raw_read=plate_fixture["raw_read"],
-                normalized_read=plate_fixture.get("normalized_read"),
-                display_read=plate_fixture["display_read"],
-                confidence=plate_fixture["confidence"],
-                quality=plate_fixture["quality"],
-                format_status=plate_fixture["format_status"],
-                observed_at=sighting.observed_at,
-            )
+            sighting_id = sighting.sighting_id or f"SGT-DEMO-{cam_token}-{seq:04d}"
 
-            # TODO: In real implementation, this would create sighting + plate read + candidates
-            # For demo, just return a result
+            # Demo-only plate-linked vehicle grouping: sightings that share a
+            # readable plate token resolve to the same demo vehicle entity.
+            vehicle_id = sighting.vehicle_id
+            if vehicle_id is None and plate_read is not None:
+                token = _plate_token(plate_read.normalized_read or plate_read.raw_read)
+                vehicle_id = f"VEH-DEMO-{token}" if token else None
+
             results.append(ANPRObservationResult(
-                sighting_id=f"SGT-DEMO{self._sequences[camera_id]:04d}",
-                vehicle_id=sighting.vehicle_id or f"VEH-DEMO{self._sequences[camera_id]:04d}",
+                sighting_id=sighting_id,
+                vehicle_id=vehicle_id,
                 status="CREATED",
+                plate_read=plate_read,
             ))
 
         elapsed_ms = int((time.monotonic() - start) * 1000)
@@ -302,7 +453,7 @@ class DemoANPRProvider(ANPRProvider):
             failure_count=self._failure_count,
             queue_depth=0,
             processing_latency_ms=None,
-            cameras_active=len(_DEMO_SEQUENCES),
+            cameras_active=len(self._cameras_seen),
             note="DEMO provider — no real ANPR model active",
         )
 

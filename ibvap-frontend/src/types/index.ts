@@ -30,5 +30,9 @@ export * from './anpr'
 // - `Reliability`: between ./track and ./eventCorrelation
 // - `TrackObservation`: keep Component 1's simulation type canonical on the barrel,
 //   and provide `TrackingObservation` / `TrackObservationRecord` for Component 6.
+// - `TrackCandidate`: keep Component 6's cross-camera candidate canonical on the
+//   barrel; the correlation group's display candidate is exported as
+//   `CorrelationTrackCandidate` (§20 candidate vocabulary).
 export type { Reliability, TrackObservation } from './track'
-export type { TrackObservation as TrackingObservation, TrackObservationRecord } from './tracking'
+export type { TrackObservation as TrackingObservation, TrackObservationRecord, TrackCandidate } from './tracking'
+export type { TrackCandidate as CorrelationTrackCandidate } from './eventCorrelation'

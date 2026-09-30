@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import asc, desc, func, select, and_
+from sqlalchemy import asc, desc, func, select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tracking import TrackObservation
@@ -82,7 +82,8 @@ class TrackObservationRepository:
         max_points: int = 200,
     ) -> list[TrackObservation]:
         """
-        Returns up to max_points observations for trajectory rendering.
+        Returns up to max_points observations for trajectory rendering,
+        always including the FIRST and LATEST observed points.
         Does NOT interpolate missing points — only actual observations.
         """
         max_points = min(max_points, 1000)
@@ -91,19 +92,42 @@ class TrackObservationRepository:
             filters.append(TrackObservation.observed_at >= from_time)
         if to_time:
             filters.append(TrackObservation.observed_at <= to_time)
+        where_clause = and_(*filters)
 
-        # If too many points, we take every Nth (deterministic downsampling)
-        # Count first
         count_r = await self.session.execute(
-            select(func.count()).select_from(TrackObservation).where(and_(*filters))
+            select(func.count()).select_from(TrackObservation).where(where_clause)
         )
         total = count_r.scalar_one()
 
+        order_by = [asc(TrackObservation.observed_at), asc(TrackObservation.observation_id)]
+
+        if total <= max_points:
+            result = await self.session.execute(
+                select(TrackObservation)
+                .where(where_clause)
+                .order_by(*order_by)
+                .limit(max_points)
+            )
+            return list(result.scalars().all())
+
+        # Deterministic every-Nth downsampling: keep the first row of each
+        # stride bucket, plus the latest row. Never fabricates points.
+        stride = -(-total // max_points)  # ceil division (stride >= 2 here)
+        ranked = (
+            select(
+                TrackObservation.observation_id.label("observation_id"),
+                func.row_number().over(order_by=order_by).label("rn"),
+            )
+            .where(where_clause)
+            .subquery("ranked")
+        )
+
         result = await self.session.execute(
             select(TrackObservation)
-            .where(and_(*filters))
-            .order_by(asc(TrackObservation.observed_at))
-            .limit(max_points)
+            .join(ranked, TrackObservation.observation_id == ranked.c.observation_id)
+            .where(or_(ranked.c.rn % stride == 1, ranked.c.rn == total))
+            .order_by(*order_by)
+            .limit(max_points + 1)
         )
         return list(result.scalars().all())
 

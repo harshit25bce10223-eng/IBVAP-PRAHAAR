@@ -9,6 +9,8 @@ import { useANPRStore } from '@/store/anprState'
 import {
   ANPRSummaryCards,
   ANPRFilters,
+  ANPRProviderStatus,
+  ANPRSearchResults,
   SightingCard,
   SightingDetail,
   SightingTable,
@@ -24,15 +26,27 @@ export function ANPRPage() {
   const {
     summary,
     summaryState,
+    providerHealth,
+    providerHealthState,
+    providerHealthError,
     sightings,
     sightingsState,
     sightingsError,
+    hasMore,
+    moreState,
+    moreError,
     selectedSighting,
     selectedSightingId,
     serviceMode,
+    searchQuery,
+    searchResults,
+    searchState,
     selectSighting,
+    clearSearch,
     fetchSummary,
+    fetchProviderHealth,
     fetchSightings,
+    fetchMoreSightings,
     setFilter,
     setServiceMode,
   } = useANPRStore()
@@ -41,20 +55,28 @@ export function ANPRPage() {
   useEffect(() => {
     const cameraParam = searchParams.get('camera') || searchParams.get('cameraId')
     const trackParam = searchParams.get('track_id') || searchParams.get('trackId')
+    const vehicleParam = searchParams.get('vehicle') || searchParams.get('vehicle_id')
     const searchParam = searchParams.get('search')
 
     const patch: Record<string, string> = {}
     if (cameraParam) patch.cameraId = cameraParam
-    if (trackParam) patch.search = trackParam
+    if (trackParam) patch.trackId = trackParam
+    if (vehicleParam) patch.vehicleId = vehicleParam
     if (searchParam) patch.search = searchParam
 
     if (Object.keys(patch).length > 0) {
       setFilter(patch)
     }
-
-    fetchSummary()
-    fetchSightings()
   }, [])
+
+  // §30 — (re)load ANPR data on mount and whenever the provider mode changes.
+  // setServiceMode() clears provider-specific state; without this effect the
+  // workspace would stay empty after a MOCK/REAL switch until a manual refresh.
+  useEffect(() => {
+    fetchSummary()
+    fetchProviderHealth()
+    fetchSightings()
+  }, [serviceMode, fetchSummary, fetchProviderHealth, fetchSightings])
 
   // Auto-select first sighting when list loads and none selected
   useEffect(() => {
@@ -116,6 +138,7 @@ export function ANPRPage() {
             <button
               onClick={() => {
                 fetchSummary()
+                fetchProviderHealth()
                 fetchSightings()
               }}
               className="p-2 rounded-lg border border-[#1e2d40] bg-[#0d1117] text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
@@ -135,8 +158,18 @@ export function ANPRPage() {
         </div>
       </header>
 
-      {/* KPI Stat Cards Strip */}
+      {/* §28 Provider Status Strip */}
       <div className="px-4 pt-3 flex-shrink-0">
+        <ANPRProviderStatus
+          health={providerHealth}
+          state={providerHealthState}
+          error={providerHealthError}
+          onRefresh={fetchProviderHealth}
+        />
+      </div>
+
+      {/* KPI Stat Cards Strip */}
+      <div className="px-4 pt-2 flex-shrink-0">
         <ANPRSummaryCards summary={summary} loading={summaryState === 'loading'} />
       </div>
 
@@ -147,70 +180,101 @@ export function ANPRPage() {
 
       {/* Main Workspace Layout */}
       <div className="flex-1 min-h-0 flex px-4 pb-4 gap-4 overflow-hidden">
-        {/* Left Column: Sighting Feed or Table View */}
+        {/* Left Column: Sighting Feed / Table View / §24 Search Results */}
         <div className="w-96 flex-shrink-0 flex flex-col border border-[#1e2d40] rounded-xl bg-[#0d1117] overflow-hidden">
-          <div className="p-3 border-b border-[#1e2d40] flex items-center justify-between flex-shrink-0 bg-[#080c12]/40">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-semibold uppercase text-slate-300">Live Observation Feed</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
-                {sightings.length}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setViewMode('feed')}
-                className={`p-1 rounded ${viewMode === 'feed' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-500 hover:text-slate-300'}`}
-                title="Card Feed"
-              >
-                <LayoutList className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`p-1 rounded ${viewMode === 'table' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-500 hover:text-slate-300'}`}
-                title="Dense Table"
-              >
-                <TableIcon className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {sightingsState === 'loading' && sightings.length === 0 && (
-              <div className="space-y-2 p-2">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                ))}
+          {searchQuery ? (
+            <ANPRSearchResults
+              query={searchQuery}
+              results={searchResults}
+              state={searchState}
+              selectedId={selectedSightingId}
+              onSelect={selectSighting}
+              onClear={clearSearch}
+            />
+          ) : (
+            <>
+              <div className="p-3 border-b border-[#1e2d40] flex items-center justify-between flex-shrink-0 bg-[#080c12]/40">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-semibold uppercase text-slate-300">Live Observation Feed</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
+                    {sightings.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setViewMode('feed')}
+                    className={`p-1 rounded ${viewMode === 'feed' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-500 hover:text-slate-300'}`}
+                    title="Card Feed"
+                  >
+                    <LayoutList className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('table')}
+                    className={`p-1 rounded ${viewMode === 'table' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-500 hover:text-slate-300'}`}
+                    title="Dense Table"
+                  >
+                    <TableIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
-            )}
 
-            {sightingsState === 'error' && (
-              <ANPRErrorState
-                message={sightingsError ?? 'Unable to connect to ANPR service.'}
-                onRetry={fetchSightings}
-              />
-            )}
+              <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                {sightingsState === 'loading' && sightings.length === 0 && (
+                  <div className="space-y-2 p-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                    ))}
+                  </div>
+                )}
 
-            {sightingsState === 'ready' && sightings.length === 0 && (
-              <ANPREmptyState message="No vehicle observations matched your filters." />
-            )}
+                {sightingsState === 'error' && (
+                  <ANPRErrorState
+                    message={sightingsError ?? 'Unable to connect to ANPR service.'}
+                    onRetry={fetchSightings}
+                  />
+                )}
 
-            {viewMode === 'feed' ? (
-              sightings.map((s) => (
-                <SightingCard
-                  key={s.sightingId}
-                  sighting={s}
-                  selected={s.sightingId === selectedSightingId}
-                  onClick={() => selectSighting(s.sightingId)}
-                />
-              ))
-            ) : (
-              <SightingTable
-                sightings={sightings}
-                selectedId={selectedSightingId}
-                onSelect={selectSighting}
-              />
-            )}
-          </div>
+                {sightingsState === 'ready' && sightings.length === 0 && (
+                  <ANPREmptyState message="No vehicle observations matched your filters." />
+                )}
+
+                {viewMode === 'feed' ? (
+                  sightings.map((s) => (
+                    <SightingCard
+                      key={s.sightingId}
+                      sighting={s}
+                      selected={s.sightingId === selectedSightingId}
+                      onClick={() => selectSighting(s.sightingId)}
+                    />
+                  ))
+                ) : (
+                  <SightingTable
+                    sightings={sightings}
+                    selectedId={selectedSightingId}
+                    onSelect={selectSighting}
+                  />
+                )}
+
+                {/* Cursor pagination — only when the backend reports more rows */}
+                {sightings.length > 0 && (hasMore || moreState === 'error') && (
+                  <div className="p-1 space-y-1">
+                    {moreState === 'error' && (
+                      <div className="text-[10px] font-mono text-amber-300 px-1">
+                        {moreError ?? 'Could not load more sightings.'}
+                      </div>
+                    )}
+                    <button
+                      onClick={fetchMoreSightings}
+                      disabled={moreState === 'loading'}
+                      className="w-full py-2 rounded-lg border border-[#1e2d40] bg-[#080c12] text-xs font-mono text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors disabled:opacity-60"
+                    >
+                      {moreState === 'loading' ? 'Loading more observations…' : 'Load more observations'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Center / Right Column: Selected Sighting Detail & Intelligence Context */}

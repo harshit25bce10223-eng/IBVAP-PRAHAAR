@@ -11,8 +11,16 @@ import {
   DEFAULT_CORRELATION_QUERY,
 } from '@/types/eventCorrelation'
 import type { EventLogQuery } from '@/types/eventCorrelation'
-import { MOCK_GROUPS, MOCK_GROUP_BY_ID, MOCK_MEMBER_BY_ID } from '@/services/correlation/mockCorrelationData'
+import { MOCK_GROUPS, MOCK_GROUP_BY_ID, MOCK_MEMBER_BY_ID, MOCK_TIME_ANCHOR_MS } from '@/services/correlation/mockCorrelationData'
 import { mockCorrelationService } from '@/services/correlation/mockCorrelationService'
+import { realCorrelationService } from '@/services/correlation/RealCorrelationService'
+import {
+  compareCorrelationGroups,
+  matchesCorrelationQuery,
+  matchesTimeRange,
+} from '@/services/correlation/correlationFilter'
+import { queryFromSearchParams, queryToSearchParams } from '@/services/correlation/correlationQueryUrl'
+import { relationsFor, useCorrelationStore } from '@/store/correlationState'
 import {
   CORRELATION_LABEL,
   CONNECTIVITY_LABEL,
@@ -25,12 +33,15 @@ import {
   toneForReliability,
 } from '../correlationTone'
 import {
+  compareByObservedTime,
   diffSec,
   formatCameraCount,
   formatCameraList,
   formatClock,
+  formatClockShort,
   formatConfidence,
   formatDate,
+  formatGroupCount,
   formatModalities,
   formatSec,
   formatSignalCount,
@@ -281,5 +292,268 @@ describe('constant index sanity', () => {
       expect(partial.memberEvents.length).toBe(partial.memberEventsLoaded)
       expect(partial.eventCount).toBeGreaterThan(partial.memberEvents.length)
     }
+  })
+})
+
+describe('event log deep links — URL ⇄ query (§62/§71)', () => {
+  it('omits every default from the URL', () => {
+    expect(queryToSearchParams({ ...DEFAULT_CORRELATION_QUERY }).toString()).toBe('')
+  })
+
+  it('round-trips a fully configured view', () => {
+    const q: EventLogQuery = {
+      ...DEFAULT_CORRELATION_QUERY,
+      search: 'CAM-07',
+      correlation: 'CORRELATED',
+      severity: 'HIGH',
+      cameraId: 'CAM-07',
+      sectorId: 'SECTOR-B',
+      source: 'ANPR',
+      connectivity: 'DELAYED',
+      timeRange: '1h',
+      sort: 'signals',
+      order: 'asc',
+      page: 3,
+      pageSize: 25,
+    }
+    const back = { ...DEFAULT_CORRELATION_QUERY, ...queryFromSearchParams(queryToSearchParams(q)) }
+    expect(back).toEqual(q)
+  })
+
+  it('ignores unknown or invalid URL values instead of guessing', () => {
+    const patch = queryFromSearchParams(
+      new URLSearchParams({
+        status: 'TOTALLY_CORRELATED',
+        severity: 'APOCALYPTIC',
+        range: 'decade',
+        sort: 'vibes',
+        order: 'sideways',
+        connectivity: 'REALTIME',
+        page: '0',
+        pageSize: '9000',
+      })
+    )
+    expect(patch).toEqual({})
+  })
+
+  it('accepts page ≥ 1 and pageSize 1–100, rejects the rest', () => {
+    expect(queryFromSearchParams(new URLSearchParams({ page: '2', pageSize: '100' }))).toEqual({
+      page: 2,
+      pageSize: 100,
+    })
+    expect(queryFromSearchParams(new URLSearchParams({ page: '1.5' }))).toEqual({})
+    expect(queryFromSearchParams(new URLSearchParams({ page: '-3' }))).toEqual({})
+    expect(queryFromSearchParams(new URLSearchParams({ pageSize: '0' }))).toEqual({})
+    expect(queryFromSearchParams(new URLSearchParams({ pageSize: '101' }))).toEqual({})
+  })
+
+  it('never puts a whitespace-only search into the URL', () => {
+    expect(queryToSearchParams({ ...DEFAULT_CORRELATION_QUERY, search: '   ' }).toString()).toBe('')
+    expect(queryFromSearchParams(new URLSearchParams({ search: '  ' }))).toEqual({})
+  })
+})
+
+describe('severity and time-range filtering (§58/§64)', () => {
+  it('filters by backend severity verbatim and reports the filtered total', async () => {
+    const high = await mockCorrelationService.listGroups({ ...BASE_QUERY, severity: 'HIGH' })
+    const expected = MOCK_GROUPS.filter(g => g.risk.severity === 'HIGH')
+    expect(expected.length).toBeGreaterThan(0)
+    expect(high.total).toBe(expected.length)
+    expect(high.groups.every(g => g.risk.severity === 'HIGH')).toBe(true)
+
+    // An unscored group is not a match for any band — no severity is invented.
+    const unscored = MOCK_GROUPS.find(g => g.risk.severity === null)!
+    expect(matchesCorrelationQuery(unscored, { ...BASE_QUERY, severity: 'HIGH' })).toBe(false)
+  })
+
+  it('combines filters without dropping the previous WHERE clause (§58)', async () => {
+    const both = await mockCorrelationService.listGroups({
+      ...BASE_QUERY,
+      severity: 'MEDIUM',
+      correlation: 'CORRELATED',
+    })
+    const expected = MOCK_GROUPS.filter(g => g.risk.severity === 'MEDIUM' && g.status === 'CORRELATED')
+    expect(expected.length).toBeGreaterThan(0)
+    expect(both.total).toBe(expected.length)
+    expect(both.groups.every(g => g.risk.severity === 'MEDIUM' && g.status === 'CORRELATED')).toBe(true)
+
+    const cameraAndSeverity = await mockCorrelationService.listGroups({
+      ...BASE_QUERY,
+      severity: 'LOW',
+      cameraId: 'CAM-12',
+    })
+    expect(cameraAndSeverity.groups.length).toBeGreaterThan(0)
+    expect(
+      cameraAndSeverity.groups.every(
+        g => g.risk.severity === 'LOW' && g.memberEvents.some(m => m.cameraId === 'CAM-12')
+      )
+    ).toBe(true)
+  })
+
+  it('evaluates DEMO windows against the fixture anchor, never the wall clock', async () => {
+    const anchored = await mockCorrelationService.listGroups({ ...BASE_QUERY, timeRange: '15m' })
+    expect(anchored.total).toBeGreaterThan(0)
+    expect(anchored.total).toBeLessThan(MOCK_GROUPS.length)
+    expect(anchored.total).toBe(
+      MOCK_GROUPS.filter(g => matchesTimeRange(g.startedAt, '15m', MOCK_TIME_ANCHOR_MS)).length
+    )
+    expect(anchored.groups.every(g => matchesTimeRange(g.startedAt, '15m', MOCK_TIME_ANCHOR_MS))).toBe(true)
+
+    // Far from the anchor the same window excludes every fixture — proving the
+    // provider measured from the anchor, not from "now".
+    const farFuture = MOCK_GROUPS.filter(g =>
+      matchesTimeRange(g.startedAt, '15m', MOCK_TIME_ANCHOR_MS + 86_400_000)
+    )
+    expect(farFuture.length).toBe(0)
+    expect(matchesTimeRange('not-a-date', '15m', MOCK_TIME_ANCHOR_MS)).toBe(false)
+    expect(matchesTimeRange('not-a-date', 'all', MOCK_TIME_ANCHOR_MS)).toBe(true)
+  })
+
+  it('keeps pagination totals consistent with the filter set', async () => {
+    const q = { ...BASE_QUERY, severity: 'LOW' as const, pageSize: 2, page: 1 }
+    const page1 = await mockCorrelationService.listGroups(q)
+    const page2 = await mockCorrelationService.listGroups({ ...q, page: 2 })
+    const expected = MOCK_GROUPS.filter(g => g.risk.severity === 'LOW').length
+    expect(page1.total).toBe(expected)
+    expect(page2.total).toBe(expected)
+    expect(page1.groups.every(g => g.risk.severity === 'LOW')).toBe(true)
+    const ids = new Set([...page1.groups, ...page2.groups].map(g => g.correlationId))
+    expect(ids.size).toBe(page1.groups.length + page2.groups.length)
+  })
+})
+
+describe('deterministic chronological ordering (§60)', () => {
+  it('breaks equal-time ties by eventId, never by input order', () => {
+    const a = { eventId: 'EV-2', timestamp: '2026-09-07T02:14:11Z' }
+    const b = { eventId: 'EV-1', timestamp: '2026-09-07T02:14:11Z' }
+    expect([a, b].sort(compareByObservedTime).map(e => e.eventId)).toEqual(['EV-1', 'EV-2'])
+    expect([b, a].sort(compareByObservedTime).map(e => e.eventId)).toEqual(['EV-1', 'EV-2'])
+  })
+
+  it('orders out-of-order arrivals chronologically for any permutation', () => {
+    const events = [
+      { eventId: 'EV-c', timestamp: '2026-09-07T02:14:43Z' },
+      { eventId: 'EV-a', timestamp: '2026-09-07T02:14:11Z' },
+      { eventId: 'EV-b', timestamp: '2026-09-07T02:14:29Z' },
+    ]
+    const expected = ['EV-a', 'EV-b', 'EV-c']
+    expect([...events].sort(compareByObservedTime).map(e => e.eventId)).toEqual(expected)
+    expect([...events].reverse().sort(compareByObservedTime).map(e => e.eventId)).toEqual(expected)
+    expect([events[1], events[0], events[2]].sort(compareByObservedTime).map(e => e.eventId)).toEqual(expected)
+  })
+
+  it('sorts unparseable timestamps last, never somewhere in the middle', () => {
+    const events = [
+      { eventId: 'EV-broken', timestamp: 'not-a-timestamp' },
+      { eventId: 'EV-late', timestamp: '2026-09-07T03:00:00Z' },
+      { eventId: 'EV-early', timestamp: '2026-09-07T02:00:00Z' },
+    ]
+    expect([...events].sort(compareByObservedTime).map(e => e.eventId)).toEqual([
+      'EV-early',
+      'EV-late',
+      'EV-broken',
+    ])
+    expect([...events].reverse().sort(compareByObservedTime).map(e => e.eventId)).toEqual([
+      'EV-early',
+      'EV-late',
+      'EV-broken',
+    ])
+  })
+
+  it('derives every fixture group window from observed signal time (§60)', () => {
+    for (const g of MOCK_GROUPS) {
+      const sorted = [...g.memberEvents].sort(compareByObservedTime)
+      expect(new Date(g.startedAt).getTime(), `${g.correlationId} start`).toBe(
+        new Date(sorted[0].timestamp).getTime()
+      )
+    }
+  })
+
+  it('orders equal signal counts by correlationId so paging is stable', () => {
+    const mk = (id: string, count: number) => ({ ...MOCK_GROUP_BY_ID['COR-1042'], correlationId: id, eventCount: count })
+    const q = { ...BASE_QUERY, sort: 'signals' as const, order: 'desc' as const }
+    const sorted = [mk('COR-b', 5), mk('COR-a', 5), mk('COR-c', 5)].sort((a, b) => compareCorrelationGroups(a, b, q))
+    expect(sorted.map(g => g.correlationId)).toEqual(['COR-a', 'COR-b', 'COR-c'])
+  })
+
+  it('sorts groups with no risk score last under severity sort', () => {
+    const scored = MOCK_GROUP_BY_ID['COR-1042']
+    const unscored = MOCK_GROUP_BY_ID['COR-1047']
+    expect(scored.risk.severity).toBe('HIGH')
+    expect(unscored.risk.severity).toBeNull()
+    const q = { ...BASE_QUERY, sort: 'severity' as const, order: 'desc' as const }
+    expect(
+      [unscored, scored].sort((a, b) => compareCorrelationGroups(a, b, q)).map(g => g.risk.severity)
+    ).toEqual(['HIGH', null])
+    expect(
+      [scored, unscored].sort((a, b) => compareCorrelationGroups(a, b, q)).map(g => g.risk.severity)
+    ).toEqual(['HIGH', null])
+  })
+})
+
+describe('real mode has no silent fallback (§63)', () => {
+  it('is marked LIVE, never masquerading as DEMO', () => {
+    expect(realCorrelationService.source).toBe('LIVE')
+  })
+})
+
+describe('store semantics — page reset, expansion, relationship resolution', () => {
+  it('resets to page 1 when a filter changes, keeps the page on sort/paging', () => {
+    const s = useCorrelationStore
+    s.setState({ query: { ...DEFAULT_CORRELATION_QUERY } })
+    s.getState().setQuery({ page: 3 })
+    expect(s.getState().query.page).toBe(3)
+
+    s.getState().setQuery({ severity: 'HIGH' })
+    expect(s.getState().query.page).toBe(1)
+    expect(s.getState().query.severity).toBe('HIGH')
+
+    s.getState().setQuery({ page: 2 })
+    s.getState().setQuery({ sort: 'signals' })
+    expect(s.getState().query.page).toBe(2)
+    expect(s.getState().query.sort).toBe('signals')
+
+    s.getState().resetList()
+    expect(s.getState().query).toEqual(DEFAULT_CORRELATION_QUERY)
+  })
+
+  it('expands and collapses groups without duplicating ids', () => {
+    const s = useCorrelationStore
+    s.setState({ expandedIds: [] })
+    s.getState().toggleExpanded('COR-1042')
+    s.getState().toggleExpanded('COR-1050')
+    s.getState().toggleExpanded('COR-1042')
+    expect(s.getState().expandedIds).toEqual(['COR-1050'])
+    s.setState({ expandedIds: [] })
+  })
+
+  it('prefers fetched relationships, falls back to denormalized, never fakes on error', () => {
+    const g = MOCK_GROUP_BY_ID['COR-1042']
+    expect(g.relationships.length).toBeGreaterThan(0)
+    expect(relationsFor(g, {}, undefined)).toEqual(g.relationships)
+
+    const fetched = [
+      { fromEventId: 'EV-1', toEventId: 'EV-2', type: 'TEMPORAL' as const, strength: null, explanation: 'x' },
+    ]
+    expect(relationsFor(g, { 'COR-1042': fetched }, 'ready')).toEqual(fetched)
+    expect(relationsFor(g, { 'COR-1042': fetched }, 'error')).toEqual([])
+    expect(relationsFor(g, {}, 'loading')).toEqual(g.relationships)
+  })
+})
+
+describe('expanded-row and log formatting additions', () => {
+  it('formats short clocks and group counts', () => {
+    expect(formatClockShort('2026-09-07T02:14:11Z')).toMatch(/\d{2}:\d{2}/)
+    expect(formatClockShort(null)).toBe('—')
+    expect(formatGroupCount(1)).toBe('1 group')
+    expect(formatGroupCount(4)).toBe('4 groups')
+  })
+
+  it('a group with a camera chain reports it as a chain, not a claim of movement', () => {
+    const chained = MOCK_GROUPS.find(g => g.cameraChain !== null && g.cameraChain.length >= 2)!
+    const label = formatCameraList(chained.cameraChain, [])
+    expect(label).toBe(chained.cameraChain!.join(' / '))
+    expect(label.toLowerCase()).not.toContain('moved')
+    expect(label.toLowerCase()).not.toContain('same person')
   })
 })

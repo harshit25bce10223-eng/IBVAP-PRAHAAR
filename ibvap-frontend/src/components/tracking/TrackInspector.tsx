@@ -10,12 +10,10 @@
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { ArrowRight, Camera as CameraIcon, FileSearch, Fingerprint, Network, Route, Shield, AlertTriangle } from 'lucide-react'
-import type { ReactNode } from 'react'
-import type { Track, TrackObservation } from '@/types/tracking'
+import type { Track } from '@/types/tracking'
 import { Badge, Drawer } from '@/components/ui'
 import {
   formatTrackClassLabel,
-  formatTrackStatus,
   formatContinuityQuality,
   formatClock,
   formatDate,
@@ -24,10 +22,8 @@ import {
   formatSpeed,
   formatVelocity,
   formatObservationCount,
-  formatSourceLabel,
-  describeTrack,
 } from './trackFormat'
-import { toneForStatus, toneForQuality, toneForSource, badgeTone, dotTone, textTone } from './trackTone'
+import { toneForStatus, toneForQuality, toneForSource, badgeTone, dotTone } from './trackTone'
 
 interface TrackInspectorProps {
   open: boolean
@@ -141,10 +137,6 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
             <div className="flex items-center justify-between">
               <dt className="text-slate-500">Track Confidence</dt>
               <dd className="font-mono text-slate-300">{formatConfidence(track.confidence)}</dd>
-            </div>
-            <div className="flex items-center justify-between">
-              <dt className="text-slate-500">Detection Confidence</dt>
-              <dd className="font-mono text-slate-300">{formatConfidence(track.currentDetectionId ? track.confidence : null)}</dd>
             </div>
             <div className="flex items-center justify-between col-span-2">
               <dt className="text-slate-500">Current BBox (norm.)</dt>
@@ -260,8 +252,14 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
             <span className="font-mono text-[11px] text-slate-500">{track.detectionCount} observations</span>
           </div>
           <p className="text-[10px] text-slate-500 mb-2">
-            Click a detection to open the Detection Inspector (Component 5).
+            This drawer summarizes the track record. The full per-observation history is rendered in the Track Detail workspace.
           </p>
+          <Link
+            to={`/track/${track.trackId}`}
+            className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:underline underline-offset-2"
+          >
+            Open track workspace <ArrowRight size={10} aria-hidden />
+          </Link>
         </section>
 
         {/* Section: Trajectory (§56) */}
@@ -351,7 +349,8 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
                 <AlertTriangle size={12} className="text-slate-400" aria-hidden />
                 <dt className="text-slate-500 shrink-0">Event</dt>
                 <dd className="flex-1">
-                  <Link to={`/events?q=${track.eventId}`} className="font-mono text-cyan-400 hover:underline underline-offset-2">
+                  {/* 'search' is the URL param the Event Log actually understands (correlationQueryUrl.ts) */}
+                  <Link to={`/events?search=${encodeURIComponent(track.eventId)}`} className="font-mono text-cyan-400 hover:underline underline-offset-2">
                     {track.eventId}
                   </Link>
                 </dd>
@@ -373,9 +372,10 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
                 <Shield size={12} className="text-slate-400" aria-hidden />
                 <dt className="text-slate-500 shrink-0">Incident</dt>
                 <dd className="flex-1">
-                  <Link to={`/incident/${track.incidentId}`} className="font-mono text-cyan-400 hover:underline underline-offset-2">
-                    {track.incidentId}
-                  </Link>
+                  {/* No existing surface resolves an INC-* id from a URL — the
+                      /incident/:correlationId route accepts correlation ids only.
+                      Shown as a reference value, not a false deep link. */}
+                  <span className="font-mono text-slate-300">{track.incidentId}</span>
                 </dd>
               </div>
             )}
@@ -384,7 +384,8 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
                 <FileSearch size={12} className="text-slate-400" aria-hidden />
                 <dt className="text-slate-500 shrink-0">Evidence</dt>
                 <dd className="flex-1">
-                  <Link to={`/evidence/${track.evidenceId}`} className="font-mono text-cyan-400 hover:underline underline-offset-2">
+                  {/* Evidence Ledger has no per-record route; it opens unfiltered. */}
+                  <Link to="/evidence" className="font-mono text-cyan-400 hover:underline underline-offset-2">
                     {track.evidenceId}
                   </Link>
                 </dd>
@@ -407,7 +408,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
         </section>
 
         {/* Section: Data Quality & Completeness (§142) */}
-        {track.dataCompleteness || track.missingObservationsNote && (
+        {(track.dataCompleteness || track.missingObservationsNote) && (
           <section className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3" aria-label="Data quality">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Data Quality</h3>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">

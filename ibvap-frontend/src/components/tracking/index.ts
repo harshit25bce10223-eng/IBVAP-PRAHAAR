@@ -12,6 +12,22 @@ export { TrackTrajectory } from './TrackTrajectory'
 export { TrackStatus } from './TrackStatus'
 export { TrackFilters } from './TrackFilters'
 export { TrackLegend } from './TrackLegend'
+export { TrackLifecycleTimeline, StateChip } from './TrackLifecycleTimeline'
+export { TrackObservationTable } from './TrackObservationTable'
+export {
+  sortNewestFirst,
+  findLatestTransition,
+  lifecycleStateAt,
+  findLatestReacquisition,
+} from './trackLifecycle'
+export type { ReacquisitionContext } from './trackLifecycle'
+
+export {
+  trajectoryQualityNotes,
+  relationLabel,
+  correlationStatusText,
+} from './trackDetailDerive'
+export type { SectionLoad } from './trackDetailDerive'
 
 export { fitContain, fitCover, bboxToVB, pointToVB, bboxToContainer, pointsToContainer } from './geometry'
 export type { FitResult, Size, Box } from './geometry'
@@ -39,6 +55,7 @@ export {
   toneForQuality,
   toneForFeedState,
   toneForSource,
+  toneForCameraHealth,
   badgeTone,
   textTone,
   dotTone,

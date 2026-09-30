@@ -1,11 +1,10 @@
 // PlateDisplay.tsx — Top OCR candidate display with quality badge
 import { clsx } from 'clsx'
 import { Badge } from '@/components/ui'
-import type { PlateRead, PlateCandidate, PlateQuality, PlateFormatStatus } from '@/types/anpr'
+import type { PlateRead, PlateQuality, PlateFormatStatus } from '@/types/anpr'
 
 interface PlateDisplayProps {
   plateRead: PlateRead | null
-  candidates: PlateCandidate[]
   className?: string
 }
 
@@ -39,7 +38,7 @@ function confidencePct(c: number): string {
   return Math.round(c * 100) + '%'
 }
 
-export function PlateDisplay({ plateRead, candidates, className }: PlateDisplayProps) {
+export function PlateDisplay({ plateRead, className }: PlateDisplayProps) {
   if (!plateRead) {
     return (
       <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#080c12] p-3', className)}>
@@ -54,8 +53,10 @@ export function PlateDisplay({ plateRead, candidates, className }: PlateDisplayP
     )
   }
 
-  const topCandidate = candidates[0] ?? null
-  const conf = topCandidate?.confidence ?? plateRead.confidence
+  // §13 — the displayed plate string and its confidence must always come from
+  // the same record (the plate read). Alternative candidates are ranked
+  // separately in the candidate panel and are never mixed in here.
+  const conf = plateRead.confidence
 
   return (
     <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#080c12] p-3 space-y-2', className)}>

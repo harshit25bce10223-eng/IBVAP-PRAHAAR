@@ -1,5 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Component 7 — Camera-Specific Vehicle Feed (/camera/:cameraId/vehicles)
+// §42/§43 — consumes GET /anpr/cameras/{id}/vehicles/feed + .../summary.
+// §19 — camera feed state and provider health are reported, not recalculated.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
@@ -12,39 +14,73 @@ import {
   ANPRErrorState,
 } from '@/components/anpr'
 import { Skeleton } from '@/components/ui'
+import { clsx } from 'clsx'
+
+function feedStateClass(state: string | null): string {
+  switch (state?.toUpperCase()) {
+    case 'READY': return 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+    case 'DEGRADED': return 'text-amber-400 border-amber-500/30 bg-amber-500/10'
+    case 'UNAVAILABLE':
+    case 'OFFLINE': return 'text-red-400 border-red-500/30 bg-red-500/10'
+    default: return 'text-slate-400 border-slate-600/40 bg-slate-700/20'
+  }
+}
+
+function fmtTs(iso: string | null): string {
+  if (!iso) return '—'
+  try {
+    return new Date(iso).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'medium', hour12: false })
+  } catch { return iso }
+}
 
 export function CameraVehicles() {
   const { cameraId } = useParams<{ cameraId: string }>()
   const navigate = useNavigate()
 
   const {
-    sightings,
-    sightingsState,
-    sightingsError,
+    cameraFeed,
+    cameraFeedState,
+    cameraFeedError,
+    cameraSummary,
     selectedSighting,
     selectedSightingId,
     selectSighting,
-    fetchSightings,
-    setFilter,
+    fetchCameraFeed,
+    fetchCameraSummary,
   } = useANPRStore()
 
   useEffect(() => {
     if (cameraId) {
-      setFilter({ cameraId })
-      fetchSightings()
+      fetchCameraFeed(cameraId)
+      fetchCameraSummary(cameraId)
     }
-  }, [cameraId, setFilter, fetchSightings])
+  }, [cameraId, fetchCameraFeed, fetchCameraSummary])
 
+  const feedSightings = cameraFeed?.sightings ?? []
+  const feedState = cameraFeed?.state ?? null
+  const isUnavailable = feedState?.toUpperCase() === 'UNAVAILABLE'
+
+  // Auto-select the newest sighting once the feed is available.
   useEffect(() => {
-    if (sightings.length > 0 && !selectedSightingId) {
-      selectSighting(sightings[0].sightingId)
+    if (feedSightings.length > 0 && !selectedSightingId) {
+      selectSighting(feedSightings[0].sightingId)
     }
-  }, [sightings, selectedSightingId, selectSighting])
+  }, [feedSightings, selectedSightingId, selectSighting])
+
+  const summaryForCamera =
+    cameraSummary && cameraSummary.cameraId === cameraId ? cameraSummary : null
+
+  const qualityCounts = summaryForCamera
+    ? Object.entries(summaryForCamera.byQuality)
+        .filter(([, n]) => n > 0)
+        .map(([k, n]) => `${k.replace(/_/g, ' ')} ${n}`)
+        .join(' · ')
+    : ''
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#080c12]">
       {/* Header */}
-      <header className="border-b border-[#1e2d40] bg-[#0d1117] px-4 py-3 flex-shrink-0">
+      <header className="border-b border-[#1e2d40] bg-[#0d1117] px-4 py-3 flex-shrink-0 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -58,6 +94,14 @@ export function CameraVehicles() {
               <div className="flex items-center gap-2 font-mono">
                 <span className="text-xs text-slate-400">CAMERA VEHICLE OBSERVATIONS</span>
                 <span className="text-xs font-bold text-cyan-400">{cameraId}</span>
+                <span className={clsx('text-[10px] px-1.5 py-0.5 rounded border font-mono', feedStateClass(feedState))}>
+                  FEED: {feedState ?? 'UNKNOWN'}
+                </span>
+                {cameraFeed?.providerHealth && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-[#1e2d40] bg-[#080c12] text-slate-400 font-mono">
+                    PROVIDER: {cameraFeed.providerHealth}
+                  </span>
+                )}
               </div>
               <h1 className="text-lg font-bold font-mono text-slate-100 mt-0.5">
                 Observed Plates &amp; Vehicles
@@ -76,13 +120,33 @@ export function CameraVehicles() {
               </Link>
             )}
             <button
-              onClick={fetchSightings}
+              onClick={() => {
+                if (cameraId) {
+                  fetchCameraFeed(cameraId)
+                  fetchCameraSummary(cameraId)
+                }
+              }}
               className="p-2 rounded-lg border border-[#1e2d40] bg-[#0d1117] text-slate-300 hover:text-white transition-colors"
-              title="Refresh"
+              title="Refresh camera feed"
             >
-              <RefreshCw className={`h-4 w-4 ${sightingsState === 'loading' ? 'animate-spin text-cyan-400' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${cameraFeedState === 'loading' ? 'animate-spin text-cyan-400' : ''}`} />
             </button>
           </div>
+        </div>
+
+        {/* Camera observation counts (provider-reported; counts only, no accuracy claims) */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-slate-400 bg-[#080c12]/60 px-3 py-1 rounded border border-[#1e2d40]/60">
+          {summaryForCamera ? (
+            <>
+              <span>Observations: <span className="text-slate-200">{summaryForCamera.totalSightings}</span></span>
+              <span>Watchlist matches: <span className="text-slate-200">{summaryForCamera.byStatus['WATCHLIST_MATCH'] ?? 0}</span></span>
+              <span>Quality: <span className="text-slate-200">{qualityCounts || '—'}</span></span>
+              <span>Last updated: <span className="text-slate-200">{fmtTs(summaryForCamera.lastUpdatedAt)}</span></span>
+            </>
+          ) : (
+            <span>Feed last updated: <span className="text-slate-200">{fmtTs(cameraFeed?.lastUpdatedAt ?? null)}</span></span>
+          )}
+          <span className="text-slate-600">Camera state is reported by the ANPR service, not recalculated here.</span>
         </div>
       </header>
 
@@ -92,12 +156,12 @@ export function CameraVehicles() {
         <div className="w-96 flex-shrink-0 flex flex-col border border-[#1e2d40] rounded-xl bg-[#0d1117] overflow-hidden">
           <div className="p-3 border-b border-[#1e2d40] flex items-center justify-between flex-shrink-0 bg-[#080c12]/40">
             <span className="text-xs font-mono font-semibold uppercase text-slate-300">
-              Sightings ({sightings.length})
+              Sightings ({feedSightings.length})
             </span>
           </div>
 
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {sightingsState === 'loading' && sightings.length === 0 && (
+            {cameraFeedState === 'loading' && feedSightings.length === 0 && (
               <div className="space-y-2 p-2">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-20 w-full rounded-lg" />
@@ -105,18 +169,25 @@ export function CameraVehicles() {
               </div>
             )}
 
-            {sightingsState === 'error' && (
+            {isUnavailable && (
+              <div className="m-1 p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-xs font-mono text-red-300">
+                ANPR DATA UNAVAILABLE — the ANPR service reports no available provider for {cameraId}.
+                No observation data is shown.
+              </div>
+            )}
+
+            {cameraFeedState === 'error' && (
               <ANPRErrorState
-                message={sightingsError ?? 'Failed to load camera vehicle sightings.'}
-                onRetry={fetchSightings}
+                message={cameraFeedError ?? 'ANPR DATA UNAVAILABLE: camera feed could not be retrieved.'}
+                onRetry={() => { if (cameraId) fetchCameraFeed(cameraId) }}
               />
             )}
 
-            {sightingsState === 'ready' && sightings.length === 0 && (
+            {cameraFeedState === 'ready' && !isUnavailable && feedSightings.length === 0 && (
               <ANPREmptyState message={`No vehicle sightings recorded for ${cameraId}.`} />
             )}
 
-            {sightings.map((s) => (
+            {feedSightings.map((s) => (
               <SightingCard
                 key={s.sightingId}
                 sighting={s}

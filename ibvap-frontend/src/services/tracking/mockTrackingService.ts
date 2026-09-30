@@ -9,6 +9,8 @@
 
 import type {
   Track,
+  TrackCandidate,
+  TrackLifecycleEvent,
   TrackingFeed,
   TrackObservation,
   TrackQuery,
@@ -19,8 +21,10 @@ import type { ITrackingService } from './ITrackingService'
 import {
   DEMO_NOW,
   getMockTrack,
+  getMockTrackCandidates,
   getMockTrackFeed,
   getMockTrackHistory,
+  getMockTrackLifecycle,
   MOCK_TRACKS,
 } from './mockTrackingData'
 import { buildTrackSummary } from './trackingSummary'
@@ -127,6 +131,26 @@ class MockTrackingService implements ITrackingService {
       throw new Error(`Track ${trackId} was not found.`)
     }
     return getMockTrackHistory(trackId)
+  }
+
+  async getTrackLifecycleHistory(trackId: string): Promise<TrackLifecycleEvent[]> {
+    await delay(PROVIDER_DELAY_MS)
+    const track = getMockTrack(trackId)
+    if (!track) {
+      throw new Error(`Track ${trackId} was not found.`)
+    }
+    // Fixtures only — tracks without recorded transitions return an empty list
+    // (the workspace then states "no transitions recorded", never synthesizes).
+    return getMockTrackLifecycle(trackId)
+  }
+
+  async getTrackCandidates(trackId: string): Promise<TrackCandidate[]> {
+    await delay(PROVIDER_DELAY_MS)
+    const track = getMockTrack(trackId)
+    if (!track) {
+      throw new Error(`Track ${trackId} was not found.`)
+    }
+    return getMockTrackCandidates(trackId)
   }
 
   async getTrackFeed(cameraId: string): Promise<TrackingFeed> {

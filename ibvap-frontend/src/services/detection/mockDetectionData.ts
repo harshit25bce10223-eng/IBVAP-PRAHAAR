@@ -67,10 +67,12 @@ interface DetectionInput {
   cameraHealth?: DetectionCameraHealthContext | null
   regionProfile?: string | null
   visibility?: DetectionResult['visibility']
+  frameId?: string | null
   frameNumber?: number | null
   fps?: number | null
   receivedAt?: string | null
   subclass?: string | null
+  anprRef?: string | null
 }
 
 function detection(ii: DetectionInput): DetectionResult {
@@ -84,6 +86,7 @@ function detection(ii: DetectionInput): DetectionResult {
     timestamp: ii.at,
     receivedAt: ii.receivedAt ?? ii.at,
     updatedAt: ii.receivedAt ?? ii.at,
+    frameId: ii.frameId ?? null,
     frameNumber: ii.frameNumber ?? null,
     fps: ii.fps ?? null,
     frameWidth: null,
@@ -104,6 +107,7 @@ function detection(ii: DetectionInput): DetectionResult {
     incidentId: ii.incidentId ?? null,
     evidenceId: ii.evidenceId ?? null,
     correlationId: ii.correlationId ?? null,
+    anprRef: ii.anprRef ?? null,
     cameraHealth: ii.cameraHealth ?? null,
     regionProfile: ii.regionProfile ?? null,
     visibility: ii.visibility ?? null,
@@ -124,14 +128,17 @@ const DET_CAM07_PERSON = detection({
   at: `${D}T02:14:11Z`, quality: 'GOOD', occlusion: 'LOW',
   trackId: 'TRK-1042', eventId: 'EV-10421', incidentId: 'INC-1042',
   evidenceId: 'EVD-10481', correlationId: 'COR-1042',
-  regionProfile: CAM07_FOOTHILL, frameNumber: 1284221, fps: 25,
+  regionProfile: CAM07_FOOTHILL, frameId: 'FRM-1284221', frameNumber: 1284221, fps: 25,
 })
 const DET_CAM07_VEHICLE = detection({
   id: 'DET-10422', cameraId: 'CAM-07', class: 'VEHICLE', confidence: 0.89,
   bbox: { x: 0.58, y: 0.46, width: 0.14, height: 0.12 },
   at: `${D}T02:14:15Z`, quality: 'GOOD', occlusion: 'LOW',
   trackId: 'TRK-1042', eventId: 'EV-10422', incidentId: 'INC-1042',
-  regionProfile: CAM07_FOOTHILL, frameNumber: 1284225, fps: 25,
+  // Demo-only C7 soft reference (SIGHT-*): proves the Inspector ANPR row
+  // renders a provided reference without implementing any ANPR logic.
+  anprRef: 'SIGHT-22017',
+  regionProfile: CAM07_FOOTHILL, frameId: 'FRM-1284225', frameNumber: 1284225, fps: 25,
 })
 const DET_CAM07_ANIMAL = detection({
   id: 'DET-10423', cameraId: 'CAM-07', class: 'ANIMAL', confidence: 0.81,

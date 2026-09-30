@@ -24,10 +24,36 @@ VehicleClass = Literal[
 
 VEHICLE_CLASSES = ["PERSONAL_CAR", "SUV", "TRUCK", "BUS", "VAN", "MOTORCYCLE", "SCOOTER", "TRACTOR", "THREE_WHEELER", "UTILITY", "OTHER", "UNKNOWN"]
 
+# C7 §10 — preserve the canonical repository class taxonomy. Callers (edge
+# sync, harnesses, other components) may send looser vocabulary ("CAR",
+# "BIKE", …); normalize it at the persistence boundary instead of storing
+# non-canonical values (same normalizer principle as C5 §20). Unmapped
+# values become UNKNOWN — never stored raw.
+_VEHICLE_CLASS_SET = set(VEHICLE_CLASSES)
+_VEHICLE_CLASS_SYNONYMS = {
+    "CAR": "PERSONAL_CAR",
+    "SEDAN": "PERSONAL_CAR",
+    "HATCHBACK": "PERSONAL_CAR",
+    "MOTORBIKE": "MOTORCYCLE",
+    "BIKE": "MOTORCYCLE",
+    "LORRY": "TRUCK",
+    "AUTO": "THREE_WHEELER",
+    "AUTO_RICKSHAW": "THREE_WHEELER",
+    "RICKSHAW": "THREE_WHEELER",
+}
+
+
+def normalize_vehicle_class(value: str | None) -> str:
+    """Map caller vocabulary onto the canonical VEHICLE_CLASSES taxonomy."""
+    token = (value or "").strip().upper()
+    if token in _VEHICLE_CLASS_SET:
+        return token
+    return _VEHICLE_CLASS_SYNONYMS.get(token, "UNKNOWN")
+
 # ── Vehicle color ─────────────────────────────────────────────────────────────
 VehicleColor = Literal[
     "WHITE", "BLACK", "GREY", "SILVER", "RED", "BLUE",
-    "GREEN", "YELLOW", "GREEN", "BROWN", "OTHER", "UNKNOWN",
+    "GREEN", "YELLOW", "BROWN", "OTHER", "UNKNOWN",
 ]
 
 VEHICLE_COLORS = ["WHITE", "BLACK", "GREY", "SILVER", "RED", "BLUE", "GREEN", "YELLOW", "BROWN", "OTHER", "UNKNOWN"]
@@ -64,9 +90,15 @@ ANPRSource = Literal["LIVE", "EDGE", "CENTRAL", "DEMO", "UNKNOWN"]
 # Export list of all source values
 ANPR_SOURCES = ["LIVE", "EDGE", "CENTRAL", "DEMO", "UNKNOWN"]
 
-# ── Search match types ────────────────────────────────────────────────────────
+# ── Search match types (spec §24 — five labels) ───────────────────────────────
 SearchMatchType = Literal[
-    "EXACT_NORMALIZED_MATCH", "TOP_CANDIDATE_MATCH", "PARTIAL_MATCH", "RELATED_SIGHTING",
+    "EXACT_NORMALIZED_MATCH", "PARTIAL_MATCH", "RAW_READ_MATCH",
+    "CANDIDATE_MATCH", "RELATED_SIGHTING",
+]
+
+SEARCH_MATCH_TYPES = [
+    "EXACT_NORMALIZED_MATCH", "PARTIAL_MATCH", "RAW_READ_MATCH",
+    "CANDIDATE_MATCH", "RELATED_SIGHTING",
 ]
 
 # ── Provider health states ────────────────────────────────────────────────────

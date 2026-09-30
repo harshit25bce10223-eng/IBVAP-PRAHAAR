@@ -20,6 +20,7 @@ from app.db.database import Base
 
 if TYPE_CHECKING:
     from .correlation_group import CorrelationGroup
+    from ..event import Event
 
 
 def _history_id() -> str:

@@ -129,6 +129,10 @@ class TrackLifecycleService:
             )
             return
 
+        if track.status == TRACK_STATUS_LOST:
+            # Already LOST — do not double-count the gap (idempotent)
+            return
+
         # Record gap start time
         track.last_gap_started_at = datetime.now(timezone.utc)
         track.gap_count = (track.gap_count or 0) + 1
@@ -314,6 +318,6 @@ class TrackLifecycleService:
         await self.session.flush()
 
         logger.info(
-            "track_lifecycle track_id=%s %s→%s revision=%d reason=%s",
+            "track_lifecycle track_id=%s %s->%s revision=%d reason=%s",
             track.track_id, old_status, new_status, track.revision, reason
         )

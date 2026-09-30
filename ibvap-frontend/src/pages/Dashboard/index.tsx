@@ -56,9 +56,16 @@ export function Dashboard() {
             Integrated Border Surveillance &amp; Incident Intelligence
           </p>
         </div>
-        <span className="text-[9px] font-mono tracking-[0.2em] text-ssb-text-muted/60 uppercase">
-          SSB Border Surveillance · Sector Operations
-        </span>
+        {/* Prototype data badge — this workspace runs on the mock command
+            dashboard service until the real API phase (§25/§26). */}
+        <div className="flex flex-col items-end gap-1">
+          <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
+            Demo mode
+          </span>
+          <span className="text-[9px] font-mono tracking-[0.2em] text-ssb-text-muted/60 uppercase">
+            SSB Border Surveillance · Sector Operations
+          </span>
+        </div>
       </header>
 
       {/* KPI / intelligence summary */}

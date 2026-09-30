@@ -9,6 +9,9 @@ import { mockEvidenceService } from './mockEvidenceService'
 import { realEvidenceService } from './realEvidenceService'
 import type { IEvidenceService } from './IEvidenceService'
 
-export const evidenceService: IEvidenceService = mockEvidenceService
+// Determine mode from environment - defaults to DEMO for development fixtures
+export const isRealEvidenceMode = import.meta.env.VITE_EVIDENCE_MODE === 'REAL'
+
+export const evidenceService: IEvidenceService = isRealEvidenceMode ? realEvidenceService : mockEvidenceService
 export { mockEvidenceService, realEvidenceService }
 export type { IEvidenceService, IExportReceipt } from './IEvidenceService'

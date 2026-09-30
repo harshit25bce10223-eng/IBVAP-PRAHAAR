@@ -12,6 +12,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -41,6 +42,13 @@ class CorrelationRelationType(str):
 class CorrelationRelationship(Base):
     __tablename__ = "correlation_relationships"
     __table_args__ = (
+        UniqueConstraint(
+            "correlation_id",
+            "from_event_id",
+            "to_event_id",
+            "type",
+            name="uq_correlation_rels_group_from_to_type",
+        ),
         Index("ix_correlation_rels_group", "correlation_id"),
         Index("ix_correlation_rels_from", "from_event_id"),
         Index("ix_correlation_rels_to", "to_event_id"),

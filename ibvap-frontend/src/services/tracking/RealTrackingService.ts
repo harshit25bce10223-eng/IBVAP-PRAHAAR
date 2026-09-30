@@ -8,6 +8,8 @@
 import axios from 'axios'
 import type {
   Track,
+  TrackCandidate,
+  TrackLifecycleEvent,
   TrackingFeed,
   TrackObservation,
   TrackQuery,
@@ -117,6 +119,42 @@ interface ApiTrackResultPageResponse {
   pageSize: number
 }
 
+interface ApiTrackHistoryEntryResponse {
+  historyId: string
+  trackId: string
+  revision: number
+  oldStatus?: string | null
+  newStatus: string
+  reason?: string | null
+  triggerDetectionId?: string | null
+  provider?: string | null
+  providerVersion?: string | null
+  configurationVersion?: string | null
+  timestamp: string
+}
+
+interface ApiTrackHistoryPageResponse {
+  history: ApiTrackHistoryEntryResponse[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+interface ApiTrackCandidateResponse {
+  candidateId: string
+  sourceTrackId: string
+  targetCameraId: string
+  candidateTrackId?: string | null
+  relationType: string
+  strength?: number | null
+  reason?: string | null
+  status: string
+  provider?: string | null
+  gapDurationSec?: number | null
+  createdAt: string
+  expiresAt?: string | null
+}
+
 class RealTrackingService implements ITrackingService {
   readonly source = 'REAL' as const
 
@@ -128,11 +166,31 @@ class RealTrackingService implements ITrackingService {
 
   private handleError(error: unknown): never {
     if (axios.isAxiosError(error)) {
-      if (!error.response) {
+      // Gateway statuses (502/504) mean the dev proxy / reverse proxy could
+      // not reach the backend — the API is unavailable, it is not reporting
+      // an application error. Found live in §27 QA: with uvicorn stopped,
+      // vite's proxy answered 502 and the UI never showed the spec-required
+      // "TRACKING DATA UNAVAILABLE" surface (§28).
+      const status = error.response?.status
+      if (!error.response || status === 502 || status === 504) {
         throw new Error('TRACKING DATA UNAVAILABLE: backend unreachable')
       }
-      const detail = error.response.data?.detail ?? error.message
-      throw new Error(`Tracking API Error (${error.response.status}): ${detail}`)
+      // Backend errors use two shapes:
+      //   { detail: "..." }                           (plain string)
+      //   { detail: { error: { code, message } } }    (C6 structured envelope)
+      // The structured envelope previously stringified as "[object Object]".
+      const detail: unknown = (error.response.data as { detail?: unknown } | undefined)?.detail
+      let message: string | undefined
+      if (typeof detail === 'string') {
+        message = detail
+      } else if (detail && typeof detail === 'object') {
+        const env = detail as { error?: { message?: unknown }; message?: unknown }
+        const inner = env.error?.message ?? env.message
+        if (typeof inner === 'string') message = inner
+      }
+      throw new Error(
+        `Tracking API Error (${status}): ${message ?? error.message}`
+      )
     }
     throw error
   }
@@ -259,7 +317,17 @@ class RealTrackingService implements ITrackingService {
           query.timeRange === '15m' ? 15 : query.timeRange === '1h' ? 60 : 24 * 60
         params.set('from_time', new Date(Date.now() - minutes * 60_000).toISOString())
       }
-      params.set('sort', query.sort)
+      // Map the frontend sort contract onto the backend sort keys.
+      // Frontend: 'latest' | 'oldest' | 'longest' | 'observations' | 'camera'
+      // Backend:  'last_seen' | 'first_seen' | 'longest' | 'observations' | 'camera'
+      const sortMap: Record<TrackQuery['sort'], string> = {
+        latest: 'last_seen',
+        oldest: 'first_seen',
+        longest: 'longest',
+        observations: 'observations',
+        camera: 'camera',
+      }
+      params.set('sort', sortMap[query.sort] ?? 'last_seen')
       params.set('order', query.order)
       params.set('page', String(query.page))
       params.set('pageSize', String(query.pageSize))
@@ -289,6 +357,52 @@ class RealTrackingService implements ITrackingService {
     try {
       const response = await this.client.get<{ observations: ApiTrackObservationResponse[] }>(`/tracks/${trackId}/observations`)
       return response.data.observations.map(o => this.mapApiObservation(o))
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async getTrackLifecycleHistory(trackId: string): Promise<TrackLifecycleEvent[]> {
+    try {
+      const response = await this.client.get<ApiTrackHistoryPageResponse>(`/tracks/${trackId}/history`, {
+        params: { page: 1, pageSize: 50 },
+      })
+      return response.data.history.map(h => ({
+        historyId: h.historyId,
+        trackId: h.trackId,
+        revision: h.revision,
+        // oldStatus is null on the first record of a track.
+        oldStatus: (h.oldStatus ?? null) as TrackLifecycleEvent['oldStatus'],
+        newStatus: h.newStatus as TrackLifecycleEvent['newStatus'],
+        reason: h.reason ?? null,
+        triggerDetectionId: h.triggerDetectionId ?? null,
+        provider: h.provider ?? null,
+        providerVersion: h.providerVersion ?? null,
+        configurationVersion: h.configurationVersion ?? null,
+        timestamp: h.timestamp,
+      }))
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async getTrackCandidates(trackId: string): Promise<TrackCandidate[]> {
+    try {
+      const response = await this.client.get<ApiTrackCandidateResponse[]>(`/tracks/${trackId}/candidates`)
+      return response.data.map(c => ({
+        candidateId: c.candidateId,
+        sourceTrackId: c.sourceTrackId,
+        targetCameraId: c.targetCameraId,
+        candidateTrackId: c.candidateTrackId ?? null,
+        relationType: c.relationType,
+        strength: c.strength ?? null,
+        reason: c.reason ?? null,
+        status: c.status,
+        provider: c.provider ?? null,
+        gapDurationSec: c.gapDurationSec ?? null,
+        createdAt: c.createdAt,
+        expiresAt: c.expiresAt ?? null,
+      }))
     } catch (error) {
       this.handleError(error)
     }

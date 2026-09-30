@@ -56,6 +56,10 @@ const ANPRPage = lazy(() =>
   import('@/pages/ANPRPage').then(m => ({ default: m.ANPRPage }))
 )
 
+const DetectionIntelligence = lazy(() =>
+  import('@/pages/DetectionIntelligence').then(m => ({ default: m.DetectionIntelligence }))
+)
+
 const CameraVehicles = lazy(() =>
   import('@/pages/CameraVehicles').then(m => ({ default: m.CameraVehicles }))
 )
@@ -68,8 +72,10 @@ function ProtectedLayout() {
   const { isAuthenticated, status } = useAuth()
   const location = useLocation()
 
-  // Still checking session in sessionStorage
-  if (status === 'loading') {
+  // 'loading' and the pre-restore 'idle' both mean "session not yet resolved".
+  // Treating 'idle' as unauthenticated would bounce a deep link to /login on the
+  // first paint, before restoreSession() has had a chance to hydrate the token.
+  if (status === 'loading' || status === 'idle') {
     return <PageSkeleton />
   }
 
@@ -127,6 +133,7 @@ function AppRoutes() {
         <Route path="/route-analysis" element={<RouteAnalysis />} />
         <Route path="/evidence" element={<EvidenceLedger />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/detections" element={<DetectionIntelligence />} />
         <Route path="/incident/:correlationId" element={<IncidentDetail />} />
         <Route path="/track/:trackId" element={<TrackDetailPage />} />
         <Route path="/anpr" element={<ANPRPage />} />

@@ -77,7 +77,7 @@ export function useTrackSelection() {
       return fetchTrackHistory(selected.trackId)
     }
     return Promise.resolve()
-  }, [fetchTrackHistory, selected?.trackId])
+  }, [fetchTrackHistory, selected])
 
   return {
     selected,

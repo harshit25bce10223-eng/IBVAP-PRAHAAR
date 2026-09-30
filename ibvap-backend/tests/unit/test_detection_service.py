@@ -33,7 +33,10 @@ class TestDetectionService:
     @pytest.fixture
     def mock_config_repo(self):
         repo = AsyncMock(spec=DetectionConfigRepository)
-        repo.get_by_camera = AsyncMock()
+        # Faithful to the real repository contract: missing config -> None,
+        # no active configs -> empty list.
+        repo.get_by_camera = AsyncMock(return_value=None)
+        repo.list_active = AsyncMock(return_value=[])
         repo.create = AsyncMock()
         return repo
 

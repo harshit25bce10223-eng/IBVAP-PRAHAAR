@@ -1,6 +1,13 @@
 """add_missing_anpr_columns
 
-Add missing columns to ANPR tables that were missing from the initial migration.
+Add the two columns that were genuinely missing from the initial ANPR migration
+(vehicle_sightings.provider_version / schema_version).
+
+NOTE (fixed): this migration previously re-added 8 columns that the initial
+migration (e1467df5c282) already creates — sync_state, sync_payload_hash,
+edge_device_id, updated_at, thumbnail_url, plate_crop_url, source, revision.
+On a fresh database `alembic upgrade head` failed with "duplicate column name".
+Only the two real gaps remain.
 
 Revision ID: ed2783c7ad30
 Revises: e1467df5c282
@@ -18,29 +25,12 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # ── vehicle_sightings missing columns ──────────────────────────────────────
-    # Add columns one at a time to avoid circular dependency issues with SQLite batch mode
+    # Only columns not present in the initial ANPR migration.
     op.add_column('vehicle_sightings', sa.Column('provider_version', sa.String(length=64), nullable=True))
     op.add_column('vehicle_sightings', sa.Column('schema_version', sa.String(length=16), nullable=False, server_default='1.0'))
-    op.add_column('vehicle_sightings', sa.Column('sync_state', sa.String(length=16), nullable=False, server_default='LOCAL_ONLY'))
-    op.add_column('vehicle_sightings', sa.Column('sync_payload_hash', sa.String(length=64), nullable=True))
-    op.add_column('vehicle_sightings', sa.Column('edge_device_id', sa.String(length=64), nullable=True))
-    op.add_column('vehicle_sightings', sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")))
-    op.add_column('vehicle_sightings', sa.Column('thumbnail_url', sa.String(length=512), nullable=True))
-    op.add_column('vehicle_sightings', sa.Column('plate_crop_url', sa.String(length=512), nullable=True))
-    op.add_column('vehicle_sightings', sa.Column('source', sa.String(length=16), nullable=False, server_default='LIVE'))
-    op.add_column('vehicle_sightings', sa.Column('revision', sa.Integer(), nullable=False, server_default='1'))
 
 
 def downgrade() -> None:
     with op.batch_alter_table('vehicle_sightings', schema=None) as batch_op:
-        batch_op.drop_column('provider_version')
         batch_op.drop_column('schema_version')
-        batch_op.drop_column('sync_state')
-        batch_op.drop_column('sync_payload_hash')
-        batch_op.drop_column('edge_device_id')
-        batch_op.drop_column('updated_at')
-        batch_op.drop_column('thumbnail_url')
-        batch_op.drop_column('plate_crop_url')
-        batch_op.drop_column('source')
-        batch_op.drop_column('revision')
+        batch_op.drop_column('provider_version')

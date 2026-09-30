@@ -74,6 +74,9 @@ class VehicleSightingInput(BaseModel):
     """Vehicle sighting input from provider / detection pipeline."""
     model_config = {"extra": "allow"}
 
+    # If the caller (edge sync / internal ingest) already assigned a
+    # sighting ID, the provider must reuse it instead of fabricating one.
+    sighting_id: str | None = None
     camera_id: str
     observed_at: datetime
     received_at: datetime | None = None
@@ -115,6 +118,9 @@ class ANPRObservationResult(BaseModel):
     vehicle_id: str | None = None
     status: Literal["CREATED", "DUPLICATE", "ERROR"] = "CREATED"
     error: str | None = None
+    # Final plate observation produced by the provider for this sighting.
+    # The service persists this payload; it is never overwritten on re-ingest.
+    plate_read: PlateReadInput | None = None
 
 
 class ANPRBatchResult(BaseModel):
@@ -190,6 +196,10 @@ class ANPRProvider:
     async def initialize(self) -> None:
         """Initialize provider (load model, warm up, etc.)."""
         raise NotImplementedError
+
+    def ready(self) -> bool:
+        """Whether the provider is ready to accept work. Default: not ready."""
+        return False
 
     async def recognize(
         self,

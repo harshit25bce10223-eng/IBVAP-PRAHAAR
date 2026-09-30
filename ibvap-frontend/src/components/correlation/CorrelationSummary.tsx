@@ -13,6 +13,7 @@ import {
   TONE,
 } from './correlationTone'
 import {
+  compareByObservedTime,
   formatCameraList,
   formatCameraCount,
   formatClockShort,
@@ -159,9 +160,7 @@ export function CorrelationSummary({
 
 /** Compact member-signal list for the expanded log row (§33/§134). */
 export function MemberSignals({ group, onSelectMember }: { group: CorrelationGroup; onSelectMember?: (m: CorrelationEventMember) => void }) {
-  const signals = [...group.memberEvents].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  )
+  const signals = [...group.memberEvents].sort(compareByObservedTime)
   const base = 'grid grid-cols-[5.5rem_7rem_1fr] items-baseline gap-2 text-[11px] rounded px-1 py-0.5'
   return (
     <ol className="space-y-1">

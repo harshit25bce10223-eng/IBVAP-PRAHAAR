@@ -49,6 +49,8 @@ TRACK_SOURCE_CENTRAL = "CENTRAL"
 TRACK_SOURCE_DEMO = "DEMO"
 TRACK_SOURCE_UNKNOWN = "UNKNOWN"
 
+TRACK_SOURCES_SET = frozenset({"LIVE", "EDGE", "CENTRAL", "DEMO", "UNKNOWN"})
+
 # ── Continuity quality ────────────────────────────────────────────────────────
 # Provider-reported; never computed from a fake formula.
 TrackContinuityQuality = Literal["STRONG", "MODERATE", "WEAK", "UNKNOWN"]

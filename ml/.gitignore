@@ -1,0 +1,25 @@
+# PRHAAR ml/ — artifact hygiene (spec §123: do not commit huge binary weights / datasets)
+# Datasets are acquired locally with manifests; weights are versioned by SHA-256 in reports.
+
+# Model weights & exports
+**/checkpoints/*.pt
+**/checkpoints/*.pth
+**/checkpoints/*.onnx
+**/checkpoints/*.engine
+**/checkpoints/*.torchscript
+**/export/*.onnx
+**/export/*.engine
+**/export/*.torchscript
+
+# Raw datasets (images/videos/labels stay on disk, referenced by manifest)
+c5_detection/datasets/**
+c6_tracking/datasets/**
+c6_tracking/sequences/**
+c7_anpr/*/datasets/**
+!**/.gitkeep
+
+# Training scratch
+**/runs/
+**/wandb/
+**/__pycache__/
+*.pyc

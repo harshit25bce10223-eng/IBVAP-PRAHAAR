@@ -74,6 +74,11 @@ export function VehicleHistoryTimeline({ history, className }: VehicleHistoryTim
           </div>
         </div>
       ))}
+      {/* §16 — cross-camera chronology is a related-sighting view, not a continuity proof. */}
+      <p className="pt-1 text-[9px] font-mono text-slate-600">
+        RELATED SIGHTING — observations sharing the same recorded vehicle identifier. A POSSIBLE CONTINUATION only;
+        not confirmation of the same physical vehicle (continuity authority: Component 6).
+      </p>
     </div>
   )
 }

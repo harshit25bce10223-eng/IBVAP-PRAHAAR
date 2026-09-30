@@ -11,13 +11,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db_session
 from app.domain.detection.service import DetectionService
+from app.core.logging import get_logger
 from app.schemas.detection import (
     BoundingBox,
+    CameraHealthContext,
     DetectionSummary,
     DetectionPage,
     DetectionDetailResponse,
+    DetectionFeedResponse,
     CameraDetectionSummary,
+    EdgeSyncInfo,
     InferenceHealthResponse,
+    LatencyInfo,
+    ProviderMetadata,
     DetectionConfigCreate,
     DetectionConfigUpdate,
     DetectionConfigResponse,
@@ -25,7 +31,64 @@ from app.schemas.detection import (
     DetectionIngestResponse,
 )
 
+logger = get_logger(__name__)
+
 router = APIRouter(prefix="/detections", tags=["detection"], redirect_slashes=False)
+
+
+def _camera_health_context(d: Any) -> CameraHealthContext | None:
+    """Build the camera health snapshot from stored columns; None when never captured."""
+    state = getattr(d, "camera_health_state", None)
+    reliability = getattr(d, "camera_health_reliability", None)
+    viewpoint = getattr(d, "camera_viewpoint_shift", None)
+    captured = getattr(d, "camera_health_captured_at", None)
+    if state is None and reliability is None and viewpoint is None and captured is None:
+        return None
+    return CameraHealthContext(
+        state=state,
+        reliability=reliability,
+        viewpoint_shift=viewpoint,
+        captured_at=captured.isoformat() if isinstance(captured, datetime) else captured,
+    )
+
+
+def _provider_metadata(d: Any) -> ProviderMetadata | None:
+    """Build provider metadata from stored columns; None when nothing was recorded."""
+    fields = {
+        "model_name": getattr(d, "model_name", None),
+        "model_version": getattr(d, "model_version", None),
+        "runtime_version": getattr(d, "runtime_version", None),
+        "device": getattr(d, "device", None),
+        "inference_mode": getattr(d, "inference_mode", None),
+        "postprocess_version": getattr(d, "postprocess_version", None),
+    }
+    if all(v is None for v in fields.values()):
+        return None
+    return ProviderMetadata(**fields)
+
+
+def _edge_sync(d: Any) -> EdgeSyncInfo | None:
+    """Build edge sync info from stored columns; None when nothing was recorded."""
+    fields = {
+        "sync_state": getattr(d, "sync_state", None),
+        "payload_hash": getattr(d, "sync_payload_hash", None),
+        "edge_device_id": getattr(d, "edge_device_id", None),
+        "source_event_id": getattr(d, "source_event_id", None),
+        "source_sequence": getattr(d, "source_sequence", None),
+    }
+    if all(v is None for v in fields.values()):
+        return None
+    return EdgeSyncInfo(**fields)
+
+
+def _latency(d: Any) -> LatencyInfo | None:
+    """Build the latency breakdown from stored columns; None when never measured."""
+    inference_ms = getattr(d, "inference_latency_ms", None)
+    queue_ms = getattr(d, "queue_latency_ms", None)
+    if inference_ms is None and queue_ms is None:
+        return None
+    total_ms = inference_ms + queue_ms if inference_ms is not None and queue_ms is not None else None
+    return LatencyInfo(inference_ms=inference_ms, queue_ms=queue_ms, total_ms=total_ms)
 
 
 def _to_detection_summary(d: Any) -> DetectionSummary:
@@ -60,18 +123,24 @@ def _to_detection_summary(d: Any) -> DetectionSummary:
         bbox=bbox,
         frame_width=getattr(d, "frame_width", None),
         frame_height=getattr(d, "frame_height", None),
-        quality_state=getattr(d, "quality_state", "GOOD"),
-        occlusion_state=getattr(d, "occlusion_state", "LOW"),
-        detection_state=getattr(d, "detection_state", "DETECTED"),
-        source=getattr(d, "source", "DEMO"),
+        # Missing stored values surface as UNKNOWN — never silently upgraded
+        # to a positive state (GOOD / DETECTED / DEMO).
+        quality_state=getattr(d, "quality_state", None) or "UNKNOWN",
+        occlusion_state=getattr(d, "occlusion_state", None) or "UNKNOWN",
+        detection_state=getattr(d, "detection_state", None) or "UNKNOWN",
+        source=getattr(d, "source", None) or "UNKNOWN",
         provider=getattr(d, "provider", None),
         observed_at=obs,
         received_at=rec,
         processed_at=proc,
+        camera_health_context=_camera_health_context(d),
+        provider_metadata=_provider_metadata(d),
+        edge_sync=_edge_sync(d),
+        latency=_latency(d),
     )
 
 
-def _to_detection_detail(d: Any) -> DetectionDetailResponse:
+def _to_detection_detail(d: Any, anpr_ref: str | None = None) -> DetectionDetailResponse:
     if isinstance(d, DetectionDetailResponse):
         return d
     
@@ -105,10 +174,10 @@ def _to_detection_detail(d: Any) -> DetectionDetailResponse:
         bbox=bbox,
         frame_width=getattr(d, "frame_width", None),
         frame_height=getattr(d, "frame_height", None),
-        quality_state=getattr(d, "quality_state", "GOOD"),
-        occlusion_state=getattr(d, "occlusion_state", "LOW"),
-        detection_state=getattr(d, "detection_state", "DETECTED"),
-        source=getattr(d, "source", "DEMO"),
+        quality_state=getattr(d, "quality_state", None) or "UNKNOWN",
+        occlusion_state=getattr(d, "occlusion_state", None) or "UNKNOWN",
+        detection_state=getattr(d, "detection_state", None) or "UNKNOWN",
+        source=getattr(d, "source", None) or "UNKNOWN",
         provider=getattr(d, "provider", None),
         model_name=getattr(d, "model_name", None),
         model_version=getattr(d, "model_version", None),
@@ -116,7 +185,7 @@ def _to_detection_detail(d: Any) -> DetectionDetailResponse:
         device=getattr(d, "device", None),
         inference_mode=getattr(d, "inference_mode", None),
         postprocess_version=getattr(d, "postprocess_version", None),
-        schema_version=getattr(d, "schema_version", "1.0"),
+        schema_version=getattr(d, "schema_version", None) or "UNKNOWN",
         region_profile=getattr(d, "region_profile", None),
         sector_id=getattr(d, "sector_id", None),
         observed_at=obs,
@@ -125,6 +194,11 @@ def _to_detection_detail(d: Any) -> DetectionDetailResponse:
         inference_latency_ms=getattr(d, "inference_latency_ms", None),
         queue_latency_ms=getattr(d, "queue_latency_ms", None),
         payload_json=getattr(d, "payload_json", None),
+        camera_health_context=_camera_health_context(d),
+        provider_metadata=_provider_metadata(d),
+        edge_sync=_edge_sync(d),
+        latency=_latency(d),
+        anpr_ref=anpr_ref,
     )
 
 
@@ -143,9 +217,11 @@ ALLOWED_SORT_FIELDS = {"observed_at", "received_at", "created_at", "confidence",
 @router.get("/", response_model=DetectionPage)
 async def list_detections(
     camera_id: str | None = Query(None, description="Filter by camera ID"),
-    class_name: str | None = Query(None, description="Filter by detection class"),
+    class_name: str | None = Query(None, description="Filter by detection class (OTHER expands to OBJECT + UNKNOWN)"),
     source: str | None = Query(None, description="Filter by source (EDGE, CENTRAL, REMOTE)"),
     state: str | None = Query(None, description="Filter by detection state"),
+    quality: str | None = Query(None, description="Filter by quality state (GOOD, LIMITED, POOR, UNKNOWN)"),
+    search: str | None = Query(None, description="Case-insensitive search across ID fields"),
     region_profile: str | None = Query(None, description="Filter by region profile"),
     sector_id: str | None = Query(None, description="Filter by sector ID"),
     event_id: str | None = Query(None, description="Filter by event ID"),
@@ -172,11 +248,22 @@ async def list_detections(
     if sort not in ALLOWED_SORT_FIELDS:
         raise HTTPException(status_code=422, detail=f"Invalid sort field: {sort}. Allowed: {', '.join(sorted(ALLOWED_SORT_FIELDS))}")
     
+    # "OTHER" is a UI grouping, not a canonical class — expand to the actual
+    # canonical classes it covers (OBJECT + UNKNOWN).
+    class_names: list[str] | None = None
+    effective_class = class_name
+    if class_name and class_name.upper() == "OTHER":
+        class_names = ["OBJECT", "UNKNOWN"]
+        effective_class = None
+    
     detections, total = await service.list_detections(
         camera_id=camera_id,
-        class_name=class_name,
+        class_name=effective_class,
+        class_names=class_names,
         source=source,
         state=state,
+        quality=quality,
+        search=search,
         region_profile=region_profile,
         sector_id=sector_id,
         event_id=event_id,
@@ -270,9 +357,107 @@ async def get_camera_detection_summary(
     return CameraDetectionSummary(**summary)
 
 
+@router.get("/cameras/{camera_id}/feed", response_model=DetectionFeedResponse)
+async def get_camera_detection_feed(
+    camera_id: str,
+    limit: int = Query(100, ge=1, le=500, description="Maximum detections to include"),
+    service: DetectionService = Depends(get_detection_service),
+) -> DetectionFeedResponse:
+    """
+    Composed feed for one camera: pipeline availability + recent detections.
+
+    Availability is deliberately separated from object presence:
+    - UNCONFIGURED: no active detection config — no pipeline exists to ask.
+    - UNAVAILABLE:  the provider could not be initialized (FAILED / UNAVAILABLE).
+    - STALE:        provider is loading/warming/degraded — output not fresh.
+    - NO_OBJECTS:   provider answered, zero detections for this camera.
+    - READY:        provider answered and detections are included below.
+    A failed provider request never reads as "no objects detected".
+    """
+    config = await service.config_repo.get_by_camera(camera_id)
+    if not config or not config.active:
+        # No pipeline exists to ask — do not claim the detector "found nothing".
+        return DetectionFeedResponse(
+            camera_id=camera_id,
+            state="UNCONFIGURED",
+            inference="UNKNOWN",
+            last_updated_at=None,
+            detections=[],
+        )
+
+    try:
+        # Same provider/service boundary as frame processing. No silent
+        # fallback to demo when a real provider cannot be loaded.
+        provider = await service.initialize_provider(camera_id, config)
+        health = await provider.health()
+    except Exception as exc:
+        logger.warning("Detection feed provider unavailable for %s: %s", camera_id, exc)
+        return DetectionFeedResponse(
+            camera_id=camera_id,
+            state="UNAVAILABLE",
+            inference="FAILED",
+            last_updated_at=None,
+            detections=[],
+        )
+
+    detections = await service.list_camera_detections(camera_id=camera_id, limit=limit)
+    summaries = [_to_detection_summary(d) for d in detections]
+    # list_camera_detections orders by observed_at desc — first row is newest.
+    last_updated_at = summaries[0].observed_at if summaries else None
+
+    raw_state = (health.state or "UNKNOWN").upper()
+    if raw_state == "READY":
+        state = "READY" if summaries else "NO_OBJECTS"
+        inference = "READY"
+    elif raw_state in ("LOADING", "WARMING"):
+        # Provider is coming up; any listed rows are historical, not fresh.
+        state = "STALE"
+        inference = raw_state
+    elif raw_state == "PROCESSING":
+        state = "READY" if summaries else "STALE"
+        inference = "PROCESSING"
+    elif raw_state == "DEGRADED":
+        state = "STALE"
+        inference = "DEGRADED"
+    elif raw_state in ("FAILED", "UNAVAILABLE"):
+        state = "UNAVAILABLE"
+        inference = raw_state
+    else:
+        # Unrecognized/unreported provider state — surfaced as-is, never
+        # upgraded to a positive state.
+        state = "STALE"
+        inference = "UNKNOWN"
+
+    return DetectionFeedResponse(
+        camera_id=camera_id,
+        state=state,
+        inference=inference,
+        last_updated_at=last_updated_at,
+        detections=summaries,
+    )
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Detection Detail
 # ─────────────────────────────────────────────────────────────────────────────
+
+async def _resolve_anpr_ref(detection_id: str, session: AsyncSession) -> str | None:
+    """
+    Read-only soft reference to Component 7: the newest vehicle sighting that
+    cites this detection, if any. C5 never writes or interprets ANPR data.
+    """
+    from sqlalchemy import select
+    from app.models.anpr.models import VehicleSighting
+
+    stmt = (
+        select(VehicleSighting.sighting_id)
+        .where(VehicleSighting.detection_id == detection_id)
+        .order_by(VehicleSighting.observed_at.desc())
+        .limit(1)
+    )
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
 
 @router.get("/{detection_id}", response_model=DetectionDetailResponse)
 async def get_detection(
@@ -283,7 +468,8 @@ async def get_detection(
     detection = await service.get_detection(detection_id)
     if not detection:
         raise HTTPException(status_code=404, detail="Detection not found")
-    return _to_detection_detail(detection)
+    anpr_ref = await _resolve_anpr_ref(detection_id, service.session)
+    return _to_detection_detail(detection, anpr_ref=anpr_ref)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

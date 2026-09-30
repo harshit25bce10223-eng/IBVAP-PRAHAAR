@@ -114,7 +114,8 @@ export interface CorrelationEventMember {
   regionProfile: string | null
   trackId: string | null
   timestamp: string
-  severity: Severity
+  /** Payload severity only when the backend supplies one — never fabricated. */
+  severity: Severity | null
   reliability: Reliability | null
   /** Detection/ANPR/Re-ID confidence when the backend supplies one — never computed. */
   confidence: number | null
@@ -122,6 +123,16 @@ export interface CorrelationEventMember {
   evidenceIds: string[]
   /** Camera-health reliability context, if backend flags it (§40/§89). */
   healthContext: CameraReliabilityContext | null
+  /** Downstream DET-* reference surfaced verbatim when the payload supplies it (C5). */
+  detectionId: string | null
+  /** ANPR plate candidate surfaced verbatim when supplied (C7) — not OCR logic. */
+  anprPlate: string | null
+  /** ANPR plate confidence (0–1) when the backend supplies it (C7). */
+  anprPlateConfidence: number | null
+  /** ANPR quality label when the backend supplies it (C7). */
+  anprQuality: string | null
+  /** ANPR sighting reference surfaced verbatim when supplied (C7). */
+  anprSightingId: string | null
 }
 
 /** Camera reliability context — context only, never alters risk (§40/§89). */
@@ -158,6 +169,8 @@ export interface CorrelationUncertainty {
 export interface CorrelationRisk {
   score: number | null
   severity: Severity | null
+  /** C1 incident ids referencing this group's member events (by reference). */
+  incidentIds: string[]
 }
 
 /** Possible same-entity candidate from Tracking/Re-ID (§19/§84). Not identity. */
@@ -204,6 +217,10 @@ export interface CorrelationGroup {
   primaryEventId: string | null
   relationships: CorrelationRelationship[]
   explanation: CorrelationExplanation[]
+  /** Backend-generated human-readable summary of why the group formed (§47). */
+  explanationSummary: string | null
+  /** Backend correlation strength label — HIGH/MEDIUM/LOW/NONE. Never a risk label (§20). */
+  correlationStrength: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE' | null
   /** Only when the backend supplies one. Never fabricated (§20/§53). */
   confidence: CorrelationConfidence | null
   /** Configured temporal relationship window (display only, §47). */

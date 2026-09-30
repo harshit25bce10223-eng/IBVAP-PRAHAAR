@@ -106,6 +106,7 @@ export function DetectionInspector({ open, onClose, detection, cameraLabel }: De
         <Row label="Bounding box" mono>
           {formatBBox(detection.bbox?.x, detection.bbox?.y, detection.bbox?.width, detection.bbox?.height)}
         </Row>
+        {detection.frameId && <Row label="Frame ID" mono>{detection.frameId}</Row>}
         <Row label="Frame" mono>{formatFrameInfo(detection.frameNumber, detection.fps)}</Row>
       </Section>
 
@@ -167,7 +168,7 @@ export function DetectionInspector({ open, onClose, detection, cameraLabel }: De
         </Row>
         <Row label="Event">
           {detection.eventId ? (
-            <Link to={`/events?q=${encodeURIComponent(detection.correlationId ?? detection.eventId)}`} className="font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+            <Link to={`/events?search=${encodeURIComponent(detection.correlationId ?? detection.eventId)}`} className="font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
               {detection.eventId}<ArrowRight size={10} aria-hidden />
             </Link>
           ) : (
@@ -176,16 +177,22 @@ export function DetectionInspector({ open, onClose, detection, cameraLabel }: De
         </Row>
         <Row label="Incident">
           {detection.incidentId ? (
-            <Link to={`/incident/${detection.correlationId ?? detection.incidentId}`} className="font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
-              {detection.incidentId}<ArrowRight size={10} aria-hidden />
-            </Link>
+            detection.correlationId ? (
+              <Link to={`/incident/${detection.correlationId}`} className="font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                {detection.incidentId}<ArrowRight size={10} aria-hidden />
+              </Link>
+            ) : (
+              // An incident id without a correlation id is not directly
+              // routable — render it verbatim instead of a broken link.
+              <span className="font-mono text-slate-300">{detection.incidentId}</span>
+            )
           ) : (
             <span className="text-[11px] text-slate-500">no incident linked</span>
           )}
         </Row>
         <Row label="Evidence">
           {detection.evidenceId ? (
-            <Link to="/evidence" className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300">
+            <Link to={`/evidence?search=${encodeURIComponent(detection.evidenceId)}`} className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300">
               <FileSearch size={11} aria-hidden />
               <span className="font-mono">{detection.evidenceId}</span>
               <span className="text-[9px] uppercase tracking-wider text-slate-400">ledger</span>
@@ -194,6 +201,15 @@ export function DetectionInspector({ open, onClose, detection, cameraLabel }: De
             <span className="text-[11px] text-slate-500">EVIDENCE AVAILABLE: none linked</span>
           )}
         </Row>
+        {/* ANPR/vehicle reference (§14): displayed verbatim when the backend
+            supplies one. Component 5 performs no ANPR logic and never invents
+            a plate — this is a read-only cross-reference into Component 7. */}
+        {detection.anprRef && (
+          <Row label="ANPR reference" mono>
+            <span className="font-mono text-slate-300">{detection.anprRef}</span>
+            <span className="ml-2 text-[9px] uppercase tracking-wider text-slate-500">read-only</span>
+          </Row>
+        )}
         {detection.correlationId && (
           <Row label="Correlation">
             <Link to={`/incident/${detection.correlationId}`} className="font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1">

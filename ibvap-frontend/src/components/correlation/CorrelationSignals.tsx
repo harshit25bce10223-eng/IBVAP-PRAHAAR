@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { formatClock } from './correlationFormat'
+import { compareByObservedTime, formatClock } from './correlationFormat'
 import { humanizeEventKind, humanizeSource } from './CorrelationSummary'
 import { toneForReliability, RELIABILITY_LABEL, TONE } from './correlationTone'
 import type { CorrelationEventMember } from '@/types/eventCorrelation'
@@ -16,9 +16,7 @@ interface CorrelationSignalsProps {
  * Missing members are shown explicitly with the authoritative count (§143).
  */
 export function CorrelationSignals({ members, primaryEventId, onSelect }: CorrelationSignalsProps) {
-  const sorted = [...members].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  )
+  const sorted = [...members].sort(compareByObservedTime)
   const primary = sorted.find(m => m.eventId === primaryEventId) ?? null
   const supporting = sorted.filter(m => m.eventId !== primaryEventId)
 

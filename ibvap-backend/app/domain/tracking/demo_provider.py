@@ -94,6 +94,15 @@ class DemoTrackingProvider(TrackingProvider):
         self._sequences: dict[str, dict[str, int]] = {}  # camera_id → track_id → seq
         # Per-camera detection→track mapping (one detection → at most one track)
         self._assignments: dict[str, str] = {}  # detection_id → track_id
+        # Instance-local snapshot of the demo fixture. Runtime additions go to
+        # these dictionaries only — module-level state is never mutated, so two
+        # provider instances (e.g. tests, or DEMO restarts) stay isolated.
+        self._tracks: dict[str, dict] = {
+            tid: dict(data) for tid, data in _DEMO_TRACKS.items()
+        }
+        self._camera_tracks: dict[str, list[str]] = {
+            cam: list(tids) for cam, tids in _CAMERA_DEMO_TRACKS.items()
+        }
 
     async def initialize(self) -> None:
         await asyncio.sleep(0)  # yield to event loop
@@ -117,7 +126,7 @@ class DemoTrackingProvider(TrackingProvider):
         assignments: list[TrackAssignment] = []
 
         # Get demo tracks for this camera
-        demo_track_ids = _CAMERA_DEMO_TRACKS.get(camera_id, [])
+        demo_track_ids = self._camera_tracks.get(camera_id, [])
 
         if not self._sequences.get(camera_id):
             self._sequences[camera_id] = {tid: 0 for tid in demo_track_ids}
@@ -125,7 +134,7 @@ class DemoTrackingProvider(TrackingProvider):
         # Match each detection to a demo track by object_class, round-robin
         class_queues: dict[str, list[str]] = {}
         for tid in demo_track_ids:
-            cls = _DEMO_TRACKS[tid]["object_class"]
+            cls = self._tracks[tid]["object_class"]
             class_queues.setdefault(cls, []).append(tid)
 
         # Track which demo tracks we've used this batch to avoid double-assignment
@@ -142,7 +151,7 @@ class DemoTrackingProvider(TrackingProvider):
                     track_id=existing_tid,
                     is_new_track=False,
                     sequence=seq,
-                    continuity_quality=_DEMO_TRACKS.get(existing_tid, {}).get(
+                    continuity_quality=self._tracks.get(existing_tid, {}).get(
                         "continuity_quality", None
                     ),
                     confidence=det.confidence,
@@ -175,7 +184,7 @@ class DemoTrackingProvider(TrackingProvider):
                     track_id=chosen_tid,
                     is_new_track=False,
                     sequence=seq,
-                    continuity_quality=_DEMO_TRACKS[chosen_tid]["continuity_quality"],
+                    continuity_quality=self._tracks[chosen_tid]["continuity_quality"],
                     confidence=det.confidence,
                 ))
             else:
@@ -183,13 +192,13 @@ class DemoTrackingProvider(TrackingProvider):
                 from app.models.tracking import _trk_id
                 new_tid = _trk_id()
                 self._assignments[det.detection_id] = new_tid
-                _DEMO_TRACKS[new_tid] = {
+                self._tracks[new_tid] = {
                     "camera_id": camera_id,
                     "object_class": det.object_class,
                     "status": "TENTATIVE",
                     "continuity_quality": CONTINUITY_WEAK,
                 }
-                _CAMERA_DEMO_TRACKS.setdefault(camera_id, []).append(new_tid)
+                self._camera_tracks.setdefault(camera_id, []).append(new_tid)
                 self._sequences[camera_id][new_tid] = 1
                 assignments.append(TrackAssignment(
                     detection_id=det.detection_id,
@@ -236,7 +245,7 @@ class DemoTrackingProvider(TrackingProvider):
             failure_count=self._failure_count,
             queue_depth=0,
             processing_latency_ms=None,
-            cameras_active=len(_CAMERA_DEMO_TRACKS),
+            cameras_active=len(self._camera_tracks),
             note="DEMO provider — no real tracking algorithm active",
         )
 

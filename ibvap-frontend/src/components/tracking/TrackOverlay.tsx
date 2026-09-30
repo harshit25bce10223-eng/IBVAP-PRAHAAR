@@ -8,9 +8,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { clsx } from 'clsx'
-import type { Track, TrackPoint } from '@/types/tracking'
+import type { Track } from '@/types/tracking'
 import { FEED_VIEWBOX } from '@/components/camera/feedViewport'
-import { bboxToVB, pointsToContainer, pointToVB } from './geometry'
+import { bboxToVB, pointToVB } from './geometry'
 import { describeTrack } from './trackFormat'
 import { TRACK_CLASS_STROKE, TRACK_CLASS_CHIP } from './trackTone'
 
@@ -45,14 +45,6 @@ function applyFilters(tracks: Track[], filters: TrackDisplayFilters | undefined)
     if (statuses && !statuses.includes(t.status)) return false
     return true
   })
-}
-
-function formatTrajectoryLabel(t: Track): string {
-  const parts: string[] = []
-  if (t.trackId) parts.push(t.trackId)
-  if (t.objectClass) parts.push(t.objectClass)
-  if (t.status) parts.push(t.status)
-  return parts.join(' · ')
 }
 
 /**
@@ -125,6 +117,13 @@ export function TrackOverlay({
         const lowContinuity = t.continuityQuality === 'WEAK' || t.continuityQuality === 'UNKNOWN'
         const invalid = t.status === 'INVALID'
 
+        // Chip label + proportional width. The label text must fit inside its
+        // background rect (a fixed 1px rect previously clipped the text).
+        const chipLabel = `${TRACK_CLASS_CHIP[t.objectClass]} ${formatConfidenceShort(t.confidence ?? null)}${
+          t.status !== 'ACTIVE' ? ` · ${t.status}` : ''
+        }`
+        const chipWidth = Math.min(140, chipLabel.length * 6.2 + 8)
+
         // Accessibility: the box itself is the interactive landmark.
         const common = {
           role: interactive ? ('button' as const) : undefined,
@@ -181,11 +180,11 @@ export function TrackOverlay({
                   y2={box.y + box.height / 2 + Math.sin(dirToRad(t.direction!)) * 20}
                   stroke={TRACK_CLASS_STROKE[t.objectClass]}
                   strokeWidth={2}
-                  markerEnd="url(#arrowhead)"
+                  markerEnd={`url(#arrowhead-${t.trackId})`}
                 />
                 <defs>
                   <marker
-                    id="arrowhead"
+                    id={`arrowhead-${t.trackId}`}
                     markerWidth="8"
                     markerHeight="8"
                     refX="6"
@@ -199,9 +198,9 @@ export function TrackOverlay({
               </>
             )}
             {/* Compact label chip: class > state > confidence; no id on the box (§50) */}
-            <g transform={`translate(${Math.min(FEED_VIEWBOX.width - 140, Math.max(0, box.x))}, ${Math.max(2, box.y - 20)})`}>
+            <g transform={`translate(${Math.max(0, Math.min(FEED_VIEWBOX.width - chipWidth - 2, box.x))}, ${Math.max(2, box.y - 20)})`}>
               <rect
-                width={1}
+                width={chipWidth}
                 height={18}
                 rx={4}
                 fill={invalid ? 'rgba(127, 29, 29, 0.85)' : lowContinuity ? 'rgba(252, 211, 77, 0.2)' : 'rgba(13, 17, 23, 0.85)'}
@@ -216,8 +215,7 @@ export function TrackOverlay({
                 fontFamily="JetBrains Mono, monospace"
                 fill={invalid ? '#f87171' : lowContinuity ? '#fcd34d' : '#cbd5e1'}
               >
-                {TRACK_CLASS_CHIP[t.objectClass]} {formatConfidenceShort(t.confidence ?? null)}
-                {t.status !== 'ACTIVE' && ` · ${t.status}`}
+                {chipLabel}
               </text>
             </g>
           </g>

@@ -44,7 +44,8 @@ export function LoginPage() {
   const isSessionExpired = status === 'session_expired'
   const isLoading = status === 'loading'
 
-  const fromPath = (location.state as { from?: { pathname: string } })?.from?.pathname || '/camera/CAM-07'
+  const from = (location.state as { from?: { pathname: string; search?: string } })?.from
+  const fromPath = from ? `${from.pathname}${from.search ?? ''}` : '/camera/CAM-07'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

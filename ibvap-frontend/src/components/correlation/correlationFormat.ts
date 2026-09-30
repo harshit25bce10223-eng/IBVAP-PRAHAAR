@@ -68,6 +68,11 @@ export function formatCameraCount(n: number): string {
   return `${n} camera${n === 1 ? '' : 's'}`
 }
 
+/** Count label for grouped rows in the log: '8 groups' / '1 group'. */
+export function formatGroupCount(n: number): string {
+  return `${n} group${n === 1 ? '' : 's'}`
+}
+
 /** Camera list label from a camera chain or member cameras. */
 export function formatCameraList(chain: string[] | null, memberCameras: string[]): string {
   const list = chain && chain.length > 0 ? chain : memberCameras
@@ -88,4 +93,22 @@ export function formatConfidence(value: number): string {
 /** Modality list — e.g. 'VIDEO · ANPR · AUDIO'. */
 export function formatModalities(modalities: string[]): string {
   return modalities.length === 0 ? '—' : modalities.join(' · ')
+}
+
+/**
+ * Chronological comparator on event observed time (§60). Ties are broken by
+ * eventId so the visual timeline never depends on array or insertion order.
+ * Unparseable timestamps sort last rather than silently landing anywhere.
+ */
+export function compareByObservedTime(
+  a: { timestamp: string; eventId: string },
+  b: { timestamp: string; eventId: string }
+): number {
+  const ta = new Date(a.timestamp).getTime()
+  const tb = new Date(b.timestamp).getTime()
+  const aInvalid = Number.isNaN(ta)
+  const bInvalid = Number.isNaN(tb)
+  if (aInvalid !== bInvalid) return aInvalid ? 1 : -1
+  if (!aInvalid && ta !== tb) return ta - tb
+  return a.eventId.localeCompare(b.eventId)
 }

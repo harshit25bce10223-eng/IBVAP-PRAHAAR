@@ -37,8 +37,15 @@ function withinTimeRange(iso: string, range: DetectionQuery['timeRange']): boole
   if (range === 'all') return true
   const ref = new Date(DEMO_NOW).getTime()
   const t = new Date(iso).getTime()
-  const minutes = range === '15m' ? 15 : range === '1h' ? 60 : range === 'today' ? 24 * 60 : 0
-  if (minutes === 0) return true
+  if (Number.isNaN(t)) return false
+  // 'today' anchors to local midnight of the demo reference clock — the same
+  // day-window the REAL service requests (timeRangeFromIso), not a rolling 24h.
+  if (range === 'today') {
+    const midnight = new Date(ref)
+    midnight.setHours(0, 0, 0, 0)
+    return t >= midnight.getTime()
+  }
+  const minutes = range === '15m' ? 15 : 60
   return ref - t <= minutes * 60_000
 }
 
@@ -81,11 +88,14 @@ function compareDetections(a: DetectionResult, b: DetectionResult, q: DetectionQ
       return a.class.localeCompare(b.class) * dir
     case 'camera':
       return a.cameraId.localeCompare(b.cameraId) * dir
+    // 'oldest' pins ascending; 'latest' honors the order toggle — desc (the
+    // default) is newest first, matching the toggle label and the backend's
+    // observed_at ordering (sortToBackendParams).
     case 'oldest':
-      return (new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) * dir
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     case 'latest':
     default:
-      return (new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()) * dir
+      return (new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) * dir
   }
 }
 

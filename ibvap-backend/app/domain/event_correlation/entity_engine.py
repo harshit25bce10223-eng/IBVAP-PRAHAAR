@@ -71,7 +71,7 @@ class EntityRelationEngine:
                     reid_a.get("confidence", 0),
                     reid_b.get("confidence", 0),
                 )
-                if confidence >= 0.7:  # min_reid_confidence
+                if confidence >= self.min_reid_confidence:
                     return {
                         "type": "ENTITY",
                         "subtype": "REID_CANDIDATE",
@@ -114,13 +114,14 @@ class EntityRelationEngine:
         """Find all events belonging to the same track."""
         return [e for e in events if e.get("track_id") == track_id]
 
-    def find_reid_matches(self, track_id: str, events: list[dict], min_confidence: float = 0.7) -> list[dict]:
+    def find_reid_matches(self, track_id: str, events: list[dict], min_confidence: float | None = None) -> list[dict]:
         """Find Re-ID candidate matches for a track."""
+        threshold = self.min_reid_confidence if min_confidence is None else min_confidence
         matches = []
         for event in events:
             reid = event.get("reid_candidate")
             if reid and reid.get("track_id") == track_id:
-                if reid.get("confidence", 0) >= 0.7:
+                if reid.get("confidence", 0) >= threshold:
                     matches.append({
                         "event_id": event.get("event_id"),
                         "candidate_id": reid.get("candidate_id"),

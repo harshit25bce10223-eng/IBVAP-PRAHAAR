@@ -30,7 +30,17 @@ DetectionState = Literal[
 
 DetectionSource = Literal["EDGE", "CENTRAL", "REMOTE", "DEMO", "UNKNOWN"]
 
-DetectionFeedState = Literal["READY", "PROCESSING", "DEGRADED", "UNAVAILABLE", "OFFLINE", "STALE", "UNKNOWN"]
+DetectionFeedState = Literal[
+    "READY",
+    "NO_OBJECTS",
+    "UNCONFIGURED",
+    "PROCESSING",
+    "DEGRADED",
+    "UNAVAILABLE",
+    "OFFLINE",
+    "STALE",
+    "UNKNOWN",
+]
 
 InferenceState = Literal["READY", "LOADING", "WARMING", "PROCESSING", "DEGRADED", "FAILED", "UNAVAILABLE", "UNKNOWN"]
 
@@ -181,6 +191,11 @@ class DetectionDetailResponse(BaseModel):
     edge_sync: Optional[EdgeSyncInfo] = None
     latency: Optional[LatencyInfo] = None
     
+    # Read-only soft reference to a Component 7 ANPR sighting that cites this
+    # detection (e.g. SIGHT-...). Never implies plate identity — C7 remains
+    # authoritative for that record.
+    anpr_ref: Optional[str] = None
+    
     observed_at: str
     received_at: str
     processed_at: Optional[str] = None
@@ -217,6 +232,27 @@ class InferenceHealthResponse(BaseModel):
     avg_latency_ms: float = 0.0
     model_name: Optional[str] = None
     model_version: Optional[str] = None
+
+
+class DetectionFeedResponse(BaseModel):
+    """
+    Composed camera detection feed: pipeline availability + recent detections.
+
+    Availability is deliberately separated from object presence:
+    - UNCONFIGURED / UNAVAILABLE / OFFLINE / STALE never mean "no objects"
+    - NO_OBJECTS means the provider answered with zero detections
+    - READY means the provider answered and at least one detection is shown
+    All values are derived from stored state and the actual provider health —
+    never fabricated and never silently replaced by demo data.
+    """
+    model_config = ConfigDict(extra="allow")
+
+    camera_id: str
+    state: DetectionFeedState
+    inference: InferenceState
+    # Newest observed_at among the returned detections; None when none exist.
+    last_updated_at: Optional[str] = None
+    detections: list[DetectionSummary] = []
 
 
 # ── Config Models ─────────────────────────────────────────────────────────────

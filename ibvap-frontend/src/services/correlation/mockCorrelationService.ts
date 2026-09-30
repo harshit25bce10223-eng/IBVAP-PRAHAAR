@@ -16,7 +16,8 @@ import type {
   EventLogQuery,
 } from '@/types/eventCorrelation'
 import type { IEventCorrelationService } from './IEventCorrelationService'
-import { MOCK_GROUPS, MOCK_GROUP_BY_ID } from './mockCorrelationData'
+import { MOCK_GROUPS, MOCK_GROUP_BY_ID, MOCK_TIME_ANCHOR_MS } from './mockCorrelationData'
+import { compareCorrelationGroups, matchesCorrelationQuery } from './correlationFilter'
 
 const PROVIDER_DELAY_MS = 250
 
@@ -24,53 +25,13 @@ function delay(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
 
-function matchesTimeRange(iso: string, range: EventLogQuery['timeRange']): boolean {
-  if (range === 'all') return true
-  const t = new Date(iso).getTime()
-  const now = Date.now()
-  const minutes = range === '15m' ? 15 : range === '1h' ? 60 : range === 'today' ? 24 * 60 : 0
-  if (minutes === 0) return true
-  return now - t <= minutes * 60_000
-}
-
+/** Same filter/sort semantics as the Event Log; fixtures pinned to the demo anchor. */
 function matchesQuery(g: CorrelationGroup, q: EventLogQuery): boolean {
-  const s = q.search.trim().toLowerCase()
-  const searchHit =
-    s === '' ||
-    g.correlationId.toLowerCase().includes(s) ||
-    (g.incidentId ?? '').toLowerCase().includes(s) ||
-    g.memberEvents.some(m => m.eventId.toLowerCase().includes(s) || m.cameraId.toLowerCase().includes(s)) ||
-    (g.trackCandidate?.trackId.toLowerCase().includes(s) ?? false)
-  if (!searchHit) return false
-  if (q.correlation !== 'ALL' && g.status !== q.correlation) return false
-  if (q.severity !== 'ALL' && g.risk.severity !== q.severity) return false
-  if (q.cameraId !== 'ALL' && !g.memberEvents.some(m => m.cameraId === q.cameraId)) return false
-  if (q.sectorId !== 'ALL' && g.sectorId !== q.sectorId && !g.memberEvents.some(m => m.sectorId === q.sectorId)) return false
-  if (q.source !== 'ALL' && !g.sources.includes(q.source)) return false
-  if (q.connectivity !== 'ALL' && g.connectivity !== q.connectivity) return false
-  if (!matchesTimeRange(g.startedAt, q.timeRange)) return false
-  return true
+  return matchesCorrelationQuery(g, q, MOCK_TIME_ANCHOR_MS)
 }
 
 function compareGroups(a: CorrelationGroup, b: CorrelationGroup, q: EventLogQuery): number {
-  const dir = q.order === 'asc' ? 1 : -1
-  switch (q.sort) {
-    case 'signals':
-      return (a.eventCount - b.eventCount) * dir
-    case 'cameras':
-      return (a.cameraCount - b.cameraCount) * dir
-    case 'severity': {
-      const rank = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 } as const
-      const ra = a.risk.severity ? rank[a.risk.severity] : -1
-      const rb = b.risk.severity ? rank[b.risk.severity] : -1
-      return (ra - rb) * dir
-    }
-    case 'status':
-      return a.status.localeCompare(b.status) * dir
-    case 'time':
-    default:
-      return (new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime()) * dir
-  }
+  return compareCorrelationGroups(a, b, q)
 }
 
 class MockCorrelationService implements IEventCorrelationService {

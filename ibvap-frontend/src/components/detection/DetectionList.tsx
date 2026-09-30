@@ -31,6 +31,8 @@ const QUALITY_LABEL: Record<DetectionQuality, string> = {
 const SOURCE_LABEL: Record<DetectionSource, string> = {
   EDGE: 'EDGE',
   CENTRAL: 'CENTRAL',
+  REMOTE: 'REMOTE',
+  DEMO: 'DEMO',
   UNKNOWN: '—',
 }
 
