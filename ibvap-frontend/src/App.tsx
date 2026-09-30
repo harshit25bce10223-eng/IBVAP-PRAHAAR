@@ -68,6 +68,10 @@ const VehicleDetail = lazy(() =>
   import('@/pages/VehicleDetail').then(m => ({ default: m.VehicleDetail }))
 )
 
+const GuidedDemo = lazy(() =>
+  import('@/pages/GuidedDemo').then(m => ({ default: m.GuidedDemo }))
+)
+
 function ProtectedLayout() {
   const { isAuthenticated, status } = useAuth()
   const location = useLocation()
@@ -122,7 +126,7 @@ function AppRoutes() {
         element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
       />
       <Route element={<ProtectedLayout />}>
-        <Route path="/demo" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/demo" element={<GuidedDemo />} />
         <Route path="/camera/:id" element={<SingleCameraDetail />} />
         <Route path="/virtual-fence" element={<SingleCameraDetail />} />
         <Route path="/health" element={<CameraHealthPage />} />
