@@ -21,6 +21,16 @@ export const api = axios.create({
   },
 })
 
+// A static host can rewrite missing /api routes to index.html with HTTP 200.
+// Reject that response before it reaches stores so existing offline fallbacks run.
+api.interceptors.response.use(response => {
+  const contentType = String(response.headers['content-type'] ?? '').toLowerCase()
+  if (contentType.includes('text/html') || (typeof response.data === 'string' && /^\s*(?:<!doctype html|<html)/i.test(response.data))) {
+    throw new Error('Backend unavailable: received a web page instead of API data.')
+  }
+  return response
+})
+
 /** Normalize backend error bodies into a readable typed error. */
 export function asApiError(err: unknown): ApiError {
   const ax = err as AxiosError<ApiErrorBody>
