@@ -93,7 +93,7 @@ export function IncidentDetail() {
 
   if (!group) {
     return (
-      <div className="space-y-5">
+      <div className="h-full overflow-y-auto p-4 md:p-6 space-y-5">
         <PageHeader title="Correlation Detail" subtitle={correlationId} />
         <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4">
           {detailState === 'loading' || detailState === 'idle' ? (
@@ -134,7 +134,7 @@ export function IncidentDetail() {
       : undefined
 
   return (
-    <div className="space-y-5">
+    <div className="h-full overflow-y-auto p-4 md:p-6 space-y-5">
       <PageHeader
         title="Correlation Detail"
         subtitle={`${group.correlationId} · ${formatWindow(group.startedAt, group.endedAt)}`}

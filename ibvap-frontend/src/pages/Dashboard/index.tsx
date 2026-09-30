@@ -45,7 +45,7 @@ export function Dashboard() {
   const { kpis, goldenIncident, incidents, cameras, humanAnimal, systemHealth, activity, evidence } = data
 
   return (
-    <div className="h-full flex flex-col gap-3 overflow-hidden p-4">
+    <div className="h-full flex flex-col gap-3 overflow-y-auto p-4">
       {/* Page identity */}
       <header className="flex items-end justify-between flex-shrink-0">
         <div>
@@ -72,13 +72,13 @@ export function Dashboard() {
       <KpiSummaryRow kpis={kpis} />
 
       {/* Main grid: GIS + Active Incidents */}
-      <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_320px] gap-3">
+      <div className="flex-1 min-h-[440px] grid grid-cols-[minmax(0,1fr)_320px] gap-3">
         <CommandMap goldenIncident={goldenIncident} cameras={cameras} />
         <ActiveIncidentPanel incidents={incidents} goldenIncident={goldenIncident} />
       </div>
 
       {/* Bottom strip: camera intel / context + health / evidence */}
-      <div className="h-[188px] min-h-0 grid grid-cols-[minmax(0,1fr)_320px] gap-3">
+      <div className="h-[190px] min-h-[190px] flex-shrink-0 grid grid-cols-[minmax(0,1fr)_320px] gap-3">
         <div className="min-w-0 flex gap-3">
           <CameraIntelRow cameras={cameras} className="flex-[2]" />
           <HumanAnimalCard data={humanAnimal} className="flex-1" />
