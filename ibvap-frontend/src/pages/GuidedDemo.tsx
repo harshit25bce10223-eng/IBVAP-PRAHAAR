@@ -102,74 +102,78 @@ export function GuidedDemo() {
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-[#060c14] text-slate-100 overflow-y-auto lg:overflow-hidden p-3 md:p-4 gap-3">
-      {/* ── TOP HEADER & SCENARIO SELECTOR ─────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0d1724] border border-slate-800 rounded-xl px-4 py-2.5 shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-            <Radio className="h-4 w-4 animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold tracking-wide text-white uppercase flex items-center gap-2">
-              Interactive Demo
-              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
-                LIVE SANDBOX
-              </span>
-            </h1>
-            <p className="text-[11px] text-slate-400">
-              Select a scenario below to see automated detection, rules & intelligence in action.
-            </p>
-          </div>
-        </div>
-
-        {/* Scenario Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#080f1a] p-1 rounded-lg border border-slate-800" role="tablist">
-          {scenarios.map(s => {
-            const Icon = SCENARIO_ICONS[s.id]
-            const active = caseId === s.id
-            return (
-              <button
-                key={s.id}
-                role="tab"
-                aria-selected={active}
-                onClick={() => handleSelectScenario(s.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  active
-                    ? 'bg-cyan-500 text-slate-950 shadow-sm font-bold'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                <span>{s.id === 'vehicle' ? 'Vehicle Intrusion' : s.id === 'person' ? 'Person Trespass' : s.id === 'animal' ? 'Animal Filter' : 'Camera Outage'}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── UNIFIED CONTROLS & TIMELINE BAR ─────────────────────────────────── */}
-      <div className="flex flex-col gap-2 bg-[#0c1622] border border-slate-800 rounded-xl px-4 py-2.5">
+    <div className="flex flex-col flex-1 p-3 md:p-4 gap-2.5 bg-[#060c14] text-slate-100 min-h-0">
+      {/* ── UNIFIED COMMAND TOOLBAR (HEADER + SCENARIOS + PLAYBACK + SCRUBBER) ─ */}
+      <div className="bg-[#0b1522] border border-slate-800 rounded-xl p-3 flex flex-col gap-2.5 shadow-sm flex-shrink-0">
+        {/* Row 1: Title & Scenarios & Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Playback buttons */}
+          {/* Identity */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+              <Radio className="h-3.5 w-3.5 animate-pulse" />
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                Interactive Demo
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                  SANDBOX
+                </span>
+              </span>
+            </div>
+          </div>
+
+          {/* Scenario Tabs */}
+          <div className="flex flex-wrap items-center gap-1 bg-[#070e17] p-1 rounded-lg border border-slate-800" role="tablist">
+            {scenarios.map(s => {
+              const Icon = SCENARIO_ICONS[s.id]
+              const active = caseId === s.id
+              return (
+                <button
+                  key={s.id}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => handleSelectScenario(s.id)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                    active
+                      ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                  }`}
+                >
+                  <Icon className="h-3 w-3" />
+                  <span>
+                    {s.id === 'vehicle'
+                      ? 'Vehicle Intrusion'
+                      : s.id === 'person'
+                      ? 'Person Trespass'
+                      : s.id === 'animal'
+                      ? 'Animal Filter'
+                      : 'Camera Outage'}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Playback Controls & Time */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 if (time >= DEMO_DURATION) setTime(0)
                 setPlaying(p => !p || time >= DEMO_DURATION)
               }}
-              className="flex items-center gap-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-3.5 py-1.5 text-xs transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-md bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-3 py-1 text-xs transition-colors shadow-sm"
             >
               {time >= DEMO_DURATION ? (
                 <>
-                  <RotateCcw className="h-3.5 w-3.5" /> Replay
+                  <RotateCcw className="h-3 w-3" /> Replay
                 </>
               ) : playing ? (
                 <>
-                  <Pause className="h-3.5 w-3.5" /> Pause
+                  <Pause className="h-3 w-3" /> Pause
                 </>
               ) : (
                 <>
-                  <Play className="h-3.5 w-3.5 fill-current" /> Play Simulation
+                  <Play className="h-3 w-3 fill-current" /> Play
                 </>
               )}
             </button>
@@ -179,114 +183,113 @@ export function GuidedDemo() {
                 setTime(0)
                 setPlaying(false)
               }}
-              title="Reset to beginning"
-              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1.5 text-xs text-slate-300 transition-colors"
+              title="Reset"
+              className="p-1 rounded-md border border-slate-700 bg-slate-850 hover:bg-slate-700 text-slate-300"
             >
-              <RotateCcw className="h-3 w-3" />
-              Reset
+              <RotateCcw className="h-3.5 w-3.5" />
             </button>
 
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-700/80 rounded-lg p-0.5 text-xs">
+            <div className="flex items-center bg-slate-900 border border-slate-700 rounded-md p-0.5 text-xs">
               <button
                 onClick={() => setSpeed(1)}
-                className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                  speed === 1 ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-white'
+                className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                  speed === 1 ? 'bg-cyan-500/25 text-cyan-300' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 1×
               </button>
               <button
                 onClick={() => setSpeed(2)}
-                className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                  speed === 2 ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-white'
+                className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                  speed === 2 ? 'bg-cyan-500/25 text-cyan-300' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 2×
               </button>
             </div>
-          </div>
 
-          {/* Chapter Stepper in toolbar */}
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs font-mono text-cyan-300 bg-slate-900/90 px-2.5 py-1 rounded border border-slate-800">
+              <Clock className="h-3 w-3 text-cyan-400" />
+              <span>{demoClock(time)} IST</span>
+              <span className="text-slate-500 text-[10px]">({Math.floor(time)}s)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: Timeline Scrubber with Step Controls */}
+        <div className="flex items-center gap-3 pt-1 border-t border-slate-800/80">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               disabled={chapterIndex <= 0}
               onClick={() => jump(chapterIndex - 1)}
-              className="p-1.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none"
-              title="Previous chapter"
+              className="p-1 rounded border border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none"
+              title="Previous step"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
-            <span className="text-xs font-semibold text-cyan-200">
-              Step {chapterIndex + 1}/10: <span className="text-white font-normal">{state.chapter.name}</span>
+            <span className="text-xs font-medium text-slate-300 min-w-[210px]">
+              <strong className="text-cyan-300">Step {chapterIndex + 1}/10:</strong> {state.chapter.name}
             </span>
             <button
               disabled={chapterIndex >= chapters.length - 1}
               onClick={() => jump(chapterIndex + 1)}
-              className="p-1.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none"
-              title="Next chapter"
+              className="p-1 rounded border border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none"
+              title="Next step"
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
 
-          {/* Clock */}
-          <div className="flex items-center gap-2 text-xs font-mono text-cyan-300 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-800">
-            <Clock className="h-3.5 w-3.5 text-cyan-400" />
-            <span>30 SEP 2026 · {demoClock(time)} IST</span>
-            <span className="text-slate-500">({Math.floor(time)}s / {DEMO_DURATION}s)</span>
+          <div className="flex-1 flex items-center">
+            <input
+              type="range"
+              min={0}
+              max={DEMO_DURATION}
+              step={0.5}
+              value={time}
+              onChange={e => {
+                setTime(Number(e.target.value))
+                setPlaying(false)
+              }}
+              className="w-full accent-cyan-400 h-1.5 bg-slate-800 rounded cursor-pointer"
+              aria-label="Timeline scrubber"
+            />
           </div>
-        </div>
-
-        {/* Timeline Slider */}
-        <div className="flex items-center gap-3 pt-1">
-          <input
-            type="range"
-            min={0}
-            max={DEMO_DURATION}
-            step={0.5}
-            value={time}
-            onChange={e => {
-              setTime(Number(e.target.value))
-              setPlaying(false)
-            }}
-            className="w-full accent-cyan-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
-            aria-label="Interactive timeline slider"
-          />
         </div>
       </div>
 
-      {/* ── MAIN 2-COLUMN VIEWPORT (FITS AT A GLANCE) ─────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-0">
+      {/* ── MAIN CONTENT (BALANCED VIEWPORT, NO AWKWARD SCROLLING) ───────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1 min-h-0">
         {/* LEFT COLUMN: CAMERA MONITOR + IMMEDIATE INSIGHT (7 COLS) */}
-        <div className="lg:col-span-7 flex flex-col gap-3 min-h-0">
-          {/* Camera Feed Simulation */}
-          <div ref={sceneRef} className="relative rounded-xl overflow-hidden border border-slate-700/80 bg-black shadow-md flex-shrink-0">
-            <DemoScene time={time} scenario={caseId} />
-            <div className="absolute top-2 left-2 flex items-center gap-2 pointer-events-none">
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/75 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 backdrop-blur-sm">
+        <div className="lg:col-span-7 flex flex-col gap-2.5 min-h-0">
+          {/* Simulated CCTV Feed */}
+          <div ref={sceneRef} className="relative rounded-xl overflow-hidden border border-slate-800 bg-black shadow-md flex-shrink-0">
+            <DemoScene time={time} scenario={caseId} className="max-h-[250px] xl:max-h-[290px] flex items-center justify-center bg-black" />
+            <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-black/80 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
-                SIMULATED FEED
+                SIMULATED CCTV FEED
               </span>
             </div>
           </div>
 
-          {/* Immediate Context Box: "What's happening now?" */}
-          <div className="bg-[#0b1420] border border-cyan-500/25 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 flex-1 min-h-0">
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400">
+          {/* Immediate Context Card */}
+          <div className="bg-[#0b1522] border border-cyan-500/25 rounded-xl p-3 flex flex-col justify-between gap-2 flex-1 min-h-0">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
                   {state.chapter.module} · Step {chapterIndex + 1} of 10
                 </span>
                 <Link
                   to={state.chapter.route}
                   className="flex items-center gap-1 text-[11px] text-cyan-300 hover:text-cyan-100 hover:underline"
                 >
-                  <span>Open {state.chapter.module} view</span>
+                  <span>Open workspace</span>
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </div>
 
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-xs font-bold text-white">
                 {state.chapter.question}
               </h2>
 
@@ -295,17 +298,17 @@ export function GuidedDemo() {
               </p>
             </div>
 
-            <div className="bg-slate-950/70 border border-slate-800 rounded-lg p-2.5 flex items-start gap-2">
-              <span className="text-[11px] font-bold text-cyan-300 shrink-0">Watch for:</span>
-              <p className="text-[11px] text-slate-300">{state.chapter.action}</p>
+            <div className="bg-slate-950/80 border border-slate-800/80 rounded-lg p-2 flex items-start gap-1.5 text-[11px]">
+              <span className="font-bold text-cyan-300 shrink-0">Watch:</span>
+              <p className="text-slate-300">{state.chapter.action}</p>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: RULE ENGINE VERDICT + LIVE EVENT AUDIT LOG (5 COLS) */}
-        <div className="lg:col-span-5 flex flex-col gap-3 min-h-0">
-          {/* Card 1: Decision Engine & Classification */}
-          <div className="bg-[#0b1420] border border-slate-800 rounded-xl p-3.5 space-y-3">
+        {/* RIGHT COLUMN: RULE ENGINE VERDICT + SIGHTINGS + AUDIT LOG (5 COLS) ─── */}
+        <div className="lg:col-span-5 flex flex-col gap-2.5 min-h-0">
+          {/* Card 1: Rule Engine Decision & Detection */}
+          <div className="bg-[#0b1522] border border-slate-800 rounded-xl p-3 space-y-2.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
                 Rule Engine Verdict
@@ -315,9 +318,9 @@ export function GuidedDemo() {
               </span>
             </div>
 
-            {/* Verdict Box */}
+            {/* Verdict Status Box */}
             <div
-              className={`rounded-lg border p-3 flex items-start gap-2.5 ${
+              className={`rounded-lg border p-2.5 flex items-start gap-2 ${
                 state.alert
                   ? 'border-rose-500/50 bg-rose-500/10 text-rose-200'
                   : caseId === 'animal' && time >= 42
@@ -328,74 +331,74 @@ export function GuidedDemo() {
               }`}
             >
               {state.alert ? (
-                <ShieldAlert className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
               ) : caseId === 'animal' && time >= 42 ? (
-                <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
               ) : state.outage ? (
-                <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+                <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
               ) : (
-                <CheckCircle2 className="h-5 w-5 text-cyan-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
               )}
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold uppercase tracking-wide">
                   {caseId === 'health'
                     ? state.outage
-                      ? 'Camera Outage / Connection Lost'
-                      : 'Baseline Health Normal'
+                      ? 'Camera Outage / Signal Lost'
+                      : 'Baseline Health Clear'
                     : caseId === 'animal' && time >= 42
-                    ? 'Non-Target Wildlife Filtered'
+                    ? 'Non-Threat Wildlife Excluded'
                     : state.alert
                     ? 'Restricted Zone Intrusion Alert'
                     : state.inside
                     ? 'Zone Entered · Evaluating Dwell'
                     : 'Normal Activity / No Alert'}
                 </div>
-                <div className="text-[11px] text-slate-300 mt-1 leading-snug">
+                <div className="text-[10px] text-slate-300 mt-0.5 leading-snug">
                   {caseId === 'animal'
-                    ? 'Perimeter rule configured for people/vehicles. Animals do not trigger alarms.'
+                    ? 'Perimeter configured for people/vehicles. Wildlife crossing does not trigger alarms.'
                     : caseId === 'health'
                     ? state.outage
-                      ? 'CAM-12 dropped offline. Tracking safely suspended without phantom detections.'
-                      : 'Telemetry clear. Visual quality verified.'
+                      ? 'CAM-12 offline. Tracking safely paused to avoid ghost detections.'
+                      : 'Camera image clear and online.'
                     : state.alert
-                    ? 'Target dwelt > 3.0s in restricted zone. Incident created with full evidence.'
+                    ? 'Dwell time > 3.0s exceeded in restricted zone. Incident created with full evidence.'
                     : state.inside
-                    ? `Target inside zone (${(time - 39).toFixed(1)}s / 3.0s dwell threshold)`
-                    : 'Target outside restricted zones. Routine surveillance.'}
+                    ? `Inside zone: ${(time - 39).toFixed(1)}s / 3.0s dwell threshold`
+                    : 'Target outside restricted perimeter.'}
                 </div>
               </div>
             </div>
 
-            {/* Target & Camera Pipeline */}
-            <div className="grid grid-cols-3 gap-2 text-center pt-1 border-t border-slate-800">
-              <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            {/* Target & Pipeline Row */}
+            <div className="grid grid-cols-3 gap-1.5 text-center pt-1 border-t border-slate-800">
+              <div className="bg-slate-900/90 p-1.5 rounded border border-slate-800">
                 <div className="text-[9px] text-slate-400 uppercase">Detection</div>
-                <div className="text-xs font-mono font-bold text-white mt-0.5 truncate">
+                <div className="text-xs font-mono font-bold text-white truncate">
                   {caseId === 'vehicle' ? (time >= 8 ? DEMO_PLATE : 'Pending') : caseId === 'health' ? (state.outage ? 'FAULT' : 'OK') : caseId.toUpperCase()}
                 </div>
               </div>
-              <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+              <div className="bg-slate-900/90 p-1.5 rounded border border-slate-800">
                 <div className="text-[9px] text-slate-400 uppercase">Active Cam</div>
-                <div className="text-xs font-mono font-bold text-cyan-300 mt-0.5">
+                <div className="text-xs font-mono font-bold text-cyan-300 truncate">
                   {state.camera}
                 </div>
               </div>
-              <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+              <div className="bg-slate-900/90 p-1.5 rounded border border-slate-800">
                 <div className="text-[9px] text-slate-400 uppercase">Sightings</div>
-                <div className="text-xs font-mono font-bold text-cyan-300 mt-0.5">
+                <div className="text-xs font-mono font-bold text-cyan-300 truncate">
                   {state.sightings.length} / 3
                 </div>
               </div>
             </div>
 
             {/* Multi-Camera Sightings Stepper */}
-            <div className="flex items-center justify-between gap-1 text-[10px] font-mono bg-slate-950 p-2 rounded-lg border border-slate-800">
+            <div className="flex items-center justify-between gap-1 text-[10px] font-mono bg-slate-950 p-1.5 rounded border border-slate-800">
               {['CAM-07', 'CAM-08', 'CAM-12'].map((cam, idx) => {
                 const reached = state.sightings.some(s => s.camera === cam)
                 return (
-                  <div key={cam} className="flex items-center gap-1.5 flex-1 justify-center">
+                  <div key={cam} className="flex items-center gap-1 flex-1 justify-center">
                     <span
-                      className={`h-2 w-2 rounded-full ${
+                      className={`h-1.5 w-1.5 rounded-full ${
                         reached ? 'bg-cyan-400' : 'bg-slate-700'
                       }`}
                     />
@@ -409,44 +412,45 @@ export function GuidedDemo() {
             </div>
           </div>
 
-          {/* Card 2: Chronological Audit Events Feed */}
-          <div className="bg-[#0b1420] border border-slate-800 rounded-xl p-3.5 flex flex-col flex-1 min-h-0">
-            <div className="flex items-center justify-between mb-2">
+          {/* Card 2: Live Chronological Audit Events Feed */}
+          <div className="bg-[#0b1522] border border-slate-800 rounded-xl p-3 flex flex-col flex-1 min-h-0">
+            <div className="flex items-center justify-between mb-1.5 flex-shrink-0">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                Live Audit Trail ({state.events.length} Events)
+                Audit Trail ({state.events.length} Events)
               </span>
               <button
                 onClick={exportRecord}
-                className="flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-200"
+                className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-200 font-medium"
               >
                 <Download className="h-3 w-3" />
                 <span>Export JSON</span>
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[220px] lg:max-h-none">
+            {/* Audit log scroll container: clean internal scroll */}
+            <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-[190px] xl:max-h-[240px]">
               {state.events.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 text-center text-slate-500 text-xs">
-                  <Play className="h-6 w-6 stroke-1 text-slate-600 mb-1" />
-                  <span>Click <strong>Play Simulation</strong> above to watch events unfold in real time.</span>
+                <div className="flex flex-col items-center justify-center h-28 text-center text-slate-500 text-xs">
+                  <Play className="h-5 w-5 stroke-1 text-slate-600 mb-1" />
+                  <span>Click <strong>Play</strong> to watch real-time events.</span>
                 </div>
               ) : (
                 [...state.events].reverse().map(event => (
                   <div
                     key={`${event.at}-${event.camera}`}
-                    className={`border-l-2 pl-2.5 py-1 text-xs ${
+                    className={`border-l-2 pl-2 py-1 text-xs rounded-r ${
                       event.kind === 'alert'
                         ? 'border-rose-400 bg-rose-500/5'
                         : event.kind === 'health'
                         ? 'border-amber-400 bg-amber-500/5'
-                        : 'border-cyan-500/50 bg-cyan-500/5'
+                        : 'border-cyan-500/60 bg-cyan-500/5'
                     }`}
                   >
-                    <div className="flex items-center justify-between font-mono text-[10px]">
+                    <div className="flex items-center justify-between font-mono text-[9px]">
                       <span className="text-cyan-300">{demoClock(event.at)} IST</span>
                       <span className="text-slate-400">{event.camera}</span>
                     </div>
-                    <div className="font-semibold text-slate-200 text-[11px] mt-0.5">
+                    <div className="font-semibold text-slate-200 text-[10px] mt-0.5">
                       {event.title}
                     </div>
                     <div className="text-[10px] text-slate-400 leading-tight">

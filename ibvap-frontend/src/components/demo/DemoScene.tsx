@@ -1,7 +1,7 @@
 import { DEMO_PLATE, demoClock, scenarioAt, type ScenarioId } from './scenario'
 import { useId } from 'react'
 
-export function DemoScene({ time, camera, scenario = 'vehicle' }: { time: number; camera?: string; scenario?: ScenarioId }) {
+export function DemoScene({ time, camera, scenario = 'vehicle', className }: { time: number; camera?: string; scenario?: ScenarioId; className?: string }) {
   const state = scenarioAt(time, scenario)
   const sceneId = useId()
   const view = camera ?? state.camera
@@ -19,8 +19,8 @@ export function DemoScene({ time, camera, scenario = 'vehicle' }: { time: number
   const tone = view === 'CAM-08' && state.inside ? state.alert ? '#fb7185' : '#fbbf24' : '#67e8f9'
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-slate-700 bg-[#071119]">
-      <svg viewBox="0 0 960 500" className="block w-full" role="img" aria-label={`${view}: ${frozen ? 'frozen frame, camera offline' : blurred ? 'blurred camera image' : visibleCar ? `simulated ${scenario === 'vehicle' ? 'white car' : scenario} moving through checkpoint` : 'waiting for observation'}`}>
+    <div className={`relative overflow-hidden rounded-xl border border-slate-700 bg-[#071119] ${className ?? ""}`}>
+      <svg viewBox="0 0 960 500" className="block w-full h-auto max-h-full object-contain mx-auto" role="img" aria-label={`${view}: ${frozen ? 'frozen frame, camera offline' : blurred ? 'blurred camera image' : visibleCar ? `simulated ${scenario === 'vehicle' ? 'white car' : scenario} moving through checkpoint` : 'waiting for observation'}`}>
         <defs>
           <linearGradient id={`sky-${sceneId}`} x2="0" y2="1"><stop stopColor="#324b58" /><stop offset="1" stopColor="#0b1c28" /></linearGradient>
           <pattern id={`scan-${sceneId}`} width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#000" strokeOpacity=".14" /></pattern>
