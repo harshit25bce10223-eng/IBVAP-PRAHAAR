@@ -62,67 +62,114 @@ export function CorrelationSummary({
         density === 'compact' ? 'border-white/10' : 'border-[#1e2d40]'
       )}
     >
-      <div
-        className={clsx(
-          'flex items-start gap-3',
-          density === 'compact' ? 'p-3' : 'p-4'
-        )}
-      >
-        {/* Time */}
-        <div className="w-14 shrink-0 font-mono text-[11px] text-slate-400 tabular-nums">
-          {density === 'compact' ? formatClockShort(group.startedAt) : formatWindow(group.startedAt, group.endedAt)}
-        </div>
-
-        {/* Summary block */}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <CorrelationStatusBadge status={group.status} />
-            <span className="text-xs font-medium text-slate-200 truncate">{groupTitle(group)}</span>
+      {density === 'compact' ? (
+        <div className="p-3 space-y-2">
+          {/* Top row: Time + Status Badge on left, Severity & State on right */}
+          <div className="flex items-center justify-between gap-1.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] text-slate-400 tabular-nums">
+                {formatClockShort(group.startedAt)}
+              </span>
+              <CorrelationStatusBadge status={group.status} />
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {group.risk.severity !== null ? (
+                <SeverityBadge severity={group.risk.severity} score={group.risk.score} />
+              ) : (
+                <span className="font-mono text-[10px] text-slate-500 uppercase">No risk</span>
+              )}
+              {group.incidentId && group.incidentState && incTone && (
+                <Badge variant={TONE[incTone].badge} size="sm">
+                  {INCIDENT_STATE_LABEL[group.incidentState]}
+                </Badge>
+              )}
+              <span className={clsx('inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider', TONE[connTone].text)}>
+                <span className={clsx('h-1.5 w-1.5 rounded-full', TONE[connTone].dot)} aria-hidden />
+                {CONNECTIVITY_LABEL[group.connectivity]}
+              </span>
+            </div>
           </div>
-          {density !== 'compact' && (
-            <p className="mt-1 text-[11px] text-slate-500">{CORRELATION_BLURB[group.status]}</p>
-          )}
 
-          {/* Structured counts — not severity, not risk */}
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
-            <span className="font-mono tabular-nums">{formatSignalCount(group.eventCount)}</span>
-            <span className="font-mono tabular-nums">{formatCameraCount(group.cameraCount)}</span>
+          {/* Group Title */}
+          <div className="text-xs font-semibold text-slate-200 truncate">
+            {groupTitle(group)}
+          </div>
+
+          {/* Clean telemetry list */}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-400 font-mono">
+            <span className="text-slate-300 font-medium">{formatSignalCount(group.eventCount)}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-300">{formatCameraCount(group.cameraCount)}</span>
             {group.cameraCount > 0 && (
-              <span className="font-mono text-slate-500">{formatCameraList(group.cameraChain, memberCameras)}</span>
+              <>
+                <span className="text-slate-600">·</span>
+                <span className="text-cyan-400/90">{formatCameraList(group.cameraChain, memberCameras)}</span>
+              </>
             )}
             {memberSourceLabels && (
-              <span className="hidden md:inline text-slate-500">{memberSourceLabels}</span>
+              <>
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-400 font-sans">{memberSourceLabels}</span>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-start gap-3 p-4">
+          {/* Time */}
+          <div className="w-14 shrink-0 font-mono text-[11px] text-slate-400 tabular-nums">
+            {formatWindow(group.startedAt, group.endedAt)}
+          </div>
+
+          {/* Summary block */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <CorrelationStatusBadge status={group.status} />
+              <span className="text-xs font-medium text-slate-200 truncate">{groupTitle(group)}</span>
+            </div>
+            <p className="mt-1 text-[11px] text-slate-500">{CORRELATION_BLURB[group.status]}</p>
+
+            {/* Structured counts — not severity, not risk */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
+              <span className="font-mono tabular-nums">{formatSignalCount(group.eventCount)}</span>
+              <span className="font-mono tabular-nums">{formatCameraCount(group.cameraCount)}</span>
+              {group.cameraCount > 0 && (
+                <span className="font-mono text-slate-500">{formatCameraList(group.cameraChain, memberCameras)}</span>
+              )}
+              {memberSourceLabels && (
+                <span className="hidden md:inline text-slate-500">{memberSourceLabels}</span>
+              )}
+            </div>
+
+            {group.eventCount > group.memberEvents.length && group.memberEventsLoaded !== null && (
+              <p className="mt-1.5 text-[11px] text-amber-400/90">
+                {group.eventCount} signals · {group.memberEvents.length} loaded · {group.eventCount - group.memberEvents.length} related signal(s) unavailable.
+              </p>
+            )}
+            {group.duplicatedOrSuppressed && (
+              <p className="mt-1.5 text-[11px] text-slate-500">Backend flags transport duplication/suppression.</p>
             )}
           </div>
 
-          {group.eventCount > group.memberEvents.length && group.memberEventsLoaded !== null && (
-            <p className="mt-1.5 text-[11px] text-amber-400/90">
-              {group.eventCount} signals · {group.memberEvents.length} loaded · {group.eventCount - group.memberEvents.length} related signal(s) unavailable.
-            </p>
-          )}
-          {group.duplicatedOrSuppressed && (
-            <p className="mt-1.5 text-[11px] text-slate-500">Backend flags transport duplication/suppression.</p>
-          )}
+          {/* Right cluster: severity (separate) + status + nav */}
+          <div className="flex shrink-0 items-center gap-2.5">
+            {group.risk.severity !== null ? (
+              <SeverityBadge severity={group.risk.severity} score={group.risk.score} />
+            ) : (
+              <span className="font-mono text-[11px] text-slate-500 uppercase tracking-wider">No risk score</span>
+            )}
+            {group.incidentId && group.incidentState && incTone && (
+              <Badge variant={TONE[incTone].badge} size="sm">
+                {INCIDENT_STATE_LABEL[group.incidentState]}
+              </Badge>
+            )}
+            <span className={clsx('hidden lg:inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider', TONE[connTone].text)}>
+              <span className={clsx('h-1.5 w-1.5 rounded-full', TONE[connTone].dot)} aria-hidden />
+              {CONNECTIVITY_LABEL[group.connectivity]}
+            </span>
+          </div>
         </div>
-
-        {/* Right cluster: severity (separate) + status + nav */}
-        <div className="flex shrink-0 items-center gap-2.5">
-          {group.risk.severity !== null ? (
-            <SeverityBadge severity={group.risk.severity} score={group.risk.score} />
-          ) : (
-            <span className="font-mono text-[11px] text-slate-500 uppercase tracking-wider">No risk score</span>
-          )}
-          {group.incidentId && group.incidentState && incTone && (
-            <Badge variant={TONE[incTone].badge} size="sm">
-              {INCIDENT_STATE_LABEL[group.incidentState]}
-            </Badge>
-          )}
-          <span className={clsx('hidden lg:inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider', TONE[connTone].text)}>
-            <span className={clsx('h-1.5 w-1.5 rounded-full', TONE[connTone].dot)} aria-hidden />
-            {CONNECTIVITY_LABEL[group.connectivity]}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Expandable member signals */}
       {showExpand && expanded && (
@@ -133,7 +180,7 @@ export function CorrelationSummary({
 
       {/* Footer actions */}
       {(to || onExpand) && (
-        <div className={clsx('flex items-center justify-between border-t px-4 py-2', density === 'compact' ? 'border-white/10' : 'border-[#1e2d40]')}>
+        <div className={clsx('flex items-center justify-between border-t', density === 'compact' ? 'border-white/10 px-3 py-1.5' : 'border-[#1e2d40] px-4 py-2')}>
           {showExpand && onExpand ? (
             <button
               onClick={onExpand}

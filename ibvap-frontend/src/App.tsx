@@ -119,7 +119,7 @@ function AppRoutes() {
     <Routes>
       <Route 
         path="/login" 
-        element={isAuthenticated ? <Navigate to="/camera/CAM-07" replace /> : <LoginPage />} 
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
       />
       <Route element={<ProtectedLayout />}>
         <Route path="/camera/:id" element={<SingleCameraDetail />} />
@@ -139,8 +139,8 @@ function AppRoutes() {
         <Route path="/anpr" element={<ANPRPage />} />
         <Route path="/camera/:cameraId/vehicles" element={<CameraVehicles />} />
         <Route path="/vehicle/:vehicleId" element={<VehicleDetail />} />
-        <Route path="/" element={<Navigate to="/camera/CAM-07" replace />} />
-        <Route path="*" element={<Navigate to="/camera/CAM-07" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
   )
