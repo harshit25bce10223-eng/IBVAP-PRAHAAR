@@ -49,7 +49,7 @@ export function RouteComparisonPanel({ routes, selectedRouteId, onSelect, recomm
   const recommendedRoute = routes.find(r => r.recommended) ?? routes[1] ?? routes[0]
 
   return (
-    <div className="flex flex-col gap-2.5 h-full min-w-0 justify-between">
+    <div className="flex flex-col gap-2 h-full min-w-0 overflow-y-auto pr-1">
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0 px-0.5">
         <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export function RouteComparisonPanel({ routes, selectedRouteId, onSelect, recomm
       </div>
 
       {/* 3 Route Cards — Compact, clear, fully visible together */}
-      <div className="flex flex-col gap-2 flex-shrink-0">
+      <div className="flex flex-col gap-1.5 flex-shrink-0">
         {routes.map(route => {
           const style = SEVERITY_STYLE[route.severity]
           const accent = ROUTE_ACCENTS[route.id] ?? {

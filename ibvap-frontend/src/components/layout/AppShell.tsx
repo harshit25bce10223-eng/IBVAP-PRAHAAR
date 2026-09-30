@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <BreadcrumbBar context={context} />
-          <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
             {children}
           </main>
         </div>

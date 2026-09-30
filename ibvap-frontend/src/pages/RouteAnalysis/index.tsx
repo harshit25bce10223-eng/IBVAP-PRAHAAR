@@ -151,7 +151,7 @@ export function RouteAnalysis() {
       {showResults && data && (
         <>
           {/* Main content: Dominant Map (left ~75%) + Route Comparison (right ~25%) */}
-          <div className="h-[520px] min-h-[520px] flex gap-3.5 flex-shrink-0">
+          <div className="h-[560px] min-h-[560px] flex gap-3.5 flex-shrink-0">
             {/* Dominant GIS Map */}
             <div className="flex-1 min-w-0 h-full">
               <RouteMap
@@ -164,7 +164,7 @@ export function RouteAnalysis() {
             </div>
 
             {/* Right Panel: Complete Route Comparison — ALL 3 ROUTES VISIBLE! */}
-            <div className="w-[360px] flex-shrink-0 flex flex-col h-full bg-[#0C121D] rounded-xl border border-[#1E2D40] p-3 shadow-xl overflow-hidden">
+            <div className="w-[375px] flex-shrink-0 flex flex-col h-full bg-[#0C121D] rounded-xl border border-[#1E2D40] p-3 shadow-xl overflow-hidden">
               <RouteComparisonPanel
                 routes={data.routes}
                 selectedRouteId={selection.routeId}
