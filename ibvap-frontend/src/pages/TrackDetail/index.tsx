@@ -439,13 +439,22 @@ function TrackDetailView({ trackId }: { trackId: string }) {
                 Trajectory
               </span>
             </h2>
-            <TrackTrajectory
-              track={track}
-              containerSize={{ width: 800, height: 450 }}
-              fit="contain"
-              maxPoints={30}
-              showTimestamps={true}
-            />
+            {/* Relative container gives the absolute-positioned SVG a bounded viewport */}
+            <div className="relative w-full bg-[#080c12] rounded-lg border border-[#1e2d40] overflow-hidden" style={{ height: '200px' }}>
+              <TrackTrajectory
+                track={track}
+                containerSize={{ width: 800, height: 200 }}
+                fit="contain"
+                maxPoints={30}
+                showTimestamps={false}
+              />
+              {/* Empty-state overlay when trajectory has no renderable points */}
+              {(!track?.trajectory || track.trajectory.length < 2) && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="text-[11px] text-slate-500 font-mono">No trajectory points available</p>
+                </div>
+              )}
+            </div>
             <TrajectoryQualityNotes track={track} />
             <p className="mt-2 text-[10px] leading-relaxed text-slate-500">
               OBSERVED: the points above are recorded detection positions for this track. No positions
