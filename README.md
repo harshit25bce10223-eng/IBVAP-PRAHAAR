@@ -1,7 +1,7 @@
 # PRAHAAR — प्रहार
 ## AI-Powered Intelligent Border Surveillance & Command Platform
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Vercel-000?style=for-the-badge&logo=vercel&logoColor=white)](https://ibvap-frontend.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Vercel-000?style=for-the-badge&logo=vercel&logoColor=white)](https://ibvap-frontend.vercel.app/login)
 [![SSB Border Intelligence](https://img.shields.io/badge/SSB-Border_Intelligence-0D1B2A?style=for-the-badge&logo=shield&logoColor=2FD5E0)](https://github.com/harshit25bce10223-eng/IBVAP-PRAHAAR)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React_18_+_TypeScript-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
