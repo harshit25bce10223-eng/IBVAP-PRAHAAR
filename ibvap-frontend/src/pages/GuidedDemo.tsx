@@ -28,9 +28,8 @@ import {
   Compass,
   Database,
   Cpu,
-  Flame,
-  Check,
-  ScanLine
+  LayoutGrid,
+  Monitor
 } from 'lucide-react'
 import { DemoScene } from '@/components/demo/DemoScene'
 import {
@@ -47,10 +46,10 @@ import {
 
 const SCENARIO_DETAILS: Record<ScenarioId, { title: string; subtitle: string; icon: typeof Car; badge: string; color: string }> = {
   vehicle: {
-    title: 'Vehicle Intrusion & Plate Trail',
-    subtitle: 'ANPR Detection ➔ Cross-Camera Handoff ➔ 3s Dwell Breach Alert',
+    title: 'Vehicle + Person Intrusion Trail',
+    subtitle: 'ANPR Detection ➔ Dual Target Track ➔ 3s Perimeter Dwell Breach',
     icon: Car,
-    badge: 'PRIORITY 1 HIGH THREAT',
+    badge: 'MULTI-TARGET THREAT',
     color: 'border-cyan-500/40 text-cyan-300'
   },
   person: {
@@ -78,16 +77,16 @@ const SCENARIO_DETAILS: Record<ScenarioId, { title: string; subtitle: string; ic
 
 // 5 Key Story Beats for instant jump
 const STORY_BEATS: { label: string; at: number; act: string; tip: string }[] = [
-  { label: 'Checkpoint ANPR', at: 8, act: 'Act 1', tip: 'Camera 07 reads demo plate' },
-  { label: 'Cross-Cam Handoff', at: 28, act: 'Act 2', tip: 'Target appears on Camera 08' },
-  { label: 'Perimeter Breach (Alert)', at: 42, act: 'Act 3', tip: '3-second dwell threshold exceeded' },
-  { label: 'Sensor Outage Failover', at: 62, act: 'Act 4', tip: 'CAM-12 recovers, offline queue synced' },
+  { label: 'Checkpoint ANPR', at: 8, act: 'Act 1', tip: 'CAM-07 reads vehicle plate' },
+  { label: 'Cross-Cam Handoff', at: 28, act: 'Act 2', tip: 'CAM-08 picks up target across gap' },
+  { label: 'Dual Intrusion (Alert)', at: 42, act: 'Act 3', tip: 'Person breaches fence · 3s dwell exceeded' },
+  { label: 'Sensor Outage Failover', at: 62, act: 'Act 4', tip: 'CAM-12 recovers, offline mesh synced' },
   { label: 'Court Evidence Signed', at: 113, act: 'Act 5', tip: 'PRAMAAN SHA-256 block locked' },
 ]
 
 // All 10 core capabilities of PRAHAAR for judge evaluation
 const CAPABILITIES = [
-  { id: 'fence', name: 'PARAKH', label: 'Virtual Fence & Dwell', icon: ShieldAlert, color: 'text-rose-400', route: '/virtual-fence', desc: 'Custom polygon tripwire + dwell time rules prevent phantom alerts.' },
+  { id: 'fence', name: 'PARAKH', label: 'Virtual Fence & Dwell', icon: ShieldAlert, color: 'text-rose-400', route: '/virtual-fence', desc: 'Custom polygon tripwire + 3.0s dwell time rules prevent false alarms.' },
   { id: 'anpr', name: 'C7 ANPR', label: 'License Plate OCR', icon: Car, color: 'text-cyan-400', route: '/anpr', desc: 'Sub-second optical plate recognition with candidate matching.' },
   { id: 'animal', name: 'SAKSHAM', label: 'Human / Animal AI', icon: ShieldCheck, color: 'text-emerald-400', route: '/field', desc: 'Class-aware spatial rules eliminate 94% false alarms from wildlife.' },
   { id: 'field', name: 'SAKSHAM', label: 'Offline Edge Mesh', icon: Database, color: 'text-amber-400', route: '/field', desc: 'Store-and-forward buffers observations during satellite/fiber drops.' },
@@ -111,9 +110,9 @@ export function GuidedDemo() {
   const requested = chapters.find(c => c.id === params.get('chapter')) ?? chapters.find(c => c.id === chapterForPath(location.pathname).id) ?? chapters[0]
   const [time, setTime] = useState<number>(requested?.at ?? 0)
   const [playing, setPlaying] = useState(false)
-  // Default speed set to 2x so judges don't have to wait!
-  const [speed, setSpeed] = useState<number>(2)
+  const [speed, setSpeed] = useState<number>(2) // Default 2x fast
   const [activeTab, setActiveTab] = useState<'story' | 'capabilities' | 'routes'>('story')
+  const [viewMode, setViewMode] = useState<'single' | 'multi'>('single') // Single focus vs Multi-Camera Wall!
   const [quickTourActive, setQuickTourActive] = useState(false)
 
   const state = scenarioAt(time, caseId)
@@ -209,14 +208,14 @@ export function GuidedDemo() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs md:text-sm font-black tracking-wider text-white uppercase flex items-center gap-1.5">
-                प्रहार · Interactive Demo
+                प्रहार · Multi-Camera Person & Vehicle Intel
                 <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
-                  ALL 10 MODULES
+                  ALL 10 CAPABILITIES
                 </span>
               </span>
             </div>
             <p className="text-[10px] text-slate-400 hidden sm:block">
-              Rapid Pitch Sandbox · Edge AI ➔ Spatial Rule Engine ➔ Offline SAKSHAM Mesh ➔ PRAMAAN Ledger
+              Simultaneous Person + Vehicle Tracking · ANPR Plate OCR · 3-Camera Hand-off · Offline Mesh · Evidence Ledger
             </p>
           </div>
         </div>
@@ -282,8 +281,7 @@ export function GuidedDemo() {
               }`}
               title="Fast 30-second automated walkthrough of all key moments"
             >
-              <Flame className="h-3.5 w-3.5 text-amber-400 fill-current" />
-              <span>⚡ 30s Judge Tour</span>
+              <span>30s Judge Tour</span>
             </button>
 
             {/* Play/Pause */}
@@ -431,34 +429,101 @@ export function GuidedDemo() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 flex-1 min-h-0">
         {/* LEFT COLUMN: LIVE TACTICAL MONITOR + MULTI-FEATURE VIEW (7 COLS) */}
         <div className="lg:col-span-7 flex flex-col gap-2 min-h-0">
-          {/* Tactical Monitor */}
+          {/* Tactical Monitor / Multi-Camera Wall View */}
           <div ref={sceneRef} className="relative rounded-xl overflow-hidden border border-slate-700/80 bg-black shadow-md flex-shrink-0">
-            <DemoScene time={time} scenario={caseId} className="max-h-[225px] xl:max-h-[260px] flex items-center justify-center bg-black" />
+            {/* View Mode Switcher Header */}
+            <div className="bg-[#0b1420] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/80 border border-cyan-500/40 text-[10px] font-mono text-cyan-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+                  {viewMode === 'single' ? `ACTIVE SENSOR: ${state.camera}` : 'MULTI-CAMERA WALL (3 SYNCHRONIZED FEEDS)'}
+                </span>
+                <span className="hidden sm:inline text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/30">
+                  VEHICLE + PERSON DUAL AI
+                </span>
+              </div>
 
-            {/* Tactical Monitor Overlays */}
-            <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/85 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 backdrop-blur-md">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
-                SENSOR: {state.camera}
-              </span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-950/85 border border-slate-800 text-[10px] font-mono text-slate-300">
-                EDGE INFERENCE: 28ms
-              </span>
+              {/* Toggle: Single Focus vs 3-Cam Wall */}
+              <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-md border border-slate-800">
+                <button
+                  onClick={() => setViewMode('single')}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                    viewMode === 'single' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Focus on active camera"
+                >
+                  <Monitor className="h-3 w-3" />
+                  <span>Single Focus</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('multi')}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                    viewMode === 'multi' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="View all 3 cameras side by side"
+                >
+                  <LayoutGrid className="h-3 w-3" />
+                  <span>3-Cam Wall</span>
+                </button>
+              </div>
             </div>
 
-            <div className="absolute top-2 right-2 pointer-events-none">
-              <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold border backdrop-blur-md ${
-                state.alert
-                  ? 'bg-rose-500/30 border-rose-500 text-rose-300 animate-pulse'
-                  : caseId === 'animal' && time >= 42
-                  ? 'bg-emerald-500/30 border-emerald-500 text-emerald-300'
-                  : state.outage
-                  ? 'bg-amber-500/30 border-amber-500 text-amber-300'
-                  : 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
-              }`}>
-                {state.alert ? '🔴 THREAT: CRITICAL' : caseId === 'animal' && time >= 42 ? '🟢 THREAT: EXCLUDED' : state.outage ? '🟡 SENSOR: OFFLINE' : '🔵 STATUS: ROUTINE'}
-              </span>
-            </div>
+            {/* VIEW MODE 1: SINGLE LARGE MONITOR */}
+            {viewMode === 'single' ? (
+              <div className="relative">
+                <DemoScene time={time} scenario={caseId} className="max-h-[220px] xl:max-h-[250px] flex items-center justify-center bg-black" />
+                <div className="absolute top-2 right-2 pointer-events-none">
+                  <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold border backdrop-blur-md ${
+                    state.alert
+                      ? 'bg-rose-500/30 border-rose-500 text-rose-300 animate-pulse'
+                      : caseId === 'animal' && time >= 42
+                      ? 'bg-emerald-500/30 border-emerald-500 text-emerald-300'
+                      : state.outage
+                      ? 'bg-amber-500/30 border-amber-500 text-amber-300'
+                      : 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
+                  }`}>
+                    {state.alert ? '🔴 DUAL INTRUSION: CRITICAL' : caseId === 'animal' && time >= 42 ? '🟢 ANIMAL: EXCLUDED' : state.outage ? '🟡 SENSOR: OFFLINE' : '🔵 STATUS: ROUTINE'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              /* VIEW MODE 2: MULTI-CAMERA 3-FEED SYNCHRONIZED MATRIX */
+              <div className="grid grid-cols-3 gap-1 p-1 bg-black">
+                {/* Camera 1: Entry */}
+                <div className="relative border border-slate-800 rounded overflow-hidden">
+                  <DemoScene time={time} camera="CAM-07" scenario={caseId} className="max-h-[170px] flex items-center justify-center" />
+                  <div className="absolute top-1 left-1 bg-black/80 text-[8px] font-mono px-1 rounded text-cyan-300 border border-cyan-500/30">
+                    CAM-07 · Entry
+                  </div>
+                </div>
+
+                {/* Camera 2: Perimeter Fence (Vehicle + Person) */}
+                <div className={`relative border rounded overflow-hidden ${state.inside ? 'border-rose-500/80 shadow-inner' : 'border-slate-800'}`}>
+                  <DemoScene time={time} camera="CAM-08" scenario={caseId} className="max-h-[170px] flex items-center justify-center" />
+                  <div className="absolute top-1 left-1 bg-black/80 text-[8px] font-mono px-1 rounded text-cyan-300 border border-cyan-500/30">
+                    CAM-08 · Fence
+                  </div>
+                  {state.inside && (
+                    <div className="absolute bottom-1 right-1 bg-rose-600/90 text-[8px] font-mono px-1 rounded text-white font-bold animate-pulse">
+                      BREACH
+                    </div>
+                  )}
+                </div>
+
+                {/* Camera 3: Exit / Outage */}
+                <div className="relative border border-slate-800 rounded overflow-hidden">
+                  <DemoScene time={time} camera="CAM-12" scenario={caseId} className="max-h-[170px] flex items-center justify-center" />
+                  <div className="absolute top-1 left-1 bg-black/80 text-[8px] font-mono px-1 rounded text-cyan-300 border border-cyan-500/30">
+                    CAM-12 · Exit
+                  </div>
+                  {state.outage && (
+                    <div className="absolute bottom-1 right-1 bg-amber-600/90 text-[8px] font-mono px-1 rounded text-white font-bold">
+                      OFFLINE
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Interactive Feature Panel Switcher Tabs */}
@@ -517,7 +582,7 @@ export function GuidedDemo() {
                         : caseId === 'health' && state.outage
                         ? 'Optical signal lost at CAM-12. Zero-trust lock engaged.'
                         : caseId === 'vehicle' && time >= 39
-                        ? 'Suspect vehicle entered restricted patrol corridor at 14:32:39.'
+                        ? 'Vehicle & pedestrian simultaneous intrusion into restricted patrol corridor.'
                         : 'Routine activity detected within designated surveillance checkpoint.'}
                     </p>
                   </div>
@@ -611,9 +676,9 @@ export function GuidedDemo() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: DECISION VERDICT + AUDIT TRAIL + CHAIN OF CUSTODY (5 COLS) */}
+        {/* RIGHT COLUMN: DUAL TARGET INTEL + AUDIT TRAIL + CHAIN OF CUSTODY (5 COLS) */}
         <div className="lg:col-span-5 flex flex-col gap-2 min-h-0">
-          {/* Card 1: Live Decision Engine Verdict & Telemetry */}
+          {/* Card 1: Live Decision Engine Verdict & Dual Detection Telemetry */}
           <div className="bg-[#0b1420] border border-slate-800 rounded-xl p-2.5 space-y-2 flex-shrink-0 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -676,31 +741,38 @@ export function GuidedDemo() {
               </div>
             </div>
 
-            {/* Target Telemetry Bar */}
-            <div className="grid grid-cols-3 gap-1 text-center pt-1 border-t border-slate-800/80">
-              <div className="bg-slate-900/90 p-1 rounded border border-slate-800">
-                <div className="text-[8px] text-slate-400 uppercase font-mono">ANPR / OCR</div>
-                <div className="text-xs font-mono font-black text-white truncate">
-                  {caseId === 'vehicle' ? (time >= 8 ? DEMO_PLATE : 'Reading...') : caseId === 'health' ? (state.outage ? 'FAILOVER' : 'HEALTHY') : caseId.toUpperCase()}
+            {/* DUAL TARGET TELEMETRY: Person + Vehicle Side-by-Side */}
+            <div className="grid grid-cols-2 gap-1 text-center pt-1 border-t border-slate-800/80">
+              {/* Target 1: Vehicle ANPR */}
+              <div className="bg-slate-900/90 p-1.5 rounded border border-slate-800 text-left">
+                <div className="flex items-center justify-between text-[8px] text-slate-400 uppercase font-mono">
+                  <span className="flex items-center gap-1 text-cyan-400 font-bold"><Car className="h-2.5 w-2.5" /> Vehicle ANPR</span>
+                  <span className="text-emerald-400">98.6%</span>
                 </div>
+                <div className="text-xs font-mono font-black text-white truncate mt-0.5">
+                  {caseId === 'vehicle' ? (time >= 8 ? DEMO_PLATE : 'Scanning...') : caseId === 'health' ? (state.outage ? 'FAILOVER' : 'HEALTHY') : caseId.toUpperCase()}
+                </div>
+                <div className="text-[8px] text-slate-400">Type: Light SUV (White)</div>
               </div>
-              <div className="bg-slate-900/90 p-1 rounded border border-slate-800">
-                <div className="text-[8px] text-slate-400 uppercase font-mono">Active Sensor</div>
-                <div className="text-xs font-mono font-bold text-cyan-300 truncate">
-                  {state.camera}
+
+              {/* Target 2: Person Track ID */}
+              <div className="bg-slate-900/90 p-1.5 rounded border border-slate-800 text-left">
+                <div className="flex items-center justify-between text-[8px] text-slate-400 uppercase font-mono">
+                  <span className="flex items-center gap-1 text-rose-400 font-bold"><User className="h-2.5 w-2.5" /> Person Re-ID</span>
+                  <span className={state.inside ? 'text-rose-400 font-bold' : 'text-slate-400'}>
+                    {state.inside ? 'BREACH' : 'TRACKING'}
+                  </span>
                 </div>
-              </div>
-              <div className="bg-slate-900/90 p-1 rounded border border-slate-800">
-                <div className="text-[8px] text-slate-400 uppercase font-mono">Sightings</div>
-                <div className="text-xs font-mono font-bold text-emerald-400 truncate">
-                  {state.sightings.length} / 3 Nodes
+                <div className="text-xs font-mono font-black text-cyan-300 truncate mt-0.5">
+                  TRK-1042
                 </div>
+                <div className="text-[8px] text-slate-400">Dwell: {state.inside ? `${(time - 39).toFixed(1)}s` : '0.0s'} / 3.0s</div>
               </div>
             </div>
 
             {/* Multi-Camera Trajectory Handoff Stepper */}
             <div className="flex items-center justify-between gap-1 text-[10px] font-mono bg-slate-950 p-1 rounded border border-slate-800">
-              <span className="text-[8px] text-slate-500 uppercase">Handoff:</span>
+              <span className="text-[8px] text-slate-500 uppercase">Multi-Cam Handoff:</span>
               {['CAM-07', 'CAM-08', 'CAM-12'].map((cam, idx) => {
                 const reached = state.sightings.some(s => s.camera === cam)
                 return (
@@ -753,7 +825,7 @@ export function GuidedDemo() {
               {state.events.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-24 text-center text-slate-500 text-xs">
                   <Play className="h-5 w-5 stroke-1 text-slate-600 mb-1" />
-                  <span>Click <strong>Play</strong> or <strong>⚡ 30s Judge Tour</strong> to watch events.</span>
+                  <span>Click <strong>Play</strong> or <strong>30s Judge Tour</strong> to watch events.</span>
                 </div>
               ) : (
                 [...state.events].reverse().map(event => (
