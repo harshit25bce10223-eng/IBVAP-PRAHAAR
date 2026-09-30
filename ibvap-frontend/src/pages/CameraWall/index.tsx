@@ -68,10 +68,13 @@ export function CameraWall() {
   }, [])
 
   return (
-    <div className="relative h-full flex flex-col overflow-hidden p-4 gap-4 bg-[#080c12]">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#1e2d40] pb-4">
+    <div className="relative h-full flex flex-col overflow-y-auto p-4 gap-4 bg-[#080c12]">
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#1e2d40] pb-4 flex-shrink-0">
         <div>
-          <h1 className="text-xl font-semibold text-slate-100">Live Camera Wall</h1>
+          <div className="flex items-center gap-2 mb-0.5">
+            <h1 className="text-xl font-semibold text-slate-100 tracking-[0.08em] uppercase">PARAKH · Live Camera Wall</h1>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#3FCB8C]/10 text-[#3FCB8C] border border-[#3FCB8C]/20 tracking-widest">परख</span>
+          </div>
           <p className="text-sm text-slate-500 mt-0.5">Detector output across all cameras — observations, not alerts</p>
         </div>
         <div className="flex items-center gap-2">

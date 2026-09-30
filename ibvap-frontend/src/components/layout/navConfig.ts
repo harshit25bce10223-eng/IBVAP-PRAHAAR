@@ -48,11 +48,9 @@ export const NAV_ITEMS: NavItem[] = [
   },
 
   // ── LIVE SURVEILLANCE ─────────────────────────────────────────────────────
-  // Shortcut to the default fence camera. No "LIVE" badge: the page itself
-  // discloses the feed's data mode, and the nav must not overstate it.
   {
-    id: 'single-camera', label: 'Virtual Fence · CAM-07', href: '/camera/CAM-07',
-    icon: Video, section: 'LIVE SURVEILLANCE',
+    id: 'single-camera', label: 'PARAKH · Virtual Fence', href: '/camera/CAM-07',
+    icon: Video, badge: 'PARAKH', badgeVariant: 'safe', section: 'LIVE SURVEILLANCE',
   },
   {
     id: 'wall', label: 'Live Camera Wall', href: '/wall',
@@ -67,8 +65,8 @@ export const NAV_ITEMS: NavItem[] = [
 
   // ── INCIDENTS ─────────────────────────────────────────────────────────────
   {
-    id: 'incident-intel', label: 'Incident Intelligence', href: '/incident-intel',
-    icon: Waypoints, badge: 'INC-024', badgeVariant: 'critical', section: 'INCIDENTS',
+    id: 'incident-intel', label: 'SUTRA · Incident Intel', href: '/incident-intel',
+    icon: Waypoints, badge: 'SUTRA', badgeVariant: 'critical', section: 'INCIDENTS',
   },
   {
     id: 'events', label: 'Incident / Event Log', href: '/events',
@@ -83,14 +81,14 @@ export const NAV_ITEMS: NavItem[] = [
 
   // ── FIELD OPERATIONS ──────────────────────────────────────────────────────
   {
-    id: 'field', label: 'Field Intelligence & Resilience', href: '/field',
-    icon: RadioTower, section: 'FIELD OPERATIONS',
+    id: 'field', label: 'SAKSHAM · Field Resilience', href: '/field',
+    icon: RadioTower, badge: 'SAKSHAM', badgeVariant: 'info', section: 'FIELD OPERATIONS',
   },
 
   // ── ROUTE ANALYSIS ─────────────────────────────────────────────────────────
   {
-    id: 'route-analysis', label: 'GIS / Operational Route Analysis', href: '/route-analysis',
-    icon: Navigation, badge: 'USP 5', badgeVariant: 'info', section: 'ROUTE ANALYSIS',
+    id: 'route-analysis', label: 'MARGDARSHAN · Route Intel', href: '/route-analysis',
+    icon: Navigation, badge: 'MARGDARSHAN', badgeVariant: 'info', section: 'ROUTE ANALYSIS',
   },
 
   // ── VEHICLE INTELLIGENCE ──────────────────────────────────────────────────
@@ -101,14 +99,14 @@ export const NAV_ITEMS: NavItem[] = [
 
   // ── EVIDENCE ──────────────────────────────────────────────────────────────
   {
-    id: 'evidence', label: 'Evidence Ledger', href: '/evidence',
-    icon: FileSearch, badge: 'C3', badgeVariant: 'cyan', section: 'EVIDENCE',
+    id: 'evidence', label: 'PRAMAAN · Evidence Ledger', href: '/evidence',
+    icon: FileSearch, badge: 'PRAMAAN', badgeVariant: 'cyan', section: 'EVIDENCE',
   },
 
   // ── CAMERA HEALTH ─────────────────────────────────────────────────────────
   {
-    id: 'health', label: 'Sensor Health', href: '/health',
-    icon: Activity, badge: 'C2', badgeVariant: 'cyan', section: 'CAMERA HEALTH',
+    id: 'health', label: 'SAKSHAM · Camera Health', href: '/health',
+    icon: Activity, badge: 'SAKSHAM', badgeVariant: 'cyan', section: 'CAMERA HEALTH',
   },
 
   // ── ANALYTICS ─────────────────────────────────────────────────────────────

@@ -38,15 +38,20 @@ export function IncidentIntelligence() {
   const correlationIndex = 3 // steps[3] is the cross-camera candidate match
 
   return (
-    <div className="h-full flex flex-col gap-3 overflow-hidden p-4">
+    <div className="h-full flex flex-col gap-3 overflow-y-auto p-4">
       {/* Page identity */}
       <header className="flex items-start justify-between flex-shrink-0">
         <div>
-          <h1 className="text-lg font-semibold tracking-[0.12em] text-ssb-white uppercase">
-            Incident Intelligence
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-lg font-semibold tracking-[0.12em] text-ssb-white uppercase">
+              SUTRA · Correlated Incident Intelligence
+            </h1>
+            <span className="rounded border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 font-mono text-[9px] text-purple-400 uppercase tracking-wider font-semibold">
+              सूत्र
+            </span>
+          </div>
           <p className="text-[11px] text-ssb-text-muted mt-0.5 tracking-wide">
-            Correlated Events · Explainable Risk · Evidence Integrity
+            From Scattered Multi-Camera Alerts to One Complete Story · Explainable Risk &amp; Integrity
           </p>
         </div>
         <div className="text-right flex flex-col items-end gap-1">

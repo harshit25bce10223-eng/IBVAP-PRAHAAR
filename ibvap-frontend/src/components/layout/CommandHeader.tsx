@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CommandHeader — प्रहार top command strip (spec §7).
 //
-// Left:   current operational section + descriptor
+// Left:   PRAHAAR logo + brand + current operational section descriptor
 // Center: reserved global command-search space (Phase 2; compact, non-fake)
 // Right:  SystemStatus · Clock · Notifications · UserMenu
 // ─────────────────────────────────────────────────────────────────────────────
@@ -13,20 +13,27 @@ import { SystemStatus } from './SystemStatus'
 import { Clock } from './Clock'
 import { NotificationsButton } from './NotificationsButton'
 import { UserMenu } from './UserMenu'
+import prahaarLogo from '@/assets/branding/prahaar-logo.jpg'
 
 export function CommandHeader({ context }: { context: CommandSectionContext }) {
   const { status } = useSystemStatus()
 
   return (
     <header className="h-16 flex-shrink-0 flex items-center justify-between gap-4 bg-ssb-navy border-b border-ssb-border px-4 z-20">
-      {/* Left: operational section context */}
-      <div className="flex items-center gap-4 min-w-0">
+      {/* Left: PRAHAAR brand + operational section context */}
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Logo */}
+        <div className="flex-shrink-0 h-10 w-10 rounded-lg overflow-hidden border border-[#2FD5E0]/30 shadow-[0_0_8px_rgba(47,213,224,0.25)]">
+          <img src={prahaarLogo} alt="PRAHAAR" className="h-full w-full object-cover" />
+        </div>
+        {/* Brand + section */}
         <div className="flex flex-col justify-center min-w-0 leading-tight">
-          <span className="truncate font-mono text-sm font-semibold tracking-[0.18em] text-ssb-white uppercase">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[13px] font-bold tracking-[0.22em] text-[#2FD5E0] uppercase">PRAHAAR</span>
+            <span className="hidden sm:inline text-[9px] font-mono tracking-[0.15em] text-[#2FD5E0]/50 border border-[#2FD5E0]/20 px-1.5 py-px rounded">प्रहार</span>
+          </div>
+          <span className="truncate font-mono text-[11px] text-ssb-text-muted tracking-wide uppercase">
             {context.section}
-          </span>
-          <span className="truncate text-[11px] text-ssb-text-muted tracking-wide">
-            Border Surveillance Operations
           </span>
         </div>
       </div>

@@ -1,6 +1,7 @@
 # PRAHAAR — प्रहार
 ## AI-Powered Intelligent Border Surveillance & Command Platform
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Vercel-000?style=for-the-badge&logo=vercel&logoColor=white)](https://ibvap-frontend.vercel.app)
 [![SSB Border Intelligence](https://img.shields.io/badge/SSB-Border_Intelligence-0D1B2A?style=for-the-badge&logo=shield&logoColor=2FD5E0)](https://github.com/harshit25bce10223-eng/IBVAP-PRAHAAR)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React_18_+_TypeScript-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
@@ -8,6 +9,9 @@
 [![TailwindCSS](https://img.shields.io/badge/Styling-TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Tests](https://img.shields.io/badge/Tests-391_Backend_%7C_132_Frontend-3FCB8C?style=for-the-badge&logo=pytest&logoColor=white)](#)
 [![SIH](https://img.shields.io/badge/Smart_India_Hackathon-Team_Apex_Code-F5A623?style=for-the-badge)](https://www.sih.gov.in)
+
+> 🌐 **Live Production Deployment:** [https://ibvap-frontend.vercel.app](https://ibvap-frontend.vercel.app)  
+> 🛡️ **SSB Operational Command Console:** Complete UI/UX with real-time detection, radar HUD trajectories, correlated incident intelligence (SUTRA), Section 65B evidence ledgers (PRAMAAN), and tactical route risk analysis (MARGDARSHAN).
 
 ---
 

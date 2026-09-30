@@ -18,7 +18,7 @@ interface Props {
 
 export function KpiSummaryRow({ kpis, className }: Props) {
   return (
-    <div className={clsx('flex gap-3 min-h-0', className)}>
+    <div className={clsx('flex gap-3 flex-shrink-0 min-h-[78px]', className)}>
       <KpiCard
         icon={<Camera size={14} className="text-ssb-green-bright" aria-hidden />}
         label="TOTAL CAMERAS"

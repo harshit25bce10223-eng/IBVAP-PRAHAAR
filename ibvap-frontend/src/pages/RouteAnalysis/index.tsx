@@ -113,11 +113,16 @@ export function RouteAnalysis() {
       {/* Page identity */}
       <header className="flex items-end justify-between flex-shrink-0">
         <div>
-          <h1 className="text-xl font-bold tracking-[0.14em] text-ssb-white uppercase">
-            GIS / Operational Route Analysis
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-bold tracking-[0.14em] text-ssb-white uppercase">
+              MARGDARSHAN · Operational Route Analysis
+            </h1>
+            <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-400 uppercase tracking-wider font-semibold">
+              मार्गदर्शन
+            </span>
+          </div>
           <p className="text-xs text-ssb-text-muted mt-0.5 tracking-wide">
-            Risk-Aware Route Recommendation &amp; Border Decision Support
+            GIS-Based Risk-Aware Route Intelligence &amp; Border Decision Support
           </p>
         </div>
         <div className="flex items-center gap-2">

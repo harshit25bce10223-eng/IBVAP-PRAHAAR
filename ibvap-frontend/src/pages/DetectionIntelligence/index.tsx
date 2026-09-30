@@ -80,7 +80,7 @@ export function DetectionIntelligence() {
   const isRefreshing = listState === 'loading' && page !== null
 
   return (
-    <div className="h-full flex flex-col overflow-hidden p-4 gap-4 bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-y-auto p-4 gap-4 bg-[#080c12]">
       <PageHeader
         title="Detection Intelligence"
         subtitle="Fleet-wide detector output — observations, not alerts"

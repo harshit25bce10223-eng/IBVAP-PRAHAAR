@@ -76,15 +76,15 @@ export function CameraHealthPage() {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl font-bold tracking-tight text-slate-100">
-              Sensor Health & Coverage Intelligence
+              SAKSHAM · Sensor Health &amp; Coverage Intelligence
             </h1>
             <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider font-semibold border border-cyan-500/30 bg-cyan-950/20 text-cyan-400">
-              Component 2
+              सक्षम · Component 2
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Operational surveillance control center monitoring hardware streams, optical
-            sharpness, temporal invariance, viewpoint drift, and sector coverage reliability.
+            Self-Aware &amp; Low-Network-Resilient Platform · Optical sharpness, temporal invariance,
+            viewpoint drift, and sector coverage compromise detection.
           </p>
         </div>
 

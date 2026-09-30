@@ -49,13 +49,18 @@ export function GISTwin() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-2 overflow-hidden p-4">
+    <div className="h-full flex flex-col gap-2 overflow-y-auto p-4">
       {/* Page identity */}
       <header className="flex items-end justify-between flex-shrink-0">
         <div>
-          <h1 className="text-lg font-semibold tracking-[0.12em] text-ssb-white uppercase">
-            GIS / Digital Twin
-          </h1>
+          <div className="flex items-center gap-2 mb-0.5">
+            <h1 className="text-lg font-semibold tracking-[0.12em] text-ssb-white uppercase">
+              MARGDARSHAN · GIS / Digital Twin
+            </h1>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#2FD5E0]/10 text-[#2FD5E0] border border-[#2FD5E0]/20 tracking-widest">
+              मार्गदर्शन
+            </span>
+          </div>
           <p className="text-[11px] text-ssb-text-muted mt-0.5 tracking-wide">
             Geospatial Border Surveillance &amp; Risk Context
           </p>

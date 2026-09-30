@@ -86,7 +86,7 @@ export function ANPRPage() {
   }, [sightings, selectedSightingId, selectSighting])
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-y-auto bg-[#080c12]">
       {/* Top Operational Header */}
       <header className="border-b border-[#1e2d40] bg-[#0d1117]/80 px-4 py-3 flex-shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-3">

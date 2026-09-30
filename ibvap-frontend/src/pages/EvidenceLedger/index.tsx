@@ -58,18 +58,18 @@ export function EvidenceLedger() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden p-4 gap-4 bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-y-auto p-4 gap-4 bg-[#080c12]">
       <PageHeader
-        title="Evidence & Audit Ledger"
-        subtitle="Tamper-evident evidence records"
+        title="PRAMAAN · Evidence & Tamper-Evident Ledger"
+        subtitle="End-to-End Secure & Tamper-Evident Pipeline · Section 65B(4) Admissibility Compliance"
         badge={
           isRealEvidenceMode ? (
-            <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-emerald-400">
-              Live backend
+            <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-emerald-400 font-semibold">
+              Live Backend · प्रमाण
             </span>
           ) : (
-            <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
-              Demo mode
+            <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400 font-semibold">
+              PRAMAAN Demo · प्रमाण
             </span>
           )
         }

@@ -47,23 +47,26 @@ export function Dashboard() {
   return (
     <div className="h-full flex flex-col gap-3 overflow-y-auto p-4">
       {/* Page identity */}
-      <header className="flex items-end justify-between flex-shrink-0">
+      <header className="flex items-center justify-between flex-shrink-0 pb-1 border-b border-[#1E2D40]/50">
         <div>
-          <h1 className="text-lg font-semibold tracking-[0.12em] text-ssb-white uppercase">
-            Command Center
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-bold tracking-[0.14em] text-ssb-white uppercase">
+              Command Center
+            </h1>
+            <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
+              Demo mode
+            </span>
+          </div>
           <p className="text-[11px] text-ssb-text-muted mt-0.5 tracking-wide">
             Integrated Border Surveillance &amp; Incident Intelligence
           </p>
         </div>
-        {/* Prototype data badge — this workspace runs on the mock command
-            dashboard service until the real API phase (§25/§26). */}
-        <div className="flex flex-col items-end gap-1">
-          <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">
-            Demo mode
+        <div className="flex flex-col items-end gap-0.5">
+          <span className="text-[10px] font-mono tracking-[0.2em] text-slate-400 uppercase font-semibold">
+            SSB Border Surveillance
           </span>
-          <span className="text-[9px] font-mono tracking-[0.2em] text-ssb-text-muted/60 uppercase">
-            SSB Border Surveillance · Sector Operations
+          <span className="text-[9px] font-mono text-slate-500 uppercase">
+            Sector Operations · Indo-Nepal Frontier
           </span>
         </div>
       </header>
