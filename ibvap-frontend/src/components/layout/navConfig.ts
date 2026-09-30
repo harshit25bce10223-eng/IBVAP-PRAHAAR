@@ -41,6 +41,10 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
+  {
+    id: 'guided-demo', label: 'Start here · Guided Demo', href: '/demo',
+    icon: BookOpen, badge: 'DEMO', badgeVariant: 'cyan', section: 'GET STARTED',
+  },
   // ── COMMAND CENTER ────────────────────────────────────────────────────────
   {
     id: 'dashboard', label: 'Command Dashboard', href: '/dashboard',
@@ -166,6 +170,9 @@ export function groupNavItems(items: NavItem[]): Map<string, NavItem[]> {
  * breadcrumb and any future nested page.
  */
 export function resolveNavContext(pathname: string): CommandSectionContext {
+  if (pathname === '/demo') {
+    return { section: 'GET STARTED', label: 'PRAHAAR Guided Demo', sub: '4 Scenarios · 10 Capabilities' }
+  }
   if (pathname === '/virtual-fence') {
     return { section: 'LIVE SURVEILLANCE', label: 'PARAKH · Virtual Fence', sub: 'Virtual Fence & Risk Engine' }
   }

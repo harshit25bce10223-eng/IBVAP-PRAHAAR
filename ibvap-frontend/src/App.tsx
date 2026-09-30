@@ -122,6 +122,7 @@ function AppRoutes() {
         element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
       />
       <Route element={<ProtectedLayout />}>
+        <Route path="/demo" element={<Navigate to="/dashboard" replace />} />
         <Route path="/camera/:id" element={<SingleCameraDetail />} />
         <Route path="/virtual-fence" element={<SingleCameraDetail />} />
         <Route path="/health" element={<CameraHealthPage />} />
