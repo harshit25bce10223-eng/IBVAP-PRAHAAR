@@ -193,36 +193,48 @@ export function SingleCameraDetail() {
 
   return (
     <div className="h-full flex flex-col overflow-y-auto bg-[#080c12]">
-      {/* Camera header: identity → liveness → sector → risk */}
-      <header className="flex items-center justify-between gap-3 h-14 px-4 border-b border-[#1e2d40] bg-[#0d1117]/80">
-        <div className="flex items-center gap-3 min-w-0">
-          <label htmlFor="camera-select" className="sr-only">Select camera</label>
-          <select
-            id="camera-select"
-            className="rounded border border-white/10 bg-[#080c12] px-2 py-1 text-xs text-slate-200 focus:border-cyan-400/60 focus:outline-none"
-            value={selectedCameraId}
-            onChange={e => setSelectedCamera(e.target.value)}
-          >
-            {cameras.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.label} ({c.id})
-              </option>
-            ))}
-          </select>
-          {camera.sectorProfile && (
-            <span className="hidden md:inline-flex flex-col leading-tight" title="Deployment sector profile">
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-slate-600">Sector profile</span>
-              <span className="font-mono text-[10px] text-slate-400">{camera.sectorProfile}</span>
-            </span>
-          )}
-          <button
-            onClick={toggleNightMode}
-            className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-300 hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500/60"
-            title={isNight ? 'Switch to day mode' : 'Switch to night mode'}
-            aria-pressed={isNight}
-          >
-            {isNight ? 'Night' : 'Day'}
-          </button>
+      {/* Page identity & Camera header: PARAKH branding + camera selector */}
+      <header className="flex flex-wrap items-center justify-between gap-3 min-h-[58px] px-4 py-2 border-b border-[#1e2d40] bg-[#0d1117]/90 flex-shrink-0">
+        <div className="flex flex-wrap items-center gap-4 min-w-0">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-bold font-mono text-slate-100 tracking-wider uppercase">
+                PARAKH · Virtual Fence &amp; Risk Engine
+              </h1>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#3FCB8C]/15 text-[#3FCB8C] border border-[#3FCB8C]/30 font-bold tracking-widest">
+                परख
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+              Human-in-the-Loop Risk Intelligence · Polygon Virtual Perimeter · {camera.label} ({camera.id})
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 pl-3 border-l border-white/10">
+            <label htmlFor="camera-select" className="text-[10px] font-mono text-slate-400 uppercase">
+              Sensor:
+            </label>
+            <select
+              id="camera-select"
+              className="rounded border border-white/10 bg-[#080c12] px-2.5 py-1 text-xs font-mono text-cyan-300 focus:border-cyan-400/60 focus:outline-none"
+              value={selectedCameraId}
+              onChange={e => setSelectedCamera(e.target.value)}
+            >
+              {cameras.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.id} — {c.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={toggleNightMode}
+              className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-300 hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500/60 font-mono"
+              title={isNight ? 'Switch to day mode' : 'Switch to night mode'}
+              aria-pressed={isNight}
+            >
+              {isNight ? 'Night' : 'Day'}
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">

@@ -152,15 +152,24 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
         <span className="tabular-nums text-slate-200">{currentTimeStr}</span>
       </div>
 
-      {/* Top Right: Optics Switcher & Telemetry */}
+      {/* Top Right: Resolution badge only (compact, no overlap) */}
       <div className="absolute right-2 top-2 z-20 flex items-center gap-1.5">
-        <div className="flex items-center rounded-lg border border-white/10 bg-black/80 p-0.5 text-[9px] font-mono shadow">
+        <div className="hidden sm:flex items-center px-2 py-0.5 rounded bg-black/80 border border-white/10 font-mono text-[10px] text-slate-400 tabular-nums">
+          {camera.resolution.width}×{camera.resolution.height} · {camera.fps} FPS
+        </div>
+      </div>
+
+      {/* Bottom Bar: Optics Switcher (moved here to avoid covering top HUD) */}
+      <div className="absolute bottom-2 left-2 z-20 flex items-center gap-2">
+        <div className="flex items-center rounded-lg border border-white/15 bg-black/85 p-0.5 text-[9px] font-mono shadow-lg backdrop-blur-sm">
           <button
             type="button"
             onClick={() => setOpticMode('OPTICAL')}
             className={clsx(
-              'px-2 py-0.5 rounded transition-all',
-              opticMode === 'OPTICAL' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 shadow' : 'text-slate-400 hover:text-slate-200'
+              'px-2.5 py-1 rounded transition-all',
+              opticMode === 'OPTICAL'
+                ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             )}
             title="Standard daytime optical feed"
           >
@@ -170,29 +179,32 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
             type="button"
             onClick={() => setOpticMode('THERMAL')}
             className={clsx(
-              'px-2 py-0.5 rounded transition-all',
-              opticMode === 'THERMAL' ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 shadow' : 'text-slate-400 hover:text-slate-200'
+              'px-2.5 py-1 rounded transition-all',
+              opticMode === 'THERMAL'
+                ? 'bg-amber-500/25 text-amber-300 font-bold border border-amber-500/50 shadow'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             )}
             title="FLIR Thermal heat signature mode"
           >
-            THERMAL
+            THERMAL FLIR
           </button>
           <button
             type="button"
             onClick={() => setOpticMode('NVG')}
             className={clsx(
-              'px-2 py-0.5 rounded transition-all',
-              opticMode === 'NVG' ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-slate-200'
+              'px-2.5 py-1 rounded transition-all',
+              opticMode === 'NVG'
+                ? 'bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-500/50 shadow'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             )}
             title="Night-vision phosphor mode"
           >
             NVG IR
           </button>
         </div>
-
-        <div className="hidden lg:flex items-center px-2 py-0.5 rounded bg-black/80 border border-white/10 font-mono text-[10px] text-slate-400 tabular-nums">
-          {camera.resolution.width}×{camera.resolution.height} · {camera.fps} FPS
-        </div>
+        <span className="font-mono text-[9px] text-slate-500 bg-black/60 px-2 py-1 rounded border border-white/10">
+          {opticMode === 'OPTICAL' ? '📷 VIS BAND' : opticMode === 'THERMAL' ? '🌡 IR BAND' : '🌙 NV BAND'}
+        </span>
       </div>
 
       {/* Track bounding boxes */}

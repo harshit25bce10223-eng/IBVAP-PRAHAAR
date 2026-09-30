@@ -122,23 +122,50 @@ function AppRoutes() {
         element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
       />
       <Route element={<ProtectedLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* PARAKH — Virtual Fence & Camera Wall */}
+        <Route path="/virtual-fence" element={<SingleCameraDetail />} />
+        <Route path="/cameras" element={<SingleCameraDetail />} />
         <Route path="/camera/:id" element={<SingleCameraDetail />} />
+        <Route path="/wall" element={<CameraWall />} />
+        <Route path="/camera-wall" element={<CameraWall />} />
+
+        {/* TRACKING */}
+        <Route path="/track/:trackId" element={<TrackDetailPage />} />
+        <Route path="/track" element={<TrackDetailPage />} />
+        <Route path="/tracking" element={<TrackDetailPage />} />
+        <Route path="/tracking/:trackId" element={<TrackDetailPage />} />
+
+        {/* SUTRA — Incident Intelligence */}
+        <Route path="/incident-intel" element={<IncidentIntelligence />} />
+        <Route path="/correlation" element={<IncidentIntelligence />} />
+        <Route path="/sutra" element={<IncidentIntelligence />} />
+        <Route path="/incident/:correlationId" element={<IncidentDetail />} />
+        <Route path="/events" element={<EventsPage />} />
+
+        {/* PRAMAAN — Evidence Ledger */}
+        <Route path="/evidence" element={<EvidenceLedger />} />
+        <Route path="/pramaan" element={<EvidenceLedger />} />
+
+        {/* SAKSHAM — Camera Health & Field Resilience */}
         <Route path="/health" element={<CameraHealthPage />} />
         <Route path="/camera-health" element={<CameraHealthPage />} />
-        <Route path="/wall" element={<CameraWall />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/gis" element={<GISTwin />} />
-        <Route path="/incident-intel" element={<IncidentIntelligence />} />
+        <Route path="/saksham" element={<CameraHealthPage />} />
         <Route path="/field" element={<FieldIntelligence />} />
+
+        {/* MARGDARSHAN — GIS & Route Analysis */}
         <Route path="/route-analysis" element={<RouteAnalysis />} />
-        <Route path="/evidence" element={<EvidenceLedger />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/detections" element={<DetectionIntelligence />} />
-        <Route path="/incident/:correlationId" element={<IncidentDetail />} />
-        <Route path="/track/:trackId" element={<TrackDetailPage />} />
+        <Route path="/margdarshan" element={<RouteAnalysis />} />
+        <Route path="/gis" element={<GISTwin />} />
+
+        {/* VEHICLE INTELLIGENCE & DETECTION */}
         <Route path="/anpr" element={<ANPRPage />} />
         <Route path="/camera/:cameraId/vehicles" element={<CameraVehicles />} />
         <Route path="/vehicle/:vehicleId" element={<VehicleDetail />} />
+        <Route path="/detections" element={<DetectionIntelligence />} />
+
+        {/* Default Fallbacks */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

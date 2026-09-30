@@ -49,7 +49,7 @@ export const NAV_ITEMS: NavItem[] = [
 
   // ── LIVE SURVEILLANCE ─────────────────────────────────────────────────────
   {
-    id: 'single-camera', label: 'PARAKH · Virtual Fence', href: '/camera/CAM-07',
+    id: 'single-camera', label: 'PARAKH · Virtual Fence', href: '/virtual-fence',
     icon: Video, badge: 'PARAKH', badgeVariant: 'safe', section: 'LIVE SURVEILLANCE',
   },
   {
@@ -166,9 +166,12 @@ export function groupNavItems(items: NavItem[]): Map<string, NavItem[]> {
  * breadcrumb and any future nested page.
  */
 export function resolveNavContext(pathname: string): CommandSectionContext {
+  if (pathname === '/virtual-fence' || pathname === '/cameras') {
+    return { section: 'PARAKH · VIRTUAL FENCE', label: 'PARAKH · Virtual Fence & Risk Engine', sub: 'Northern Perimeter · Zone Alpha' }
+  }
   if (pathname.startsWith('/camera/')) {
     const cameraId = pathname.split('/')[2]?.toUpperCase() ?? 'CAM'
-    return { section: 'LIVE SURVEILLANCE', label: 'Live Camera Feed', sub: cameraId }
+    return { section: 'PARAKH · VIRTUAL FENCE', label: 'PARAKH · Virtual Fence & Risk Engine', sub: `${cameraId} · Virtual Fence Zone` }
   }
   if (pathname === '/wall') {
     return { section: 'LIVE SURVEILLANCE', label: 'Live Camera Wall', sub: 'All Cameras' }
