@@ -239,7 +239,7 @@ def freeze_noise_sweep() -> list[dict]:
                 for i in range(SEQUENCE_LEN):
                     f = add_motion_blob(base, rng, x_pos=(i * 0.06) % 1.0) if motion else base
                     f = add_sensor_noise(f, rng, sigma)
-                    last = det.analyze(f, datetime.now(timezone.utc) + timedelta(seconds=i))
+                    last = det.analyze(f, datetime.now() + timedelta(seconds=i))
                 frozen_count += int(bool(last.frozen))
             rows.append(dict(noise_sigma=sigma, motion=motion, n_sequences=n_seq,
                              frozen_final_count=frozen_count,
@@ -354,7 +354,12 @@ def main():
         s.telemetry = row["telemetry"]
 
     module_hashes = {f: sha256_file(BACKEND / f) for f in ENGINE_FILES}
-    base_ts = datetime.now(timezone.utc)
+    # Naive-UTC wall clock: the locked trend_engine compares sample timestamps
+    # against naive datetime.now() (it is not tz-aware). The state engine
+    # normalizes naive source timestamps to UTC itself. Feeding aware
+    # timestamps crashes the locked component (documented limitation, §125:
+    # harness adapts, locked code untouched).
+    base_ts = datetime.now()
 
     records = []
     for s in samples:
