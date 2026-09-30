@@ -109,20 +109,25 @@ export function RouteAnalysis() {
   const showResults = Boolean(data && (phase === 'results' || phase === 'simulating' || phase === 'analyzing'))
 
   return (
-    <div className="h-full flex flex-col gap-2 overflow-hidden p-4">
+    <div className="h-full flex flex-col gap-3.5 overflow-y-auto p-4 md:p-6 bg-[#080B10]">
       {/* Page identity */}
       <header className="flex items-end justify-between flex-shrink-0">
         <div>
-          <h1 className="text-lg font-semibold tracking-[0.12em] text-ssb-white uppercase">
+          <h1 className="text-xl font-bold tracking-[0.14em] text-ssb-white uppercase">
             GIS / Operational Route Analysis
           </h1>
-          <p className="text-[11px] text-ssb-text-muted mt-0.5 tracking-wide">
-            Risk-Aware Route Recommendation & Border Decision Support
+          <p className="text-xs text-ssb-text-muted mt-0.5 tracking-wide">
+            Risk-Aware Route Recommendation &amp; Border Decision Support
           </p>
         </div>
-        <span className="text-[9px] font-mono tracking-[0.2em] text-ssb-text-muted/60 uppercase">
-          SSB Border Sector · Operational Planning
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 font-mono text-[10px] text-cyan-400 uppercase tracking-wider">
+            Sector Operations
+          </span>
+          <span className="text-[10px] font-mono tracking-[0.2em] text-ssb-text-muted/60 uppercase">
+            SSB Border Sector · Operational Planning
+          </span>
+        </div>
       </header>
 
       {/* Input / Controls */}
@@ -145,12 +150,12 @@ export function RouteAnalysis() {
       {/* Results content: show when analysis is complete */}
       {showResults && data && (
         <>
-          {/* Main content: Map (left ~72%) + Route Comparison (right ~28%) */}
-          <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
+          {/* Main content: Dominant Map (left ~75%) + Route Comparison (right ~25%) */}
+          <div className="h-[520px] min-h-[520px] flex gap-3.5 flex-shrink-0">
             {/* Dominant GIS Map */}
-            <div className="flex-1 min-w-0 min-h-0">
+            <div className="flex-1 min-w-0 h-full">
               <RouteMap
-                className="h-full"
+                className="h-full w-full"
                 data={data}
                 timeWindow={timeWindow}
                 selectedRouteId={selection.routeId}
@@ -159,7 +164,7 @@ export function RouteAnalysis() {
             </div>
 
             {/* Right Panel: Complete Route Comparison — ALL 3 ROUTES VISIBLE! */}
-            <div className="w-[440px] flex-shrink-0 flex flex-col overflow-hidden min-h-0 bg-ssb-navy-deep/60 rounded-md border border-ssb-border/60 p-2.5">
+            <div className="w-[360px] flex-shrink-0 flex flex-col h-full bg-[#0C121D] rounded-xl border border-[#1E2D40] p-3 shadow-xl overflow-hidden">
               <RouteComparisonPanel
                 routes={data.routes}
                 selectedRouteId={selection.routeId}
@@ -170,16 +175,16 @@ export function RouteAnalysis() {
           </div>
 
           {/* Bottom bar: Legend | Risk Factors | Decision Note | User Journey */}
-          <div className="grid grid-cols-12 gap-2.5 flex-shrink-0">
-            <RouteLegend className="col-span-3" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0 pb-4">
+            <RouteLegend className="h-full" />
             <RouteRiskFactors
-              className="col-span-3"
+              className="h-full"
               factors={data.riskFactors}
               routeName={data.routes.find(r => r.recommended)?.name ?? 'Route B'}
             />
-            <DecisionNote className="col-span-3" />
+            <DecisionNote className="h-full" />
             <UserJourney
-              className="col-span-3"
+              className="h-full"
               originLabel={displayOrigin?.label ?? 'Border Outpost Alpha'}
               destinationLabel={displayDestination?.label ?? 'Checkpoint Bravo'}
               recommendedRoute={data.routes.find(r => r.recommended)?.name ?? 'Route B'}
