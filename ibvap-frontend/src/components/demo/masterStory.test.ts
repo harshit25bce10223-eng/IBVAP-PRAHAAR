@@ -1,0 +1,58 @@
+/// <reference types="node" />
+import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import {
+  masterAt,
+  masterSteps,
+  masterClock,
+  replayEvidencePayloads,
+  searchMasterEvents,
+} from './masterStory'
+import { backendRiskReplay } from './backendRiskReplay'
+describe('connected incident replay', () => {
+  it('keeps the chronology ordered and excludes future observations', () => {
+    expect(masterSteps.every((s, i) => i === 0 || s.at >= masterSteps[i - 1].at)).toBe(true)
+    for (let time = 0; time <= 480; time += 5) {
+      const s = masterAt(time)
+      expect(s.events.every(e => e.at <= time)).toBe(true)
+      expect(s.events.every((e, i) => i === 0 || e.capture >= s.events[i - 1].capture)).toBe(true)
+    }
+    expect(masterAt(60).associated).toBe(false)
+  })
+  it('waits for the dwell rule and excludes the animal from risk', () => {
+    expect(masterAt(147).alert).toBe(false)
+    expect(masterAt(148).alert).toBe(true)
+    expect(masterAt(75).risk).toBe(0)
+    expect(masterAt(280).risk).toBe(backendRiskReplay.cases.degraded.result.risk_score)
+    expect(masterAt(280).factors.reduce((sum, f) => sum + f.value, 0)).toBe(74)
+  })
+  it('keeps uplink and camera outages independent', () => {
+    expect(masterAt(340).networkOffline).toBe(true)
+    expect(masterAt(385).networkOffline).toBe(false)
+    expect(masterAt(385).cameraOffline).toBe(true)
+    expect(masterAt(190).gap).toBe(false)
+    expect(masterAt(180).position).toBeNull()
+  })
+  it('freezes three reproducible evidence payloads with consistent references', () => {
+    const payloads = replayEvidencePayloads(masterAt(340).events)
+    expect(payloads).toHaveLength(3)
+    for (const payload of payloads) {
+      const parsed = JSON.parse(payload)
+      expect(parsed.incidentId).toBe('INC-1042')
+      expect(parsed.entityId).toBe('X42')
+      expect(parsed.eventRecords.every((e: { at: number }) => e.at <= 340)).toBe(true)
+    }
+    expect(searchMasterEvents(masterAt(480).events, 'MP09AB1234')[0].id).toBe('ANPR-042')
+    expect(masterClock(122)).toBe('23:16:02')
+  })
+  it('detects stale exported scores when canonical backend sources change', () => {
+    for (const [path, digest] of Object.entries(backendRiskReplay.sourceHashes)) {
+      expect(
+        createHash('sha256')
+          .update(readFileSync(`../ibvap-backend/${path}`))
+          .digest('hex')
+      ).toBe(digest)
+    }
+  })
+})
