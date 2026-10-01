@@ -117,13 +117,11 @@ function PageSkeleton() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth()
-
   return (
     <Routes>
       <Route 
         path="/login" 
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
+        element={<LoginPage />} 
       />
       <Route element={<ProtectedLayout />}>
         <Route path="/demo" element={<GuidedDemo />} />
@@ -145,8 +143,8 @@ function AppRoutes() {
         <Route path="/anpr" element={<ANPRPage />} />
         <Route path="/camera/:cameraId/vehicles" element={<CameraVehicles />} />
         <Route path="/vehicle/:vehicleId" element={<VehicleDetail />} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/demo" replace />} />
+        <Route path="*" element={<Navigate to="/demo" replace />} />
       </Route>
     </Routes>
   )

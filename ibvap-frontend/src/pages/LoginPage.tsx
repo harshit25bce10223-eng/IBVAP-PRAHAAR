@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Lock, Mail, AlertTriangle, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/hooks'
-import { Button, Badge } from '@/components/ui'
+import { Button } from '@/components/ui'
 
 const DEMO_ACCOUNTS = [
   {
@@ -47,7 +47,7 @@ export function LoginPage() {
   const from = (location.state as { from?: { pathname: string; search?: string } })?.from
   const fromPath = from && from.pathname !== '/' && from.pathname !== '/login'
     ? `${from.pathname}${from.search ?? ''}`
-    : '/dashboard'
+    : '/demo'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

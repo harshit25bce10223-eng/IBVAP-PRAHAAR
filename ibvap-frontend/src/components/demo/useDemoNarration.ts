@@ -4,7 +4,7 @@ export function useDemoNarration(text: string, chapter: string, playing: boolean
   const [enabled, setEnabled] = useState(true),
     [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]),
     [voiceName, setVoiceName] = useState(''),
-    [status, setStatus] = useState('Indian narration ready · press Play')
+    [status, setStatus] = useState('Starting Indian narration…')
   const manuallySelected = useRef(false)
   const speaking = useRef(false)
   const active = useRef<SpeechSynthesisUtterance | null>(null)
@@ -54,7 +54,11 @@ export function useDemoNarration(text: string, chapter: string, playing: boolean
       if (active.current !== utterance) return
       speaking.current = false
       if (event.error !== 'canceled' && event.error !== 'interrupted')
-        setStatus('Voice could not play. Try another voice.')
+        setStatus(
+          event.error === 'not-allowed'
+            ? 'Tap Read this step to enable audio'
+            : 'Voice could not play. Try another voice.'
+        )
     }
     window.speechSynthesis.speak(utterance)
   }

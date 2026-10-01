@@ -12,11 +12,12 @@ import './masterDemo.css'
 import { simpleStory } from '../components/demo/simpleStory'
 import { useDemoNarration } from '../components/demo/useDemoNarration'
 import { narrationScript } from '../components/demo/narrationScript'
+import { advanceReplay, DEFAULT_REPLAY_SPEED, rapidNarration } from '../components/demo/rapidReplay'
 type Seal = { original: string; bytes: string; digest: string; computed: string }
 export function MasterDemo() {
   const [time, T] = useState(0),
-    [playing, P] = useState(false),
-    [speed, S] = useState(3),
+    [playing, P] = useState(true),
+    [speed, S] = useState(DEFAULT_REPLAY_SPEED),
     [opening, O] = useState(false),
     [enhanced, E] = useState(true),
     [heatmap, H] = useState(false),
@@ -39,7 +40,12 @@ export function MasterDemo() {
     s = masterAt(time, faults),
     step = simpleStory(s.current),
     index = masterSteps.indexOf(s.current)
-  const narration = useDemoNarration(narrationScript[step.id], step.id, playing && time < 480)
+  const rapid = rapidNarration(time)
+  const narration = useDemoNarration(
+    speed === 4 ? rapid.text : narrationScript[step.id],
+    speed === 4 ? `rapid-${rapid.at}` : step.id,
+    playing && time < 480
+  )
   const log = (message: string) =>
     A(a => [`${new Date().toLocaleTimeString()} · ${message}`, ...a].slice(0, 8))
   const seek = (n: number) => {
@@ -55,8 +61,9 @@ export function MasterDemo() {
     const timer = setInterval(
       () =>
         T(t => {
-          const next = Math.min(480, t + speed)
+          const next = advanceReplay(t, speed)
           if (
+            speed !== 4 &&
             narration.enabled &&
             narration.speaking.current &&
             masterAt(next).current.id !== masterAt(t).current.id
@@ -112,7 +119,7 @@ export function MasterDemo() {
     B([])
     D(0)
     T(60)
-    S(3)
+    S(DEFAULT_REPLAY_SPEED)
     P(true)
     J({ network: false, camera: false, fog: false })
     I('')
@@ -725,8 +732,8 @@ export function MasterDemo() {
         </select>
         <select aria-label="Replay speed" value={speed} onChange={e => S(Number(e.target.value))}>
           <option value={1}>Slow / 1×</option>
-          <option value={3}>Default / 3×</option>
-          <option value={4}>Fast / 4×</option>
+          <option value={3}>Detailed / 3×</option>
+          <option value={4}>Default / 4× · 2 min</option>
         </select>
         <strong>
           {Math.floor(time / 60)}:{String(Math.floor(time % 60)).padStart(2, '0')} / 8:00
@@ -935,7 +942,7 @@ export function MasterDemo() {
           </select>
           <span
             role="status"
-            title="Browser-generated voice. The replay waits at a step boundary while its explanation is speaking."
+            title="Browser-generated Indian voice. Default 4× replay runs for two minutes; if your browser blocks audio, tap Read this step."
           >
             {narration.status}
           </span>
@@ -949,4 +956,3 @@ export function MasterDemo() {
     </section>
   )
 }
-
