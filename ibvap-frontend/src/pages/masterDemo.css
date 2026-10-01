@@ -500,3 +500,434 @@ main.master-demo {
   outline: 3px solid #f4b942;
   outline-offset: 2px;
 }
+section.master-demo {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #edf1f2 !important;
+  color: #0b1f33 !important;
+  padding: 10px 14px;
+  gap: 6px;
+}
+.master-header {
+  flex-shrink: 0;
+  margin: 0;
+  gap: 12px;
+}
+.master-header h1 {
+  font-size: 18px;
+  margin: 3px 0;
+}
+.master-header small {
+  font-size: 8px;
+}
+.master-chain {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  font-size: 10px;
+  word-spacing: 1px;
+}
+.master-toolbar {
+  flex-shrink: 0;
+  padding: 0;
+  gap: 5px;
+}
+.master-toolbar button {
+  padding: 6px 9px;
+  font-size: 11px;
+}
+.master-toolbar select {
+  padding: 6px;
+  font-size: 10px;
+  max-width: 290px;
+}
+.master-toolbar input {
+  width: 85px;
+}
+.master-workspace {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.85fr) minmax(275px, 1fr);
+  gap: 10px;
+}
+.master-world {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.master-world-title {
+  padding: 7px 10px;
+  flex-shrink: 0;
+}
+.master-world-title h2 {
+  font-size: 14px;
+  margin: 3px 0;
+}
+.master-world-title small {
+  font-size: 8px;
+}
+.master-world > .master-sector {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  background: #20372d;
+}
+.master-camera-wall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  padding: 6px;
+  background: #0b1f33;
+  height: 94px;
+  flex-shrink: 0;
+}
+.master-demo .master-camera-tile {
+  padding: 0;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #546e77;
+  background: #20372d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  border-radius: 3px;
+}
+.master-camera-tile > strong {
+  display: flex;
+  justify-content: space-between;
+  background: #0b1f33;
+  font-size: 8px;
+  line-height: 15px;
+  padding: 0 5px;
+}
+.master-camera-tile > strong small {
+  font-size: 7px;
+  color: #c2d4cf;
+}
+.master-camera-tile > .master-sector {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+.master-camera-tile > span {
+  font-size: 7px;
+  line-height: 15px;
+  white-space: nowrap;
+  background: #0b1f33;
+  padding: 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.master-world-controls {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  gap: 8px;
+  font-size: 8px;
+}
+.master-world-controls button {
+  padding: 3px 5px;
+  font-size: 8px;
+}
+.master-output {
+  margin: 0;
+  padding: 6px 10px;
+  flex-shrink: 0;
+  font-size: 10px;
+  display: block;
+}
+.master-output small {
+  display: none;
+}
+.master-events {
+  flex-shrink: 0;
+  padding: 0 8px;
+}
+.master-events button {
+  padding: 5px 0;
+  font-size: 9px;
+  grid-template-columns: 56px 78px 1fr;
+}
+.master-workspace > aside {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  gap: 7px;
+  overflow: hidden;
+}
+.master-question {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 4px 9px;
+}
+.master-question h2 {
+  font-size: 15px;
+  margin: 3px 0;
+}
+.master-question small {
+  font-size: 8px;
+}
+.master-card {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+.master-card h3 {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.master-card h2 {
+  font-size: 15px;
+}
+.master-card p {
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 8px 0;
+}
+.master-card dl {
+  font-size: 10px;
+  gap: 8px;
+  margin: 10px 0;
+}
+.master-score {
+  font-size: 29px;
+  margin: 10px 0;
+}
+.master-score small {
+  font-size: 9px;
+}
+.master-factor {
+  padding: 7px 0;
+  font-size: 11px;
+}
+.master-factor b {
+  font-size: 18px;
+}
+.master-factor small {
+  font-size: 8px;
+  margin-top: 2px;
+}
+.master-pair b {
+  height: 67px;
+  padding: 4px;
+  font-size: 40px;
+}
+.master-pair strong {
+  font-size: 9px;
+}
+.master-records {
+  max-height: none;
+  overflow: visible;
+  margin: 9px 0;
+  gap: 4px;
+}
+.master-records button {
+  padding: 6px 8px;
+}
+.master-records strong {
+  font-size: 10px;
+}
+.master-records span {
+  font-size: 9px;
+}
+.master-record-pages {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.master-record-pages button {
+  padding: 3px 8px;
+}
+.master-card input {
+  padding: 7px;
+  font-size: 11px;
+}
+.master-seal {
+  padding: 8px 0;
+  gap: 3px;
+}
+.master-seal code {
+  font-size: 9px;
+  padding: 5px;
+}
+.master-card .master-actions {
+  margin: 5px 0;
+}
+.master-card button {
+  font-size: 10px;
+  padding: 6px 8px;
+}
+.master-footer {
+  flex-shrink: 0;
+  margin: 0;
+}
+.master-footer > .master-actions {
+  margin: 0 0 5px;
+  gap: 4px;
+}
+.master-footer > .master-actions button {
+  padding: 5px 7px;
+  font-size: 9px;
+}
+.master-footer > small {
+  display: none;
+}
+.master-tools {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.master-tools button {
+  padding: 4px 7px;
+  font-size: 9px;
+}
+.master-tools select {
+  max-width: 140px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid #c6d3d9;
+  font-size: 9px;
+  background: white;
+}
+.master-tools span {
+  font-size: 8px;
+  color: #627b89;
+}
+.master-vehicle-chain {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+}
+.master-vehicle-chain button {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 5px;
+  font-size: 10px;
+  border-color: #93b8a2;
+}
+.master-vehicle-chain strong {
+  font-size: 12px;
+}
+.master-vehicle-chain small {
+  font-size: 8px;
+  letter-spacing: 0;
+}
+.master-vehicle-chain span {
+  font-size: 12px;
+}
+.master-phone {
+  max-width: 210px;
+  padding: 12px;
+  border-width: 5px;
+}
+.master-phone p {
+  font-size: 10px;
+}
+.master-inspector {
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  padding: 11px;
+}
+.master-inspector p {
+  font-size: 11px;
+}
+.master-demo [aria-pressed='true'] {
+  background: #0b5d3b;
+  color: white;
+}
+.master-demo [aria-pressed='true'] small {
+  color: #d3e7d7;
+}
+.master-opening {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 20px;
+}
+.master-opening h1 {
+  font-size: 20px;
+  margin: 12px 0;
+}
+.master-opening h2 {
+  font-size: 38px;
+}
+.master-opening p {
+  font-size: 15px;
+}
+.master-opening blockquote {
+  font-size: 12px;
+  margin: 13px 0;
+}
+@media (max-width: 1100px) {
+  .master-header h1 {
+    font-size: 15px;
+  }
+  .master-workspace {
+    grid-template-columns: minmax(0, 1.4fr) minmax(265px, 1fr);
+  }
+  .master-toolbar select {
+    max-width: 230px;
+  }
+  .master-camera-wall {
+    height: 80px;
+  }
+  .master-tools span {
+    display: none;
+  }
+}
+@media (max-height: 740px) {
+  .master-chain {
+    display: none;
+  }
+  .master-camera-wall {
+    height: 82px;
+  }
+  .master-tools span {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  section.master-demo {
+    overflow: auto;
+    height: auto;
+    min-height: 100%;
+  }
+  .master-workspace {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+  }
+  .master-world {
+    height: 410px;
+    flex: none;
+  }
+  .master-workspace > aside {
+    height: auto;
+    min-height: 330px;
+    flex: none;
+  }
+  .master-header {
+    flex-wrap: wrap;
+  }
+}
+.master-tools span[role='status'] {
+  display: inline;
+  font-size: 8px;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

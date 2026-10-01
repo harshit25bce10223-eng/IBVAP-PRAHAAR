@@ -8,6 +8,7 @@ export function MasterSector({
   routes,
   selected,
   onSelect,
+  viewport,
 }: {
   state: MasterState
   enhanced: boolean
@@ -15,24 +16,32 @@ export function MasterSector({
   routes: boolean
   selected: string
   onSelect: (id: string) => void
+  viewport?: string
 }) {
   const id = useId().replace(/:/g, '')
   const zoneColor = s.alert ? '#D62828' : s.crossed ? '#F4B942' : '#809b8a'
   const selectable = (target: string) => ({
-    role: 'button' as const,
-    tabIndex: 0,
+    role: viewport ? undefined : ('button' as const),
+    tabIndex: viewport ? -1 : 0,
     'aria-label': `Inspect ${target}`,
-    onClick: () => onSelect(target),
+    onClick: (e: React.MouseEvent<SVGGElement>) => {
+      e.stopPropagation()
+      onSelect(target)
+    },
     onKeyDown: (e: React.KeyboardEvent<SVGGElement>) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
+        e.stopPropagation()
         onSelect(target)
       }
     },
   })
   return (
     <svg
-      viewBox="0 0 960 510"
+      viewBox={viewport ?? '0 0 960 510'}
+      preserveAspectRatio={viewport ? 'xMidYMid slice' : 'xMidYMid meet'}
+      overflow="hidden"
+      aria-hidden={viewport ? true : undefined}
       className="master-sector"
       role="group"
       aria-label={`Shared border sector at ${masterClock(s.capture)}. ${s.associated ? `Candidate entity ${ENTITY_ID}.` : 'Camera-local observations.'} ${s.cameraOffline ? 'CAM-03 coverage compromised.' : 'Four replay camera regions.'}`}
@@ -130,14 +139,22 @@ export function MasterSector({
           name: 'CAM-01',
           left: 15,
           width: 545,
-          detail: s.freeze ? 'SUSPICIOUS / POSSIBLE FREEZE' : 'ENTRY / TRACK TRK-017',
+          detail: s.freeze
+            ? 'SUSPICIOUS / POSSIBLE FREEZE'
+            : s.tracking
+              ? 'ENTRY / TRACK TRK-017'
+              : 'ENTRY / WAITING',
           bad: s.freeze,
         },
         {
           name: 'CAM-02',
           left: 571,
           width: 201,
-          detail: s.associated ? 'TRK-044 / CANDIDATE' : 'PERIMETER / STANDBY',
+          detail: s.journey.boarded
+            ? 'X42 / CAR 2 LINK'
+            : s.associated
+              ? 'TRK-044 / CANDIDATE'
+              : 'PERIMETER / WAITING',
           bad: false,
         },
         {
@@ -270,7 +287,7 @@ export function MasterSector({
       {s.vehicle && (
         <g
           {...selectable('V-042')}
-          transform={`translate(${Math.min(192, 100 + (s.time - 70) * 9.2)} 355)`}
+          transform={`translate(${s.journey.first.x} ${s.journey.first.y})`}
         >
           <rect x="-34" y="-14" width="68" height="28" rx="5" fill="#e1e0d8" />
           <rect x="-13" y="-10" width="26" height="20" fill="#264451" />
@@ -303,7 +320,66 @@ export function MasterSector({
           </text>
         </g>
       )}
-      {s.person && s.position && (
+      {s.journey.secondVisible && (
+        <g
+          {...selectable('V-077')}
+          transform={`translate(${s.journey.second.x} ${s.journey.second.y})`}
+        >
+          <rect x="-34" y="-14" width="68" height="28" rx="5" fill="#c2cedc" />
+          <rect x="-13" y="-10" width="26" height="20" fill="#264451" />
+          <path d="M-26-17H-16M17-17H27M-26 17H-16M17 17H27" stroke="#111c20" strokeWidth="5" />
+          <rect x="-42" y="-23" width="84" height="46" fill="none" stroke="#F4B942" />
+          <rect x="-87" y="28" width="174" height="21" fill="#0B1F33" />
+          <text y="42" textAnchor="middle" fill="#FFFFFF" fontSize="9">
+            CAR 2 / V-077 / DL08CD5678
+          </text>
+          {s.journey.boarded && (
+            <g {...selectable(ENTITY_ID)}>
+              <rect
+                x="-100"
+                y="-52"
+                width="200"
+                height="60"
+                fill="transparent"
+                pointerEvents="all"
+              />
+              <circle r="7" fill="#F4B942" />
+              <rect x="-100" y="-52" width="200" height="21" fill="#0B1F33" stroke="#F4B942" />
+              <text y="-38" textAnchor="middle" fill="#F4B942" fontSize="9">
+                X42 INSIDE / LOCATION INFERRED
+              </text>
+            </g>
+          )}
+        </g>
+      )}
+      {s.time >= 170 && (
+        <g>
+          <path
+            d={
+              s.journey.first.y < 411
+                ? `M192 355V${s.journey.first.y}`
+                : `M192 355V411H${Math.max(192, s.journey.first.x)}`
+            }
+            fill="none"
+            stroke="#e1e0d8"
+            strokeWidth="2"
+            strokeDasharray="5 5"
+          />
+          <text x="272" y="404" fill="#e1e0d8" fontSize="10">
+            PATH B / CAR 1 / V-042
+          </text>
+        </g>
+      )}
+      {s.journey.secondMoving && (
+        <path
+          d={`M660 255L${s.journey.second.x} ${s.journey.second.y}`}
+          fill="none"
+          stroke="#F4B942"
+          strokeWidth="2"
+          strokeDasharray="4 4"
+        />
+      )}
+      {s.person && s.position && !s.journey.boarded && (
         <g
           {...selectable(s.associated ? ENTITY_ID : 'TRK-017')}
           transform={`translate(${s.position.x} ${s.position.y})`}

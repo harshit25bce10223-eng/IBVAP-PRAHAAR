@@ -11,6 +11,27 @@ import {
 } from './masterStory'
 import { backendRiskReplay } from './backendRiskReplay'
 describe('connected incident replay', () => {
+  it('keeps both vehicle identities while the person changes cars', () => {
+    const leaving = masterAt(180)
+    expect(leaving.journey.first.y).toBeGreaterThan(355)
+    expect(leaving.journey.secondVisible).toBe(false)
+    const approaching = masterAt(200)
+    expect(approaching.journey.secondVisible).toBe(true)
+    expect(approaching.journey.boarded).toBe(false)
+    const boarded = masterAt(205)
+    expect(boarded.journey.boarded).toBe(true)
+    expect(boarded.position).toEqual(boarded.journey.second)
+    const moving = masterAt(240)
+    expect(moving.journey.secondMoving).toBe(true)
+    expect(moving.journey.first).not.toEqual(moving.journey.second)
+    expect(moving.events.find(e => e.id === 'BOARD-X42')?.entity).toBe('X42')
+    expect(moving.events.find(e => e.id === 'OBS-V077')?.entity).toBe('V-077')
+    expect(moving.events.find(e => e.id === 'MOVE-V042')?.entity).toBe('V-042')
+    expect(masterAt(100).events.some(e => e.id === 'BOARD-X42')).toBe(false)
+    const payload = JSON.parse(replayEvidencePayloads(masterAt(340).events)[0])
+    expect(payload.eventRecords.some((e: { id: string }) => e.id === 'BOARD-X42')).toBe(true)
+    expect(searchMasterEvents(moving.events, 'DL08CD5678')[0].entity).toBe('V-077')
+  })
   it('keeps the chronology ordered and excludes future observations', () => {
     expect(masterSteps.every((s, i) => i === 0 || s.at >= masterSteps[i - 1].at)).toBe(true)
     for (let time = 0; time <= 480; time += 5) {

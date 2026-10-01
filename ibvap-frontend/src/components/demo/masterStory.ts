@@ -17,6 +17,9 @@ export type StoryView =
   | 'fence'
   | 'anpr'
   | 'reid'
+  | 'departure'
+  | 'transfer'
+  | 'followcars'
   | 'why'
   | 'face'
   | 'audio'
@@ -167,6 +170,15 @@ export const masterSteps: StoryStep[] = [
     'V-042 → 6 observations → MP09AB1234.'
   ),
   step(
+    'departure',
+    170,
+    'Car 1 takes Path B',
+    'Vehicle tracking',
+    'Where did the first car go?',
+    'V-042 leaves the checkpoint along Path B. The person keeps TRK-017 independently. A vehicle departure does not end the person track.',
+    'Car 1 → Path B; person → CAM-02.'
+  ),
+  step(
     'reid',
     190,
     'Two local tracks. One candidate entity.',
@@ -176,8 +188,17 @@ export const masterSteps: StoryStep[] = [
     'TRK-017 → candidate X42 ← TRK-044.'
   ),
   step(
-    'why',
+    'transfer',
     205,
+    'The person gets into Car 2',
+    'Person + vehicle links',
+    'Can we follow the person after a car change?',
+    'In this controlled replay, X42 walks to V-077 and gets inside. A boarding observation links the person to the second car without making the two vehicle identities the same. Car 1 remains on Path B; the person’s location is now carried by Car 2 and labelled inferred.',
+    'V-042 → person X42 → V-077; both cars stay separate.'
+  ),
+  step(
+    'why',
+    209,
     'Show why the association is plausible',
     'Association explanation',
     'What is behind that 85% score?',
@@ -192,6 +213,15 @@ export const masterSteps: StoryStep[] = [
     'Why was the other candidate kept out?',
     'CAM-05 / TRK-081 is a controlled impossible-transition fixture: 4.8 km in 12 seconds, or 400 m/s. It is excluded from this replay association. This fixture rejection is not presented as a live model result.',
     'Rejected fixture candidate · does not join X42.'
+  ),
+  step(
+    'followcars',
+    213,
+    'Follow both cars after boarding',
+    'Connected vehicle trace',
+    'Where are the person and both cars now?',
+    'Car 1 keeps V-042 on Path B. Car 2 keeps V-077 as it moves away, with X42 linked by the boarding observation. Both cars and the person remain searchable under the same incident.',
+    'Car 1 on Path B; X42 linked to moving Car 2.'
   ),
   step(
     'face',
@@ -674,11 +704,78 @@ export const masterEvents: MasterEvent[] = [
     ''
   ),
 ]
+masterEvents.push(
+  observation(
+    'MOVE-V042',
+    170,
+    151,
+    'CAM-04',
+    'Car 1 takes Path B',
+    'vehicle-move',
+    'V-042 continues on Path B. X42 is outside this vehicle.',
+    'V-042'
+  ),
+  observation(
+    'OBS-V077',
+    192,
+    180,
+    'CAM-02',
+    'Car 2 arrives',
+    'vehicle',
+    'V-077 / DL08CD5678 approaches the person. Vehicle identities stay separate.',
+    'V-077'
+  ),
+  observation(
+    'BOARD-X42',
+    205,
+    193,
+    'CAM-02',
+    'X42 boards Car 2',
+    'boarding',
+    'Controlled boarding observation links X42 to V-077. No personal identity is claimed.'
+  ),
+  observation(
+    'MOVE-V077',
+    212,
+    200,
+    'CAM-02',
+    'Car 2 moves with the person',
+    'vehicle-move',
+    'V-077 moves; X42 location is inferred from the boarding link, not a fresh person detection.',
+    'V-077'
+  )
+)
 export function masterClock(seconds: number) {
   const total = 23 * 3600 + 14 * 60 + Math.floor(seconds)
   return [Math.floor(total / 3600) % 24, Math.floor(total / 60) % 60, total % 60]
     .map(n => String(n).padStart(2, '0'))
     .join(':')
+}
+// Separate camera observations from the person's inferred location inside a car.
+export function vehicleJourney(time: number) {
+  const progress = Math.max(0, Math.min(1, (time - 170) / 70))
+  const first =
+    time < 170
+      ? { x: Math.min(192, 100 + (time - 70) * 9.2), y: 355 }
+      : progress < 0.25
+        ? { x: 192, y: 355 + progress * 224 }
+        : { x: 192 + ((progress - 0.25) / 0.75) * 510, y: 411 }
+  const secondVisible = time >= 192
+  const second =
+    time < 205
+      ? { x: 660, y: Math.max(255, 355 - (time - 192) * 12.5) }
+      : {
+          x: 660 + Math.min(75, Math.max(0, time - 212) * 2),
+          y: 255 + Math.min(100, Math.max(0, time - 212) * 3),
+        }
+  return {
+    first,
+    second,
+    secondVisible,
+    boarded: time >= 205,
+    secondMoving: time >= 212,
+    firstMoving: time >= 170 && time < 240,
+  }
 }
 export function masterAt(
   seconds: number,
@@ -696,6 +793,7 @@ export function masterAt(
   const fog = forced.fog || (time >= 230 && time < 365)
   const networkOffline = forced.network || (time >= 320 && time < 365)
   const capture = events.reduce((latest, e) => Math.max(latest, e.capture), 0)
+  const journey = vehicleJourney(time)
   const position =
     time < 80
       ? { x: 120, y: 355 }
@@ -709,7 +807,9 @@ export function masterAt(
               ? { x: 430 + (time - 145) * 5, y: 282 - Math.min(72, (time - 145) * 5) }
               : time < 190
                 ? null
-                : { x: 612 + Math.min(100, (time - 190) * 2), y: 218 }
+                : time < 205
+                  ? { x: 612 + (time - 190) * 3.2, y: 218 + (time - 190) * 2.46 }
+                  : journey.second
   const riskCase = backendRiskReplay.cases[time >= 230 || forced.fog ? 'degraded' : 'clear']
   const factors =
     time >= 148
@@ -732,6 +832,7 @@ export function masterAt(
     networkOffline,
     fog,
     position,
+    journey,
     factors,
     risk,
     riskSource: backendRiskReplay.provenance,
@@ -758,7 +859,7 @@ export function searchMasterEvents(events: MasterEvent[], query: string, after =
     e =>
       e.capture >= after &&
       terms.every(term =>
-        `${e.entity} ${e.incident} ${e.id} ${e.camera} ${e.title} ${e.type} ${e.detail} ${e.type === 'plate' ? 'MP09AB1234' : ''}`
+        `${e.entity} ${e.incident} ${e.id} ${e.camera} ${e.title} ${e.type} ${e.detail}`
           .toLowerCase()
           .includes(term)
       )

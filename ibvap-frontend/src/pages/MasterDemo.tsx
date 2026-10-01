@@ -9,12 +9,14 @@ import {
 } from '../components/demo/masterStory'
 import { sha256 } from '../components/demo/challengeEngine'
 import './masterDemo.css'
+import { simpleStory } from '../components/demo/simpleStory'
+import { useDemoNarration } from '../components/demo/useDemoNarration'
 type Seal = { original: string; bytes: string; digest: string; computed: string }
 export function MasterDemo() {
   const [time, T] = useState(0),
     [playing, P] = useState(false),
-    [speed, S] = useState(1),
-    [opening, O] = useState(true),
+    [speed, S] = useState(3),
+    [opening, O] = useState(false),
     [enhanced, E] = useState(true),
     [heatmap, H] = useState(false),
     [routes, R] = useState(false),
@@ -26,12 +28,21 @@ export function MasterDemo() {
     [seals, B] = useState<Seal[]>([]),
     [delivered, D] = useState(0),
     [error, F] = useState(''),
+    [sealIndex, chooseSeal] = useState(0),
+    [recordPage, choosePage] = useState(0),
+    [showNotes, notes] = useState(false),
+    [showFaults, faultPanel] = useState(false),
     [faults, J] = useState({ network: false, camera: false, fog: false })
   const hashing = useRef(false),
     run = useRef(0),
     s = masterAt(time, faults),
-    step = s.current,
-    index = masterSteps.indexOf(step)
+    step = simpleStory(s.current),
+    index = masterSteps.indexOf(s.current)
+  const narration = useDemoNarration(
+    `${step.title}. ${step.output}`,
+    step.id,
+    playing && time < 480
+  )
   const log = (message: string) =>
     A(a => [`${new Date().toLocaleTimeString()} · ${message}`, ...a].slice(0, 8))
   const seek = (n: number) => {
@@ -40,12 +51,26 @@ export function MasterDemo() {
     P(false)
     O(false)
     I('')
+    choosePage(0)
   }
   useEffect(() => {
     if (!playing || time >= 480) return
-    const timer = setInterval(() => T(t => Math.min(480, t + speed)), 1000)
+    const timer = setInterval(
+      () =>
+        T(t => {
+          const next = Math.min(480, t + speed)
+          if (
+            narration.enabled &&
+            narration.speaking.current &&
+            masterAt(next).current.id !== masterAt(t).current.id
+          )
+            return t
+          return next
+        }),
+      1000
+    )
     return () => clearInterval(timer)
-  }, [playing, speed, time])
+  }, [playing, speed, time, narration.enabled, narration.speaking])
   useEffect(() => {
     if (time < 340 || seals.length || hashing.current) return
     hashing.current = true
@@ -77,12 +102,12 @@ export function MasterDemo() {
     return () => clearInterval(timer)
   }, [time, s.networkOffline])
   const tamper = async (changed: boolean) => {
-    if (!seals[0]) return
+    if (!seals[sealIndex]) return
     const bytes = changed
-      ? seals[0].original.replace('PRAHAAR master incident', 'ALTERED incident')
-      : seals[0].original
+      ? seals[sealIndex].original.replace('PRAHAAR master incident', 'ALTERED incident')
+      : seals[sealIndex].original
     const computed = await sha256(bytes)
-    B(a => a.map((x, i) => (i === 0 ? { ...x, bytes, computed } : x)))
+    B(a => a.map((x, i) => (i === sealIndex ? { ...x, bytes, computed } : x)))
     log(changed ? 'Evidence altered for integrity test' : 'Original evidence restored')
   }
   const restart = () => {
@@ -90,7 +115,7 @@ export function MasterDemo() {
     B([])
     D(0)
     T(60)
-    S(4)
+    S(3)
     P(true)
     J({ network: false, camera: false, fog: false })
     I('')
@@ -126,7 +151,7 @@ export function MasterDemo() {
   )
   const timeline = (events = related) => (
     <div className="master-records">
-      {events.map(e => (
+      {events.slice(recordPage * 3, recordPage * 3 + 3).map(e => (
         <button key={e.id} onClick={() => I(e.id)}>
           <small>
             {masterClock(e.capture)} · {e.camera}
@@ -135,10 +160,70 @@ export function MasterDemo() {
           <span>{e.title}</span>
         </button>
       ))}
+      {events.length > 3 && (
+        <div className="master-record-pages">
+          <button disabled={recordPage === 0} onClick={() => choosePage(p => p - 1)}>
+            ←
+          </button>
+          <small>
+            {recordPage + 1} / {Math.ceil(events.length / 3)}
+          </small>
+          <button
+            disabled={(recordPage + 1) * 3 >= events.length}
+            onClick={() => choosePage(p => p + 1)}
+          >
+            →
+          </button>
+        </div>
+      )}
     </div>
   )
   const panel = () => {
     switch (step.id) {
+      case 'departure':
+      case 'transfer':
+      case 'followcars':
+        return card(
+          'Person and both cars',
+          <>
+            <div className="master-vehicle-chain">
+              <button onClick={() => I('V-042')}>
+                Car 1 <strong>V-042</strong>
+                <small>MP09AB1234</small>
+              </button>
+              <span>→</span>
+              <button onClick={() => I('X42')}>
+                Person <strong>X42</strong>
+                <small>{s.journey.boarded ? 'Inside Car 2' : 'Walking / camera track'}</small>
+              </button>
+              <span>→</span>
+              <button disabled={!s.journey.secondVisible} onClick={() => I('V-077')}>
+                Car 2 <strong>V-077</strong>
+                <small>DL08CD5678</small>
+              </button>
+            </div>
+            <dl>
+              <dt>Car 1</dt>
+              <dd>{s.time >= 170 ? 'Following Path B' : 'At checkpoint'}</dd>
+              <dt>Person</dt>
+              <dd>{s.journey.boarded ? 'Linked to Car 2' : 'Tracked separately'}</dd>
+              <dt>Car 2</dt>
+              <dd>
+                {s.journey.secondMoving
+                  ? 'Moving with X42'
+                  : s.journey.boarded
+                    ? 'Person gets inside'
+                    : s.journey.secondVisible
+                      ? 'Approaching'
+                      : 'Not seen yet'}
+              </dd>
+            </dl>
+            <p>
+              After boarding, X42’s position comes from the car link. It is not a fresh camera
+              detection of a person.
+            </p>
+          </>
+        )
       case 'reid':
       case 'why':
       case 'rejected':
@@ -207,10 +292,17 @@ export function MasterDemo() {
           'PRAMAAN / Live local integrity',
           <>
             <p>INC-1042 · X42 · frozen synthetic record</p>
-            {seals.map((x, i) => (
+            <div className="master-actions">
+              {seals.map((_, i) => (
+                <button key={i} aria-pressed={sealIndex === i} onClick={() => chooseSeal(i)}>
+                  Evidence {i + 1}
+                </button>
+              ))}
+            </div>
+            {seals.slice(sealIndex, sealIndex + 1).map((x, i) => (
               <div className="master-seal" key={i}>
                 <strong>
-                  EVD-{5521 + i}{' '}
+                  EVD-{5521 + sealIndex}{' '}
                   <em className={x.digest === x.computed ? 'ok' : 'bad'}>
                     {x.digest === x.computed ? 'MATCH' : 'MISMATCH'}
                   </em>
@@ -254,7 +346,7 @@ export function MasterDemo() {
               Local simulated delivery; original capture times preserved. Camera coverage does not
               recover when the uplink returns.
             </p>
-            {timeline(records.slice(-3))}
+            <small>Every saved test record keeps its original camera time.</small>
           </>
         )
       case 'correlation':
@@ -269,7 +361,16 @@ export function MasterDemo() {
             </div>
             {timeline(
               related.filter(e =>
-                ['vehicle', 'track', 'zone', 'association', 'incident', 'evidence'].includes(e.type)
+                [
+                  'vehicle',
+                  'vehicle-move',
+                  'boarding',
+                  'track',
+                  'zone',
+                  'association',
+                  'incident',
+                  'evidence',
+                ].includes(e.type)
               )
             )}
             <p>
@@ -287,7 +388,10 @@ export function MasterDemo() {
               Entity, incident, track or plate
               <input
                 value={query}
-                onChange={e => Q(e.target.value)}
+                onChange={e => {
+                  Q(e.target.value)
+                  choosePage(0)
+                }}
                 placeholder="X42 / INC-1042 / MP09AB1234"
               />
             </label>
@@ -492,7 +596,7 @@ export function MasterDemo() {
           step.module,
           <>
             <h2>{step.question}</h2>
-            <p>{step.narration}</p>
+            <p>{step.output}</p>
             <dl>
               <dt>CAM-01</dt>
               <dd>Entry / primary track</dd>
@@ -511,7 +615,7 @@ export function MasterDemo() {
     }
   }
   return (
-    <main className="master-demo">
+    <section className="master-demo" aria-label="Connected incident demo">
       {opening && time < 20 && (
         <div className="master-opening">
           <div>
@@ -571,7 +675,7 @@ export function MasterDemo() {
       <header className="master-header">
         <div>
           <small>PRAHAAR / CONNECTED INCIDENT DEMO</small>
-          <h1>One incident. Every layer of intelligence.</h1>
+          <h1>One person. Two cars. One connected story.</h1>
         </div>
         <div>
           <strong>{s.incident ? 'INC-1042' : 'INCIDENT BUILDING'}</strong>
@@ -589,8 +693,7 @@ export function MasterDemo() {
         </b>
       </header>
       <nav className="master-chain">
-        Observation → Context → Correlation → Decision → Evidence → Operational picture →
-        Investigation
+        See → Follow → Connect → Explain → Save proof → Find it again
       </nav>
       <div className="master-toolbar">
         <button
@@ -619,12 +722,13 @@ export function MasterDemo() {
         >
           {masterSteps.map(x => (
             <option key={x.id} value={x.id}>
-              {x.module} · {x.title}
+              {simpleStory(x).title}
             </option>
           ))}
         </select>
         <select aria-label="Replay speed" value={speed} onChange={e => S(Number(e.target.value))}>
           <option value={1}>8-minute / 1×</option>
+          <option value={3}>Default / 3×</option>
           <option value={4}>2-minute / 4×</option>
         </select>
         <strong>
@@ -656,6 +760,48 @@ export function MasterDemo() {
             selected={selected}
             onSelect={I}
           />
+          <div className="master-camera-wall" aria-label="Four camera replay views">
+            {[
+              { id: 'CAM-01', view: '15 116 545 290', label: 'Entry / person exits Car 1' },
+              {
+                id: 'CAM-02',
+                view: '570 116 201 290',
+                label: s.journey.boarded ? 'Person linked to Car 2' : 'Person moves to Car 2',
+              },
+              {
+                id: 'CAM-03',
+                view: '783 116 163 290',
+                label: s.cameraOffline ? 'Offline / blind area' : 'Camera health',
+              },
+              {
+                id: 'CAM-04',
+                view: '145 330 640 150',
+                label: s.time >= 170 ? 'Car 1 / Path B' : 'Service road',
+              },
+            ].map(cam => (
+              <button
+                key={cam.id}
+                className="master-camera-tile"
+                aria-label={`Inspect ${cam.id} camera preview`}
+                onClick={() => I(cam.id)}
+              >
+                <strong>
+                  {cam.id}
+                  <small>{cam.id === 'CAM-03' && s.cameraOffline ? 'OFFLINE' : 'REPLAY'}</small>
+                </strong>
+                <MasterSector
+                  state={s}
+                  enhanced={enhanced}
+                  heatmap={false}
+                  routes={false}
+                  selected=""
+                  onSelect={() => {}}
+                  viewport={cam.view}
+                />
+                <span>{cam.label}</span>
+              </button>
+            ))}
+          </div>
           <div className="master-world-controls">
             <button onClick={() => E(x => !x)}>
               {enhanced ? 'Enhanced schematic' : 'Raw schematic'}
@@ -665,12 +811,11 @@ export function MasterDemo() {
             <span>CAM-03: {s.cameraOffline ? 'COVERAGE LOST' : 'DEGRADED'}</span>
           </div>
           <div className="master-output">
-            <small>THIS LAYER PRODUCES</small>
+            <small>WHAT HAPPENS</small>
             <strong>{step.output}</strong>
           </div>
           <div className="master-events">
-            <h3>Same incident / capture timeline</h3>
-            {s.events.slice(-4).map(e => (
+            {s.events.slice(-1).map(e => (
               <button key={e.id} onClick={() => I(e.id)}>
                 <time>{masterClock(e.capture)}</time>
                 <strong>{e.id}</strong>
@@ -683,9 +828,15 @@ export function MasterDemo() {
               <button onClick={() => I('')}>×</button>
               <strong>{selected}</strong>
               <p>
-                {selectedEvent
-                  ? `${selectedEvent.camera} · ${masterClock(selectedEvent.capture)} · ${selectedEvent.detail}`
-                  : 'Schematic scene element; inspect recorded context in the timeline.'}
+                {selected === 'V-042'
+                  ? `Car 1 · MP09AB1234 · ${s.time >= 170 ? 'Path B' : 'Checkpoint'} · linked to X42 by the earlier exit observation.`
+                  : selected === 'V-077'
+                    ? `Car 2 · DL08CD5678 · ${s.journey.boarded ? 'X42 inside; position inferred from this car' : 'Approaching X42'}.`
+                    : selected === 'X42' && s.journey.boarded
+                      ? 'X42 exited V-042, crossed Zone A, then boarded V-077. Person position is inferred from Car 2; no fresh person detection is claimed.'
+                      : selectedEvent
+                        ? `${selectedEvent.camera} · ${masterClock(selectedEvent.capture)} · ${selectedEvent.detail}`
+                        : 'Schematic scene element; inspect recorded context in the timeline.'}
               </p>
             </div>
           )}
@@ -695,13 +846,44 @@ export function MasterDemo() {
             <small>{step.module}</small>
             <h2>{step.question}</h2>
           </div>
-          {panel()}
+          {showNotes
+            ? card(
+                'Simple explanation',
+                <>
+                  <p>{step.output}</p>
+                  <details>
+                    <summary>Full presenter notes</summary>
+                    <p>{step.output}</p>
+                  </details>
+                </>
+              )
+            : showFaults
+              ? card(
+                  'Try a tougher situation',
+                  <>
+                    <p>Toggle a test failure. Camera and internet failures stay separate.</p>
+                    {(['network', 'camera', 'fog'] as const).map(key => (
+                      <button
+                        key={key}
+                        aria-pressed={faults[key]}
+                        onClick={() => J(f => ({ ...f, [key]: !f[key] }))}
+                      >
+                        {key === 'network' ? 'Internet' : key === 'camera' ? 'Camera 3' : 'Fog'}:{' '}
+                        {faults[key] ? 'test ON' : 'normal story'}
+                      </button>
+                    ))}
+                  </>
+                )
+              : panel()}
         </aside>
       </div>
       <footer className="master-footer">
         <div className="master-actions">
           {[
             { at: 190, label: 'Camera handoff' },
+            { at: 170, label: 'Car 1 / Path B' },
+            { at: 205, label: 'Change cars' },
+            { at: 213, label: 'Follow both cars' },
             { at: 260, label: 'One incident' },
             { at: 280, label: 'Explain risk' },
             { at: 320, label: 'Network outage' },
@@ -713,33 +895,60 @@ export function MasterDemo() {
             </button>
           ))}
         </div>
-        <details>
-          <summary>
-            Presenter notes · {index + 1} / {masterSteps.length}
-          </summary>
-          <p>{step.narration}</p>
-        </details>
-        <details>
-          <summary>Inject tougher conditions</summary>
-          {(['network', 'camera', 'fog'] as const).map(key => (
-            <button
-              key={key}
-              aria-pressed={faults[key]}
-              onClick={() => {
-                J(f => ({ ...f, [key]: !f[key] }))
-                log(`${key} fault toggled`)
-              }}
-            >
-              {key}: {faults[key] ? 'injected' : 'story state'}
-            </button>
-          ))}
-        </details>
+        <div className="master-tools">
+          <button
+            aria-pressed={showNotes}
+            onClick={() => {
+              notes(x => !x)
+              faultPanel(false)
+            }}
+          >
+            Explain this step
+          </button>
+          <button
+            aria-pressed={showFaults}
+            onClick={() => {
+              faultPanel(x => !x)
+              notes(false)
+            }}
+          >
+            Try failures
+          </button>
+          <button
+            disabled={!narration.supported}
+            aria-pressed={narration.enabled}
+            onClick={narration.toggle}
+          >
+            Voice: {narration.enabled ? 'On' : 'Off'}
+          </button>
+          <button disabled={!narration.supported} onClick={narration.speak}>
+            Read this step
+          </button>
+          <select
+            aria-label="Narrator voice"
+            value={narration.voiceName}
+            onChange={e => narration.setVoiceName(e.target.value)}
+          >
+            <option value="">Browser voice</option>
+            {narration.voices.map(v => (
+              <option key={v.name} value={v.name}>
+                {v.name}
+              </option>
+            ))}
+          </select>
+          <span
+            role="status"
+            title="Browser-generated voice. The replay waits at a step boundary while its explanation is speaking."
+          >
+            {narration.status}
+          </span>
+        </div>
         {error && <p role="alert">{error}</p>}
         <small>
           REPLAY TEST = controlled fixtures · LIVE LOCAL = browser operation · PLANNED = not
           implemented · no recorded video or external sensors attached
         </small>
       </footer>
-    </main>
+    </section>
   )
 }
