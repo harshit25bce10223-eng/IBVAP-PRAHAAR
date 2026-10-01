@@ -11,6 +11,7 @@ import { sha256 } from '../components/demo/challengeEngine'
 import './masterDemo.css'
 import { simpleStory } from '../components/demo/simpleStory'
 import { useDemoNarration } from '../components/demo/useDemoNarration'
+import { narrationScript } from '../components/demo/narrationScript'
 type Seal = { original: string; bytes: string; digest: string; computed: string }
 export function MasterDemo() {
   const [time, T] = useState(0),
@@ -38,11 +39,7 @@ export function MasterDemo() {
     s = masterAt(time, faults),
     step = simpleStory(s.current),
     index = masterSteps.indexOf(s.current)
-  const narration = useDemoNarration(
-    `${step.title}. ${step.output}`,
-    step.id,
-    playing && time < 480
-  )
+  const narration = useDemoNarration(narrationScript[step.id], step.id, playing && time < 480)
   const log = (message: string) =>
     A(a => [`${new Date().toLocaleTimeString()} · ${message}`, ...a].slice(0, 8))
   const seek = (n: number) => {
@@ -596,7 +593,7 @@ export function MasterDemo() {
           step.module,
           <>
             <h2>{step.question}</h2>
-            <p>{step.output}</p>
+            <p>{narrationScript[step.id]}</p>
             <dl>
               <dt>CAM-01</dt>
               <dd>Entry / primary track</dd>
@@ -727,9 +724,9 @@ export function MasterDemo() {
           ))}
         </select>
         <select aria-label="Replay speed" value={speed} onChange={e => S(Number(e.target.value))}>
-          <option value={1}>8-minute / 1×</option>
+          <option value={1}>Slow / 1×</option>
           <option value={3}>Default / 3×</option>
-          <option value={4}>2-minute / 4×</option>
+          <option value={4}>Fast / 4×</option>
         </select>
         <strong>
           {Math.floor(time / 60)}:{String(Math.floor(time % 60)).padStart(2, '0')} / 8:00
@@ -850,10 +847,10 @@ export function MasterDemo() {
             ? card(
                 'Simple explanation',
                 <>
-                  <p>{step.output}</p>
+                  <p>{narrationScript[step.id]}</p>
                   <details>
                     <summary>Full presenter notes</summary>
-                    <p>{step.output}</p>
+                    <p>{narrationScript[step.id]}</p>
                   </details>
                 </>
               )
@@ -952,3 +949,4 @@ export function MasterDemo() {
     </section>
   )
 }
+

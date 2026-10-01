@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { preferredIndianVoice } from './narrationScript'
 export function useDemoNarration(text: string, chapter: string, playing: boolean) {
-  const [enabled, setEnabled] = useState(false),
+  const [enabled, setEnabled] = useState(true),
     [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]),
     [voiceName, setVoiceName] = useState(''),
-    [status, setStatus] = useState('Voice off')
+    [status, setStatus] = useState('Indian narration ready · press Play')
+  const manuallySelected = useRef(false)
   const speaking = useRef(false)
   const active = useRef<SpeechSynthesisUtterance | null>(null)
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window
@@ -13,13 +15,10 @@ export function useDemoNarration(text: string, chapter: string, playing: boolean
     const update = () => {
       const available = synth.getVoices().filter(v => v.lang.startsWith('en'))
       setVoices(available)
-      setVoiceName(
-        name =>
-          name ||
-          available.find(v => /natural|neural|online/i.test(v.name))?.name ||
-          available.find(v => v.lang === 'en-IN')?.name ||
-          available[0]?.name ||
-          ''
+      setVoiceName(name =>
+        manuallySelected.current && available.some(v => v.name === name)
+          ? name
+          : (preferredIndianVoice(available)?.name ?? '')
       )
     }
     update()
@@ -40,7 +39,7 @@ export function useDemoNarration(text: string, chapter: string, playing: boolean
     speaking.current = true
     utterance.voice = voices.find(v => v.name === voiceName) ?? null
     utterance.lang = utterance.voice?.lang ?? 'en-IN'
-    utterance.rate = 1
+    utterance.rate = 0.95
     utterance.pitch = 1
     utterance.onstart = () => {
       speaking.current = true
@@ -96,7 +95,10 @@ export function useDemoNarration(text: string, chapter: string, playing: boolean
     status,
     supported,
     speaking,
-    setVoiceName,
+    setVoiceName: (name: string) => {
+      manuallySelected.current = true
+      setVoiceName(name)
+    },
     toggle: () => {
       if (enabled) {
         window.speechSynthesis?.cancel()
