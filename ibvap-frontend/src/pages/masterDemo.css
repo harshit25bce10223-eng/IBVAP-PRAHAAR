@@ -931,3 +931,119 @@ section.master-demo {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Match the surrounding command dashboard. */
+section.master-demo {
+  background: var(--color-ssb-navy-deep, #071527) !important;
+  color: var(--color-ssb-text, #e9eef4) !important;
+}
+.master-demo small,
+.master-header > div:nth-child(2) small,
+.master-world-title > strong,
+.master-question small,
+.master-tools span[role='status'] {
+  color: var(--color-ssb-text-muted, #9aaebd);
+}
+.master-demo .master-world,
+.master-demo .master-card {
+  background: #0b1f33;
+  border-color: #24415a;
+  color: #e9eef4;
+}
+.master-demo .master-chain {
+  background: #102b45;
+  border: 1px solid #24415a;
+}
+.master-demo button,
+.master-demo select,
+.master-demo input,
+.master-tools select,
+.master-card input,
+.master-card select {
+  background: #102b45;
+  color: #e9eef4;
+  border-color: #2b4962;
+  color-scheme: dark;
+}
+.master-demo button:hover {
+  background: #173951;
+  border-color: #4c9d8e;
+}
+.master-demo [aria-pressed='true'] {
+  background: #0b5d3b;
+  color: #fff;
+  border-color: #378571;
+}
+.master-demo .master-card p,
+.master-demo .master-card dt,
+.master-demo .master-records span,
+.master-demo .master-score small,
+.master-demo .master-events time {
+  color: #a9bdcb;
+}
+.master-demo .master-card dd,
+.master-demo .master-records strong {
+  color: #e9eef4;
+}
+.master-demo .master-output {
+  background: #10372d;
+  color: #d7eee3;
+  border-color: #4aab84;
+}
+.master-demo .master-world-controls,
+.master-demo .master-events button,
+.master-demo .master-factor,
+.master-demo .master-seal {
+  border-color: #24415a;
+}
+.master-demo .master-score,
+.master-demo .master-factor b,
+.master-demo .master-seal .ok,
+.master-demo .master-pair span {
+  color: #79d5b4;
+}
+.master-demo .master-seal .bad {
+  color: #ff8585;
+}
+.master-demo .master-seal code,
+.master-demo .master-card pre {
+  background: #071527;
+  color: #c5d7e4;
+}
+.master-demo .master-pair b {
+  background: #102b45;
+  border-color: #35556d;
+  color: #d2e7e0;
+}
+.master-demo .master-face {
+  background: #102b45;
+  border-color: #49647b;
+  color: #b8cbd8;
+}
+.master-demo .master-phone {
+  background: #102b45;
+  border-color: #42627b;
+  color: #e9eef4;
+}
+.master-demo .master-plate {
+  background: #193349;
+  border-color: #5d7e94;
+  color: #e9eef4;
+}
+.master-demo .master-records button,
+.master-demo .master-vehicle-chain button {
+  border-left-color: #4aab84;
+}
+.master-demo .master-record-pages small {
+  color: #a9bdcb;
+}
+.master-demo .master-camera-tile {
+  background: #20372d;
+  color: #fff;
+  border-color: #546e77;
+}
+.master-demo .master-footer p[role='alert'] {
+  color: #f4b942;
+}
+.master-demo .master-card summary {
+  color: #b8d9d0;
+}
