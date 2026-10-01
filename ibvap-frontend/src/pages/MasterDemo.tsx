@@ -12,7 +12,7 @@ import './masterDemo.css'
 import { simpleStory } from '../components/demo/simpleStory'
 import { useDemoNarration } from '../components/demo/useDemoNarration'
 import { narrationScript } from '../components/demo/narrationScript'
-import { advanceReplay, DEFAULT_REPLAY_SPEED, rapidNarration } from '../components/demo/rapidReplay'
+import { advanceReplay, DEFAULT_REPLAY_SPEED } from '../components/demo/rapidReplay'
 type Seal = { original: string; bytes: string; digest: string; computed: string }
 export function MasterDemo() {
   const [time, T] = useState(0),
@@ -40,12 +40,7 @@ export function MasterDemo() {
     s = masterAt(time, faults),
     step = simpleStory(s.current),
     index = masterSteps.indexOf(s.current)
-  const rapid = rapidNarration(time)
-  const narration = useDemoNarration(
-    speed === 4 ? rapid.text : narrationScript[step.id],
-    speed === 4 ? `rapid-${rapid.at}` : step.id,
-    playing && time < 480
-  )
+  const narration = useDemoNarration(narrationScript[step.id], step.id, playing && time < 480)
   const log = (message: string) =>
     A(a => [`${new Date().toLocaleTimeString()} · ${message}`, ...a].slice(0, 8))
   const seek = (n: number) => {
@@ -57,26 +52,34 @@ export function MasterDemo() {
     choosePage(0)
   }
   useEffect(() => {
-    if (!playing || time >= 480) return
-    const timer = setInterval(
-      () =>
+    if (!playing) return
+    let frame = 0
+    let previous = performance.now()
+    const tick = (now: number) => {
+      if (now - previous >= 80) {
+        const elapsed = Math.min((now - previous) / 1000, 0.25)
+        previous = now
         T(t => {
-          const next = advanceReplay(t, speed)
+          const boundary = masterSteps.find(chapter => chapter.at > t)?.at ?? 480
+          const next = Math.min(advanceReplay(t, speed * elapsed), boundary)
           if (
-            speed !== 4 &&
             narration.enabled &&
             narration.speaking.current &&
-            masterAt(next).current.id !== masterAt(t).current.id
+            (next === 480 || masterAt(next).current.id !== masterAt(t).current.id)
           )
             return t
           return next
-        }),
-      1000
-    )
-    return () => clearInterval(timer)
-  }, [playing, speed, time, narration.enabled, narration.speaking])
+        })
+      }
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [playing, speed, narration.enabled, narration.speaking])
+  const hashReady = time >= 340
+  const deliveryReady = time >= 365
   useEffect(() => {
-    if (time < 340 || seals.length || hashing.current) return
+    if (!hashReady || seals.length || hashing.current) return
     hashing.current = true
     const version = run.current
     Promise.all(
@@ -99,12 +102,12 @@ export function MasterDemo() {
       .finally(() => {
         hashing.current = false
       })
-  }, [time, seals.length])
+  }, [hashReady, seals.length])
   useEffect(() => {
-    if (time < 365 || s.networkOffline) return
+    if (!deliveryReady || s.networkOffline) return
     const timer = setInterval(() => D(n => Math.min(10, n + 1)), 500)
     return () => clearInterval(timer)
-  }, [time, s.networkOffline])
+  }, [deliveryReady, s.networkOffline])
   const tamper = async (changed: boolean) => {
     if (!seals[sealIndex]) return
     const bytes = changed
@@ -132,6 +135,7 @@ export function MasterDemo() {
         ['vehicle', 'person', 'track', 'behavior', 'zone', 'plate', 'association'].includes(e.type)
     )
     .slice(0, 7)
+  const metadataVersion = records.map(record => record.id).join('|')
   useEffect(() => {
     if (time < 320) return
     try {
@@ -139,7 +143,9 @@ export function MasterDemo() {
     } catch {
       queueMicrotask(() => F('Metadata storage failed; records remain in memory.'))
     }
-  }, [time, records])
+    // Persist only when the record set changes or offline buffering starts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [time >= 320, metadataVersion])
   const related = s.events.filter(
       e => !['animal', 'feed', 'health', 'network', 'review'].includes(e.type)
     ),
@@ -381,6 +387,18 @@ export function MasterDemo() {
               Proximity → track continuity → polygon entry → candidate association. Animal stays
               outside the intrusion graph.
             </p>
+            {time >= 223 && (
+              <p>
+                <strong>Attack exercise:</strong> officer review required.{' '}
+                {time >= 452 ? 'Security response acknowledged.' : 'Post protection alert active.'}{' '}
+                Car 1: {s.journey.firstStopped ? 'held at Path B gate' : 'approaching Path B gate'}.
+                Car 2:{' '}
+                {s.journey.secondStopped
+                  ? 'held at eastern post barrier'
+                  : 'approaching eastern post'}
+                . No confirmed arrest or identity claim.
+              </p>
+            )}
           </>
         )
       case 'investigation':
@@ -593,6 +611,13 @@ export function MasterDemo() {
               <dd>MEDIUM / controlled test</dd>
             </dl>
             <p>No live microphone or weather sensor connected.</p>
+            {time >= 223 && (
+              <p>
+                <strong>Attack exercise / officer review:</strong> gunfire report near the eastern
+                security post. Protect the post; follow both vehicles to their marked holding
+                points. A sound does not confirm a terrorist identity.
+              </p>
+            )}
           </>
         )
       default:
@@ -733,7 +758,7 @@ export function MasterDemo() {
         <select aria-label="Replay speed" value={speed} onChange={e => S(Number(e.target.value))}>
           <option value={1}>Slow / 1×</option>
           <option value={3}>Detailed / 3×</option>
-          <option value={4}>Default / 4× · 2 min</option>
+          <option value={4}>Default / 4× · Full detail</option>
         </select>
         <strong>
           {Math.floor(time / 60)}:{String(Math.floor(time % 60)).padStart(2, '0')} / 8:00
@@ -942,7 +967,7 @@ export function MasterDemo() {
           </select>
           <span
             role="status"
-            title="Browser-generated Indian voice. Default 4× replay runs for two minutes; if your browser blocks audio, tap Read this step."
+            title="Full explanations at every chapter. Simulation runs at 4× and waits for narration to finish before moving to the next chapter. Tap Read this step if audio is blocked."
           >
             {narration.status}
           </span>

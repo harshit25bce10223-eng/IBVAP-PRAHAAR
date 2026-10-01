@@ -497,6 +497,46 @@ const observation = (
 })
 export const masterEvents: MasterEvent[] = [
   observation(
+    'THREAT-223',
+    223,
+    211,
+    'CAM-02',
+    'Simulated attack report near security post',
+    'threat',
+    'Scripted gunfire report; officer review required. No automatic terrorist identity claim.',
+    'X42'
+  ),
+  observation(
+    'HOLD-V042',
+    240,
+    228,
+    'CAM-04',
+    'Car 1 reaches Path B control gate',
+    'vehicle-move',
+    'Vehicle stops at the closed control gate; officer verification pending.',
+    'V-042'
+  ),
+  observation(
+    'HOLD-V077',
+    295,
+    283,
+    'CAM-02',
+    'Car 2 reaches eastern post holding point',
+    'vehicle-move',
+    'Vehicle movement ends at the marked barrier. X42 remains linked through the boarding observation.',
+    'V-077'
+  ),
+  observation(
+    'RESPONSE-452',
+    452,
+    440,
+    'FIELD / SIMULATED',
+    'Security team acknowledges attack alert',
+    'response',
+    'Exercise response: protect the post, secure both holding points and preserve evidence. No real dispatch or confirmed arrest.',
+    'X42'
+  ),
+  observation(
     'HEALTH-001',
     42,
     2,
@@ -765,7 +805,7 @@ export function vehicleJourney(time: number) {
     time < 205
       ? { x: 660, y: Math.max(255, 355 - (time - 192) * 12.5) }
       : {
-          x: 660 + Math.min(75, Math.max(0, time - 212) * 2),
+          x: 660 + Math.min(80, Math.max(0, time - 212) * (80 / 83)),
           y: 255 + Math.min(100, Math.max(0, time - 212) * 3),
         }
   return {
@@ -773,7 +813,9 @@ export function vehicleJourney(time: number) {
     second,
     secondVisible,
     boarded: time >= 205,
-    secondMoving: time >= 212,
+    secondMoving: time >= 212 && time < 295,
+    firstStopped: time >= 240,
+    secondStopped: time >= 295,
     firstMoving: time >= 170 && time < 240,
   }
 }

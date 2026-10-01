@@ -1,8 +1,8 @@
 import type { StoryView } from './masterStory'
 export const narrationScript: Record<StoryView, string> = {
-  hook: 'Welcome to Prahaar. We will follow one person, two cars, and one connected incident. The four camera views stay together, so you can see how each clue connects.',
+  hook: 'Welcome to Prahaar. First, understand the map. The highlighted orange line at the top is the international border in this fictional sector. The opposite side is above it. The Indian side, checkpoint, restricted compound and roads are below it. North is up. We will follow one person and two cars across four cameras.',
   overview:
-    'This is a remote border area at night. Camera one watches the entry, camera two watches the perimeter, camera three shows a coverage problem, and camera four watches the service road.',
+    'This is a remote border sector at night. Camera one faces east along the entry road. Camera two faces west across the handoff area. Camera three faces west from the eastern post. Camera four faces north from the service road. The arrows show these illustrative directions. The orange international border is separate from Zone A. Zone A is the restricted compound, outlined with a people-only virtual fence. The grey road is the vehicle route, and the lower branch is Path B.',
   ingestion:
     'Every camera observation keeps its camera name and capture time. That helps us put the story back in order later. The camera views in this demonstration are a controlled replay.',
   trust:
@@ -32,7 +32,7 @@ export const narrationScript: Record<StoryView, string> = {
     'A similar-looking candidate can still be wrong. This test candidate would have to travel four point eight kilometres in twelve seconds. That impossible transition keeps it out of the person record.',
   face: 'A face crop could add context when the image is usable and policy allows it. Here we only show a masked placeholder. No face model or personal identity match ran in this demo.',
   audio:
-    'A test sound appears near the incident. It is extra context, not proof of what happened. No real microphone is connected, so we clearly label this as simulated input.',
+    'In this fictional terrorist attack exercise, a gunfire report arrives near the security post. It triggers an urgent officer review, not an automatic identity accusation. The first car reaches a closed control gate on Path B. The second car approaches the eastern post barrier with the person linked inside. Both destinations are marked on the map. No live microphone, real attack or operational dispatch is connected.',
   weather:
     'Fog reduces visibility. The system shows the lower observation confidence instead of hiding the problem. An officer can see that the same clue may be less reliable in difficult weather.',
   uncertainty:
@@ -64,7 +64,7 @@ export const narrationScript: Record<StoryView, string> = {
   route:
     'Compare the direct route with Path B. One route is shorter and near the active alert; the other has lower modeled exposure and a longer approach. The officer chooses, and neither route is guaranteed safe.',
   mobile:
-    'The field officer sees the same incident, person link, risk, and camera gap. Acknowledge or escalate in this simulated phone preview. These buttons do not send a real external notification.',
+    'The exercise security team acknowledges the attack alert. The first car is held at the Path B control gate and the second at the eastern post barrier. The officer sees the same person link, evidence and camera gap. Protect the post, review both vehicles and preserve evidence. This is a simulated acknowledgement, not a real dispatch, arrest or confirmed terrorist identification.',
   sop: 'A response procedure should help the officer choose the next action. This procedure workflow is a planned feature. We keep that clear instead of presenting it as a connected operational system.',
   integration:
     'Another system needs a clear incident message with the same IDs, risk, and evidence reference. You can inspect a sample message here. An external command system is not connected to this demo.',

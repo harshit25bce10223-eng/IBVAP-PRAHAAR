@@ -1,7 +1,13 @@
 import type { StoryStep, StoryView } from './masterStory'
 const words: Partial<Record<StoryView, [string, string]>> = {
-  hook: ['One person. Two cars. One story.', 'See how the cameras keep the story connected.'],
-  overview: ['Watch the whole area', 'Four camera views share the same scene.'],
+  hook: [
+    'Understand the border before the incident',
+    'Orange line: international border. Below: Indian side. North is up.',
+  ],
+  overview: [
+    'Border, fence, roads and camera directions',
+    'Camera arrows show facing; Zone A is a separate virtual fence.',
+  ],
   ingestion: ['Camera frames arrive', 'Each observation keeps its camera and time.'],
   trust: ['Check a frozen camera', 'Pause detections when the camera repeats old frames.'],
   night: ['See better in the dark', 'Switch between the dark and brighter test view.'],
@@ -30,7 +36,10 @@ const words: Partial<Record<StoryView, [string, string]>> = {
   why: ['Why does the match look likely?', 'Compare appearance, travel time and camera locations.'],
   rejected: ['Reject an impossible match', 'A car or person cannot jump 4.8 km in 12 seconds.'],
   face: ['Check a possible face crop', 'This is a planned feature; no identity match ran.'],
-  audio: ['Add a test sound', 'The sound is simulated. No real microphone is connected.'],
+  audio: [
+    'Attack alert near the security post',
+    'Fictional exercise: protect the post, review vehicles and preserve evidence.',
+  ],
   weather: ['Fog makes the view harder', 'Lower visibility means less reliable observations.'],
   uncertainty: [
     'Show what is uncertain',

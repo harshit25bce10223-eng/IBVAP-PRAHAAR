@@ -64,6 +64,29 @@ export function MasterSector({
         fill="#2b4435"
       />
       <rect width="960" height="510" fill={`url(#master-grid-${id})`} />
+      <g aria-label="Sector orientation: north up, international border above Indian side">
+        <rect x="0" y="0" width="960" height="44" fill="#452b25" fillOpacity=".75" />
+        <text x="20" y="17" fontSize="11" fill="#f8d1ac">
+          OPPOSITE SIDE / FICTIONAL BORDER SECTOR
+        </text>
+        <path
+          d="M0 39H960"
+          stroke="#ffad52"
+          strokeWidth={s.time < 60 ? 5 : 3}
+          strokeDasharray="14 5"
+        />
+        <rect x="303" y="24" width="354" height="26" rx="4" fill="#422b1e" />
+        <text x="480" y="42" textAnchor="middle" fill="#ffd29e" fontSize="13" fontWeight="bold">
+          INTERNATIONAL BORDER / भारत की सीमा
+        </text>
+        <text x="25" y="58" fill="#9fe7c0" fontSize="11" fontWeight="bold">
+          INDIAN SIDE ↓ / CHECKPOINT · ZONE A · ROADS
+        </text>
+        <path d="M925 30V9M919 15L925 8 931 15" fill="none" stroke="#fff" strokeWidth="2" />
+        <text x="940" y="21" fontSize="12" fill="#fff">
+          N
+        </text>
+      </g>
       {Array.from({ length: 20 }, (_, i) => (
         <g key={i} transform={`translate(${35 + i * 47} ${117 + (i % 3) * 27})`}>
           <circle r="15" fill="#344f39" />
@@ -121,9 +144,82 @@ export function MasterSector({
       <text x="361" y="307" fill={s.alert ? '#f0a6a6' : '#cbd6c9'} fontSize="10">
         {s.alert ? 'EVT-2291 / RECORDED DWELL 3s' : 'PEOPLE-ONLY POLYGON / 3s DWELL'}
       </text>
+      {s.time < 60 && !viewport && (
+        <g aria-label="Camera facing directions and road orientation">
+          {[
+            { x: 225, y: 151, label: 'CAM-01 → EAST', direction: 1 },
+            { x: 651, y: 151, label: 'CAM-02 ← WEST', direction: -1 },
+            { x: 862, y: 151, label: 'CAM-03 ← WEST', direction: -1 },
+          ].map(camera => (
+            <g key={camera.label}>
+              <path
+                d={`M${camera.x - camera.direction * 30} ${camera.y}h${camera.direction * 60}l${-camera.direction * 9} -6m${camera.direction * 9} 6l${-camera.direction * 9} 6`}
+                fill="none"
+                stroke="#67dcf0"
+                strokeWidth="3"
+              />
+              <text x={camera.x} y={camera.y + 19} textAnchor="middle" fontSize="10" fill="#c2f5ff">
+                {camera.label}
+              </text>
+            </g>
+          ))}
+          <rect x="214" y="376" width="218" height="21" rx="3" fill="#102c37" />
+          <text x="223" y="391" fontSize="11" fill="#c2f5ff">
+            CAM-04 ↑ NORTH / ROAD VIEW
+          </text>
+          <text x="438" y="331" fontSize="11" fill="#f2e2b4">
+            MAIN VEHICLE ROAD →
+          </text>
+          <text x="466" y="456" fontSize="11" fill="#f2e2b4">
+            PATH B / SERVICE ROAD →
+          </text>
+          <text x="368" y="263" fontSize="10" fill="#ffd29e">
+            VIRTUAL FENCE ≠ INTERNATIONAL BORDER
+          </text>
+        </g>
+      )}
       <g transform="translate(863 249)">
         <rect width="65" height="50" fill="#65715f" />
         <path d="M-8 0L33-22 72 0" fill="#889079" />
+      </g>
+      <g aria-label="Vehicle destinations and simulated security response">
+        <path d="M723 393V429M711 394L735 406M711 408L735 420" stroke="#ffbc65" strokeWidth="4" />
+        <text x="618" y="449" fill="#ffd39b" fontSize="11">
+          PATH B CONTROL GATE
+        </text>
+        <path d="M773 334V375M766 336L780 348M766 354L780 366" stroke="#ffbc65" strokeWidth="4" />
+        <text x="598" y="317" fill="#ffd39b" fontSize="10">
+          EASTERN POST / APPROACH BARRIER
+        </text>
+        {s.journey.firstStopped && (
+          <text x="616" y="399" fill="#ffdd9e" fontSize="10">
+            CAR 1 / GATE HOLD · REVIEW
+          </text>
+        )}
+        {s.journey.secondStopped && (
+          <text x="613" y="389" fill="#ffdd9e" fontSize="10">
+            CAR 2 / BARRIER HOLD
+          </text>
+        )}
+        {s.time >= 223 && (
+          <g>
+            <circle
+              cx="897"
+              cy="259"
+              r="33"
+              fill="#d62828"
+              fillOpacity=".16"
+              stroke="#ff6d66"
+              strokeDasharray="6 4"
+            />
+            <rect x="587" y="466" width="358" height="22" rx="4" fill="#45242d" />
+            <text x="597" y="481" fill="#ffd2cc" fontSize="11">
+              {s.time >= 452
+                ? 'EXERCISE RESPONSE ACKNOWLEDGED / REVIEW'
+                : 'SIMULATED ATTACK ALERT / POST PROTECTION'}
+            </text>
+          </g>
+        )}
       </g>
       {heatmap && (
         <g>
@@ -471,18 +567,10 @@ export function MasterSector({
           />
         </g>
       )}
-      <rect x="15" y="13" width="509" height="30" fill="#0B1F33" />
-      <text x="26" y="32" fill="#FFFFFF" fontSize="12">
-        REMOTE SSB BOP / FOREST & HILLY SECTOR / {masterClock(s.capture)} IST
-      </text>
-      <rect x="719" y="13" width="227" height="30" fill="#0B1F33" />
-      <text x="731" y="32" fill={s.networkOffline ? '#F4B942' : '#c8dfcc'} fontSize="10">
-        {s.networkOffline ? 'EDGE LOCAL / UPLINK OFFLINE' : 'REPLAY UPLINK / CONNECTED'}
-      </text>
       {s.incident && (
         <g {...selectable(INCIDENT_ID)}>
-          <rect x="365" y="464" width="310" height="29" fill="#0B1F33" stroke="#D62828" />
-          <text x="520" y="483" textAnchor="middle" fill="#FFFFFF" fontSize="11">
+          <rect x="18" y="464" width="310" height="29" fill="#0B1F33" stroke="#D62828" />
+          <text x="173" y="483" textAnchor="middle" fill="#FFFFFF" fontSize="11">
             {INCIDENT_ID} / {ENTITY_ID} / ZONE A / REVIEW
           </text>
         </g>

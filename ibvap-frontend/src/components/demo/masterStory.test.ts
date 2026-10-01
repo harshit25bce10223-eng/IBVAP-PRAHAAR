@@ -11,6 +11,18 @@ import {
 } from './masterStory'
 import { backendRiskReplay } from './backendRiskReplay'
 describe('connected incident replay', () => {
+  it('explains both vehicle stops and keeps the attack response chronological', () => {
+    expect(masterAt(222).events.some(e => e.type === 'threat')).toBe(false)
+    expect(masterAt(223).events.some(e => e.id === 'THREAT-223')).toBe(true)
+    expect(masterAt(240).journey.firstStopped).toBe(true)
+    expect(masterAt(294).journey.secondMoving).toBe(true)
+    expect(masterAt(295).journey.secondMoving).toBe(false)
+    expect(masterAt(480).journey.second).toEqual({ x: 740, y: 355 })
+    expect(masterAt(480).events.find(e => e.id === 'RESPONSE-452')?.detail).toContain(
+      'No real dispatch'
+    )
+    expect(masterAt(200).journey.secondStopped).toBe(false)
+  })
   it('keeps both vehicle identities while the person changes cars', () => {
     const leaving = masterAt(180)
     expect(leaving.journey.first.y).toBeGreaterThan(355)
