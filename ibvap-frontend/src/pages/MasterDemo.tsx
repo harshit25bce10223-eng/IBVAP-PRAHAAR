@@ -359,10 +359,37 @@ export function MasterDemo() {
             <small>Every saved test record keeps its original camera time.</small>
           </>
         )
+      case 'closing':
+        return card(
+          'Final result / simulated incident',
+          <>
+            <h2>One person, both cars, all clues connected.</h2>
+            <dl>
+              <dt>Car 1</dt>
+              <dd>Stopped at Path B control gate</dd>
+              <dt>Person X42</dt>
+              <dd>Boarded Car 2; location inferred from its track</dd>
+              <dt>Car 2</dt>
+              <dd>Stopped at the eastern post approach barrier</dd>
+              <dt>Security team</dt>
+              <dd>Attack alert acknowledged in this exercise</dd>
+              <dt>Camera 3</dt>
+              <dd>Still offline; its blind area stays marked</dd>
+              <dt>Evidence</dt>
+              <dd>{seals.length} fingerprints prepared for review</dd>
+            </dl>
+            <p>
+              The officer can now review the complete incident, including the vehicle change, camera
+              gap and original observations.
+            </p>
+            <p>Attack and response are simulated. Identity and arrest are not confirmed.</p>
+            <button onClick={() => seek(385)}>Check evidence</button>{' '}
+            <button onClick={() => seek(470)}>Find the original observations</button>
+          </>
+        )
       case 'correlation':
       case 'graph':
       case 'relationship':
-      case 'closing':
         return card(
           'SUTRA / One contextual incident',
           <>
@@ -760,8 +787,8 @@ export function MasterDemo() {
           <option value={3}>Detailed / 3×</option>
           <option value={4}>Default / 4× · Full detail</option>
         </select>
-        <strong>
-          {Math.floor(time / 60)}:{String(Math.floor(time % 60)).padStart(2, '0')} / 8:00
+        <strong title="Position in the eight-minute incident story. Playback runs at the selected speed and allows each explanation to finish.">
+          Story {Math.floor(time / 60)}:{String(Math.floor(time % 60)).padStart(2, '0')} / 8:00
         </strong>
         <input
           aria-label="Replay timeline"
