@@ -1047,3 +1047,19 @@ section.master-demo {
 .master-demo .master-card summary {
   color: #b8d9d0;
 }
+/* Short windows must retain the map and all outcome text. */
+@media (max-height: 620px) {
+  section.master-demo {
+    overflow-y: auto;
+  }
+  .master-workspace {
+    flex: none;
+    min-height: 490px;
+  }
+  .master-workspace > aside {
+    overflow-y: auto;
+  }
+  .master-workspace > aside .master-card {
+    flex-shrink: 0;
+  }
+}
