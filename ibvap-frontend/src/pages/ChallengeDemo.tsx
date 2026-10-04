@@ -118,6 +118,9 @@ function ChallengeRun({
     'none' | 'working' | 'match' | 'mismatch' | 'error'
   >('none')
   const [message, setMessage] = useState('')
+  const [toasts, setToasts] = useState<{ id: number; text: string; kind: string }[]>([])
+  const toastIdRef = useRef(0)
+  const prevEventLen = useRef(0)
   const cryptoGeneration = useRef(0)
   const state = useMemo(
     () => challengeAt(time, mission, faults, faultStarts),
@@ -205,6 +208,43 @@ function ChallengeRun({
     onMissionSelect(id)
     setSelected(id === 'health' ? 'CAM3' : 'Person P-01')
   }
+  // ── Toast notifications for new events ─────────────────────────────────
+  useEffect(() => {
+    const curr = state.events.length
+    if (curr > prevEventLen.current) {
+      const fresh = state.events.slice(prevEventLen.current)
+      prevEventLen.current = curr
+      fresh.slice(-2).forEach(e => {
+        const id = ++toastIdRef.current
+        setToasts(t => [...t.slice(-3), { id, text: e.title, kind: e.kind }])
+        window.setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4500)
+      })
+    }
+  }, [state.events])
+
+  // ── Derived threat level ─────────────────────────────────────────────────
+  const threatLevel =
+    state.risk >= 70 ? 'CRITICAL' :
+    state.risk >= 45 ? 'ELEVATED' :
+    state.risk >= 20 ? 'WATCHFUL' : 'SECURE'
+  const threatColor =
+    state.risk >= 70 ? '#fb7185' :
+    state.risk >= 45 ? '#fbbf24' :
+    state.risk >= 20 ? '#60a5fa' : '#34d399'
+  const threatBg =
+    state.risk >= 70 ? '#1e0610' :
+    state.risk >= 45 ? '#1c1204' :
+    state.risk >= 20 ? '#060e20' : '#061410'
+
+  // ── AI module live confidence (scripted) ─────────────────────────────────
+  const aiModules = [
+    { name: 'YOLOv8', pct: Math.min(99, 91 + Math.round(Math.sin(time * 0.3) * 3)), ok: true },
+    { name: 'ANPR-OCR', pct: state.vehicle ? Math.min(99, 88 + Math.round(Math.cos(time * 0.4) * 4)) : 0, ok: !!state.vehicle },
+    { name: 'Re-ID', pct: Math.min(99, 84 + Math.round(Math.sin(time * 0.2) * 5)), ok: !state.healthOnly },
+    { name: 'PARAKH', pct: state.intrusion ? 100 : Math.min(99, 76 + Math.round(time * 0.2)), ok: true },
+    { name: 'SAKSHAM', pct: state.networkOffline ? 100 : 97, ok: true },
+  ]
+
   function judgeTour() {
     setTime(0)
     clearRun()
@@ -354,6 +394,86 @@ function ChallengeRun({
           <Play size={14} /> 30s judge tour
         </button>
       </header>
+
+      {/* THREAT LEVEL COMMAND BANNER */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 12, marginBottom: 10, padding: '9px 16px', borderRadius: 10,
+        background: threatBg,
+        border: `1px solid ${threatColor}50`,
+        boxShadow: state.risk >= 70 ? `0 0 24px ${threatColor}22, inset 0 1px ${threatColor}20` : `inset 0 1px ${threatColor}10`,
+        transition: 'all 0.6s ease',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 9, height: 9, borderRadius: '50%',
+            background: threatColor,
+            boxShadow: `0 0 10px ${threatColor}, 0 0 22px ${threatColor}70`,
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: threatColor }}>
+            THREAT · {threatLevel}
+          </span>
+          <span style={{ width: 1, height: 14, background: threatColor, opacity: 0.2, display: 'inline-block' }} />
+          <span style={{ fontSize: 10, color: '#5a7888', fontFamily: 'ui-monospace, monospace' }}>
+            Risk <span style={{ color: threatColor, fontWeight: 700 }}>{state.risk}</span>/100
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' as const }}>
+          {[
+            { label: 'CAMERAS', val: state.cameraOffline ? '2/3' : '3/3', ok: !state.cameraOffline },
+            { label: 'UPLINK',  val: state.networkOffline ? 'EDGE' : 'LIVE', ok: !state.networkOffline },
+            { label: 'EVENTS',  val: String(state.events.length), ok: true },
+            { label: 'LATENCY', val: '<300ms', ok: true },
+            { label: 'UPTIME',  val: '99.97%', ok: true },
+          ].map(chip => (
+            <div key={chip.label} style={{
+              display: 'flex', flexDirection: 'column' as const, alignItems: 'center',
+              padding: '3px 9px', borderRadius: 6,
+              background: chip.ok ? '#0a1820' : '#1c1204',
+              border: `1px solid ${chip.ok ? '#1e3345' : '#4a3818'}`,
+              minWidth: 52,
+            }}>
+              <span style={{ fontSize: 7, fontWeight: 700, letterSpacing: 1.2, color: '#3a5868' }}>{chip.label}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: chip.ok ? '#34d399' : '#fbbf24', fontFamily: 'ui-monospace, monospace' }}>{chip.val}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI MODULE LIVE STATUS BAR */}
+      <div style={{
+        display: 'flex', gap: 6, marginBottom: 14, padding: '7px 12px',
+        background: '#060e18', border: '1px solid #131f2e', borderRadius: 8,
+        flexWrap: 'wrap' as const, alignItems: 'center',
+      }}>
+        <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: 1.8, color: '#2e5060', marginRight: 4 }}>
+          AI ENGINES
+        </span>
+        {aiModules.map(m => (
+          <div key={m.name} style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '4px 8px', borderRadius: 5,
+            background: m.ok ? '#09141e' : '#0a0a0a',
+            border: `1px solid ${m.ok ? '#1a3040' : '#2a2a2a'}`,
+          }}>
+            <span style={{ fontSize: 8, fontWeight: 700, color: m.ok ? '#4a8898' : '#3a4040', letterSpacing: 0.5 }}>{m.name}</span>
+            {m.ok ? (
+              <>
+                <div style={{ width: 36, height: 3, background: '#0a1820', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${m.pct}%`, background: m.pct > 90 ? '#34d399' : '#fbbf24', borderRadius: 3, transition: 'width 0.5s' }} />
+                </div>
+                <span style={{ fontSize: 9, fontWeight: 700, color: m.pct > 90 ? '#34d399' : '#fbbf24', fontFamily: 'ui-monospace, monospace' }}>{m.pct}%</span>
+              </>
+            ) : (
+              <span style={{ fontSize: 9, color: '#3a4040' }}>—</span>
+            )}
+          </div>
+        ))}
+        <span style={{ marginLeft: 'auto', fontSize: 8, color: '#2e4858', fontFamily: 'ui-monospace, monospace' }}>
+          EDGE · 30 FPS · {state.events.length} DETECTIONS
+        </span>
+      </div>
 
       <div className="mission-picker" role="group" aria-label="Challenge mission">
         {missions.map((m, i) => (
@@ -968,6 +1088,98 @@ function ChallengeRun({
         </span>
         <span>Stress scenario demonstration ≠ validated real-world performance</span>
       </footer>
+
+      {/* EVENT TOAST NOTIFICATIONS */}
+      <div style={{
+        position: 'fixed', bottom: 24, right: 24, zIndex: 200,
+        display: 'flex', flexDirection: 'column' as const, gap: 8,
+        pointerEvents: 'none',
+      }}>
+        {toasts.map(toast => (
+          <div key={toast.id} style={{
+            background: toast.kind === 'alert' ? '#1a040c' : toast.kind === 'health' ? '#141008' : '#081420',
+            border: `1px solid ${toast.kind === 'alert' ? '#fb718555' : toast.kind === 'health' ? '#fbbf2455' : '#22d3ee40'}`,
+            borderLeft: `3px solid ${toast.kind === 'alert' ? '#fb7185' : toast.kind === 'health' ? '#fbbf24' : '#22d3ee'}`,
+            color: toast.kind === 'alert' ? '#fda4af' : toast.kind === 'health' ? '#fcd34d' : '#7dd3fc',
+            padding: '10px 14px', borderRadius: 9, fontSize: 11, fontWeight: 600,
+            boxShadow: '0 4px 28px #00000070',
+            animation: 'toast-in 0.35s cubic-bezier(0.34,1.56,0.64,1)',
+            maxWidth: 290,
+          }}>
+            <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: 1.5, opacity: 0.6, marginBottom: 3, fontFamily: 'ui-monospace, monospace' }}>
+              PRAHAAR · T+{Math.floor(time)}s
+            </div>
+            {toast.text}
+          </div>
+        ))}
+      </div>
+
+      {/* MISSION COMPLETE OVERLAY */}
+      {time >= CHALLENGE_DURATION && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 150,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: '#00000095', backdropFilter: 'blur(10px)',
+          animation: 'fade-in 0.5s ease',
+        }}>
+          <div style={{
+            background: 'linear-gradient(160deg, #08182a, #050d18)',
+            border: '1px solid #22d3ee40', borderRadius: 18,
+            padding: '44px 52px', maxWidth: 540, width: '90%', textAlign: 'center',
+            boxShadow: '0 0 60px #22d3ee14, 0 24px 100px #00000090',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 3.5, color: '#22d3ee', marginBottom: 14, opacity: 0.8 }}>
+              PRAHAAR · SECTOR 04 · SIMULATION END
+            </div>
+            <div style={{
+              fontSize: 36, fontWeight: 900, marginBottom: 6, letterSpacing: -1.5,
+              background: 'linear-gradient(135deg, #f1f5f9 40%, #67e8f9)',
+              WebkitBackgroundClip: 'text' as const, WebkitTextFillColor: 'transparent',
+            }}>
+              SECTOR SECURED
+            </div>
+            <div style={{ color: '#34d399', fontSize: 12, fontWeight: 700, marginBottom: 20, letterSpacing: 1 }}>
+              FULL INCIDENT LIFECYCLE DEMONSTRATED
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 26 }}>
+              {[
+                { label: 'Risk Score', value: `${state.risk}/100`, color: state.risk >= 70 ? '#fb7185' : '#34d399' },
+                { label: 'Detections', value: String(state.events.length), color: '#22d3ee' },
+                { label: 'Actions', value: String(audit.length), color: '#a78bfa' },
+                { label: 'Evidence', value: seal ? 'SEALED' : 'OPEN', color: seal ? '#34d399' : '#fbbf24' },
+              ].map(stat => (
+                <div key={stat.label} style={{
+                  background: '#06101a', border: '1px solid #1a2e40', borderRadius: 10, padding: '14px 8px',
+                }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: stat.color, letterSpacing: -0.5 }}>{stat.value}</div>
+                  <div style={{ fontSize: 8, color: '#3a5868', marginTop: 5, letterSpacing: 1.2, fontWeight: 700 }}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, justifyContent: 'center', marginBottom: 26 }}>
+              {['PARAKH', 'C7 ANPR', 'Re-ID', 'SUTRA', 'PRAMAAN', 'SAKSHAM', 'MARGDARSHAN'].map(m => (
+                <span key={m} style={{
+                  padding: '3px 9px', borderRadius: 5, background: '#0a1c2a',
+                  border: '1px solid #1e4040', fontSize: 9, fontWeight: 700, color: '#34d399', letterSpacing: 0.8,
+                }}>✓ {m}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button className="stress-button stress-primary"
+                onClick={() => { setTime(0); clearRun(); setPlaying(true) }}>
+                Replay Mission
+              </button>
+              <button className="stress-button" onClick={exportRecord}>
+                Export Evidence
+              </button>
+            </div>
+            <div style={{ fontSize: 9, color: '#263545', marginTop: 18 }}>
+              Scripted simulation · SSB Border Intelligence · SIH Grand Finale
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
