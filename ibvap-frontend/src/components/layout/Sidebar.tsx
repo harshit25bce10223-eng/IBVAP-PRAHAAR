@@ -28,7 +28,7 @@ export function Sidebar() {
     <aside
       className={clsx(
         'flex flex-col h-full flex-shrink-0',
-        'bg-gradient-to-b from-[#0a1826] to-[#07111a] border-r border-white/[0.06]',
+        'bg-gradient-to-b from-[#0b1a14] via-[#091510] to-[#070f0c] border-r border-[#1a3328]/60',
         'transition-all duration-300 ease-in-out',
         sidebarCollapsed ? 'w-[60px]' : 'w-[230px] xl:w-[260px]'
       )}
