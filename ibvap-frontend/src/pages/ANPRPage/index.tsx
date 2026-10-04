@@ -86,9 +86,9 @@ export function ANPRPage() {
   }, [sightings, selectedSightingId, selectSighting])
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-hidden bg-bg">
       {/* Top Operational Header */}
-      <header className="border-b border-[#1e2d40] bg-[#0d1117]/80 px-4 py-3 flex-shrink-0">
+      <header className="border-b border-border bg-surface/80 px-4 py-3 flex-shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg border border-ssb-green/40 bg-ssb-green/10 flex items-center justify-center text-ssb-green-bright">
@@ -109,7 +109,7 @@ export function ANPRPage() {
 
           <div className="flex items-center gap-2">
             {/* Mode Toggle (Mock vs Real) */}
-            <div className="flex items-center rounded-lg border border-[#1e2d40] bg-[#080c12] p-0.5 text-xs font-mono">
+            <div className="flex items-center rounded-lg border border-border bg-bg p-0.5 text-xs font-mono">
               <button
                 onClick={() => setServiceMode('MOCK')}
                 className={`px-2.5 py-1 rounded transition-colors ${
@@ -141,7 +141,7 @@ export function ANPRPage() {
                 fetchProviderHealth()
                 fetchSightings()
               }}
-              className="p-2 rounded-lg border border-[#1e2d40] bg-[#0d1117] text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+              className="p-2 rounded-lg border border-border bg-surface text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
               title="Refresh sightings feed"
             >
               <RefreshCw className={`h-4 w-4 ${sightingsState === 'loading' ? 'animate-spin text-cyan-400' : ''}`} />
@@ -150,7 +150,7 @@ export function ANPRPage() {
         </div>
 
         {/* Operational Warning / Decision Support Banner */}
-        <div className="mt-2.5 flex items-center gap-2 text-[11px] font-mono text-slate-400 bg-[#080c12]/60 px-3 py-1 rounded border border-[#1e2d40]/60">
+        <div className="mt-2.5 flex items-center gap-2 text-[11px] font-mono text-slate-400 bg-bg/60 px-3 py-1 rounded border border-border/60">
           <ShieldAlert className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
           <span>
             <strong className="text-amber-300">DECISION SUPPORT CONTEXT:</strong> OCR plate reads represent probabilistic recognition candidates, not identity verification. Check camera context, angle, and observation history.
@@ -178,10 +178,10 @@ export function ANPRPage() {
         <ANPRFilters />
       </div>
 
-      {/* Main Workspace Layout */}
+      {/* Main Workspace Layout — fills ALL remaining height, no page scroll */}
       <div className="flex-1 min-h-0 flex px-4 pb-4 gap-4 overflow-hidden">
         {/* Left Column: Sighting Feed / Table View / §24 Search Results */}
-        <div className="w-96 flex-shrink-0 flex flex-col border border-[#1e2d40] rounded-xl bg-[#0d1117] overflow-hidden">
+        <div className="w-96 flex-shrink-0 flex flex-col border border-border rounded-xl bg-surface overflow-hidden">
           {searchQuery ? (
             <ANPRSearchResults
               query={searchQuery}
@@ -193,7 +193,7 @@ export function ANPRPage() {
             />
           ) : (
             <>
-              <div className="p-3 border-b border-[#1e2d40] flex items-center justify-between flex-shrink-0 bg-[#080c12]/40">
+              <div className="p-3 border-b border-border flex items-center justify-between flex-shrink-0 bg-bg/40">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono font-semibold uppercase text-slate-300">Live Observation Feed</span>
                   <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
@@ -266,7 +266,7 @@ export function ANPRPage() {
                     <button
                       onClick={fetchMoreSightings}
                       disabled={moreState === 'loading'}
-                      className="w-full py-2 rounded-lg border border-[#1e2d40] bg-[#080c12] text-xs font-mono text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors disabled:opacity-60"
+                      className="w-full py-2 rounded-lg border border-border bg-bg text-xs font-mono text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors disabled:opacity-60"
                     >
                       {moreState === 'loading' ? 'Loading more observations…' : 'Load more observations'}
                     </button>
@@ -278,7 +278,7 @@ export function ANPRPage() {
         </div>
 
         {/* Center / Right Column: Selected Sighting Detail & Intelligence Context */}
-        <div className="flex-1 flex flex-col border border-[#1e2d40] rounded-xl bg-[#0d1117] overflow-hidden">
+        <div className="flex-1 flex flex-col border border-border rounded-xl bg-surface overflow-hidden">
           {selectedSighting ? (
             <SightingDetail sighting={selectedSighting} />
           ) : (
