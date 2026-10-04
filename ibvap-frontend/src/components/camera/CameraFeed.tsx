@@ -87,7 +87,7 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-xl border border-[#1e2d40] bg-black shadow-2xl select-none"
+      className="relative w-full overflow-hidden rounded-xl border border-border bg-black shadow-2xl select-none"
       style={{ aspectRatio: FEED_ASPECT }}
     >
       {/* Background Video Layer */}
@@ -152,15 +152,15 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
         <span className="tabular-nums text-slate-200">{currentTimeStr}</span>
       </div>
 
-      {/* Top Right: Optics Switcher & Telemetry */}
-      <div className="absolute right-2 top-2 z-20 flex items-center gap-1.5">
+      {/* Bottom-left: Optics Switcher */}
+      <div className="absolute left-2 bottom-2 z-20 flex items-center gap-1.5">
         <div className="flex items-center rounded-lg border border-white/10 bg-black/80 p-0.5 text-[9px] font-mono shadow">
           <button
             type="button"
             onClick={() => setOpticMode('OPTICAL')}
             className={clsx(
               'px-2 py-0.5 rounded transition-all',
-              opticMode === 'OPTICAL' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 shadow' : 'text-slate-400 hover:text-slate-200'
+              opticMode === 'OPTICAL' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 shadow' : 'text-slate-500 hover:text-slate-200'
             )}
             title="Standard daytime optical feed"
           >
@@ -171,7 +171,7 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
             onClick={() => setOpticMode('THERMAL')}
             className={clsx(
               'px-2 py-0.5 rounded transition-all',
-              opticMode === 'THERMAL' ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 shadow' : 'text-slate-400 hover:text-slate-200'
+              opticMode === 'THERMAL' ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 shadow' : 'text-slate-500 hover:text-slate-200'
             )}
             title="FLIR Thermal heat signature mode"
           >
@@ -182,15 +182,14 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
             onClick={() => setOpticMode('NVG')}
             className={clsx(
               'px-2 py-0.5 rounded transition-all',
-              opticMode === 'NVG' ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-slate-200'
+              opticMode === 'NVG' ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow' : 'text-slate-500 hover:text-slate-200'
             )}
             title="Night-vision phosphor mode"
           >
             NVG IR
           </button>
         </div>
-
-        <div className="hidden lg:flex items-center px-2 py-0.5 rounded bg-black/80 border border-white/10 font-mono text-[10px] text-slate-400 tabular-nums">
+        <div className="hidden lg:flex items-center px-2 py-0.5 rounded bg-black/80 border border-white/10 font-mono text-[10px] text-slate-500 tabular-nums">
           {camera.resolution.width}×{camera.resolution.height} · {camera.fps} FPS
         </div>
       </div>
@@ -227,56 +226,70 @@ export function CameraFeed({ camera, tracks, isNight, feedState = 'BUFFERING', l
 
 function TrackBox({ track }: { track: TrackVisual }) {
   const bbox = track.bbox
-  const color = track.object_type === 'HUMAN' ? '#22d3ee' : track.object_type === 'VEHICLE' ? '#f59e0b' : '#34d399'
+  const isHuman = track.object_type === 'HUMAN'
+  const isVehicle = track.object_type === 'VEHICLE'
+  const color = isHuman ? '#22d3ee' : isVehicle ? '#f59e0b' : '#34d399'
+  const label = isHuman ? 'PERSON' : isVehicle ? 'VEHICLE' : 'UNKNOWN'
   const x = bbox.x * FEED_VIEWBOX.width
   const y = bbox.y * FEED_VIEWBOX.height
   const w = bbox.width * FEED_VIEWBOX.width
   const h = bbox.height * FEED_VIEWBOX.height
+  const cs = 10 // corner size
+  const conf = (track.confidence * 100).toFixed(0)
 
   return (
     <g>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        fill="none"
-        stroke={color}
-        strokeWidth={2}
-      />
-      {/* ground-contact tick at bottom-center (the representative point) */}
-      <line
-        x1={x + w / 2}
-        y1={y + h}
-        x2={x + w / 2}
-        y2={y + h + 6}
-        stroke={color}
-        strokeWidth={2}
-      />
-      <g transform={`translate(${x}, ${Math.max(0, y - 18)})`}>
-        <rect width={150} height={18} rx={4} fill="#0d1117" fillOpacity={0.9} stroke={color} strokeOpacity={0.5} />
-        <text x={8} y={12.5} fontSize={11} fontFamily="JetBrains Mono, monospace" fill={color}>
-          {track.track_id} · {(track.confidence * 100).toFixed(0)}%
+      {/* Corner markers instead of full rect — much cleaner look */}
+      {/* Top-left */}
+      <path d={`M${x + cs},${y} L${x},${y} L${x},${y + cs}`} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" />
+      {/* Top-right */}
+      <path d={`M${x + w - cs},${y} L${x + w},${y} L${x + w},${y + cs}`} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" />
+      {/* Bottom-left */}
+      <path d={`M${x},${y + h - cs} L${x},${y + h} L${x + cs},${y + h}`} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" />
+      {/* Bottom-right */}
+      <path d={`M${x + w - cs},${y + h} L${x + w},${y + h} L${x + w},${y + h - cs}`} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" />
+      {/* Center crosshair dot */}
+      <circle cx={x + w / 2} cy={y + h / 2} r={2.5} fill={color} opacity={0.6} />
+
+      {/* Label badge — above box */}
+      <g transform={`translate(${x}, ${Math.max(4, y - 22)})`}>
+        <rect width={154} height={20} rx={4} fill="#050e18" fillOpacity={0.92} stroke={color} strokeWidth={1} strokeOpacity={0.7} />
+        {/* Colored type indicator */}
+        <rect width={4} height={20} rx={2} fill={color} opacity={0.8} />
+        <text x={12} y={13.5} fontSize={10} fontFamily="JetBrains Mono, ui-monospace, monospace" fill={color} fontWeight="bold">
+          {label}
+        </text>
+        <text x={72} y={13.5} fontSize={10} fontFamily="JetBrains Mono, ui-monospace, monospace" fill="#94a3b8">
+          {track.track_id}
+        </text>
+        <text x={126} y={13.5} fontSize={10} fontFamily="JetBrains Mono, ui-monospace, monospace" fill={Number(conf) >= 80 ? '#34d399' : '#fbbf24'}>
+          {conf}%
         </text>
       </g>
+
+      {/* Zone warning below */}
       {track.insideZones.length > 0 && (
-        <text
-          x={x + w / 2}
-          y={y + h + 26}
-          textAnchor="middle"
-          fontSize={9}
-          fontFamily="JetBrains Mono, monospace"
-          fill="#f59e0b"
-        >
-          ▲ {track.insideZones.join(' · ')}
-        </text>
+        <g transform={`translate(${x + w / 2}, ${y + h + 8})`}>
+          <rect x={-62} y={0} width={124} height={16} rx={3} fill="#7c2020" fillOpacity={0.85} stroke="#fb7185" strokeWidth={1} />
+          <text textAnchor="middle" y={11} fontSize={9} fontFamily="JetBrains Mono, ui-monospace, monospace" fill="#fb7185" fontWeight="bold">
+            ▲ ZONE: {track.insideZones.join(' · ')}
+          </text>
+        </g>
       )}
     </g>
   )
 }
 
-/** Stylized scene: fence line, ground grid, a couple of structures. */
+/** Clear surveillance-style fallback scene — border terrain, fence, watchtower, road */
 function FeedScene({ isNight }: { isNight: boolean }) {
+  const sky    = isNight ? '#08111c' : '#111f2e'
+  const ground = isNight ? '#0c1520' : '#14202e'
+  const fence  = isNight ? '#2a4060' : '#3a5478'
+  const road   = isNight ? '#121c28' : '#1c2c3c'
+  const label  = isNight ? '#3a6080' : '#4a7898'
+  const grid   = isNight ? '#0f1e2c' : '#182840'
+  const glow   = isNight ? '#1a3a5a' : '#223040'
+
   return (
     <svg
       viewBox={`0 0 ${FEED_VIEWBOX.width} ${FEED_VIEWBOX.height}`}
@@ -284,62 +297,154 @@ function FeedScene({ isNight }: { isNight: boolean }) {
       aria-hidden
     >
       <defs>
-        <linearGradient id="skyline" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={isNight ? '#111c2c' : '#22344a'} />
-          <stop offset="100%" stopColor={isNight ? '#0a1119' : '#151f2c'} />
+        <linearGradient id="ff-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={sky} />
+          <stop offset="100%" stopColor={isNight ? '#060c14' : '#0e1a26'} />
         </linearGradient>
+        <linearGradient id="ff-ground" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={ground} />
+          <stop offset="100%" stopColor={isNight ? '#070e18' : '#101c28'} />
+        </linearGradient>
+        {/* Night starfield scatter */}
+        {isNight && (
+          <radialGradient id="ff-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#1a4060" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#1a4060" stopOpacity="0" />
+          </radialGradient>
+        )}
       </defs>
-      <rect width={FEED_VIEWBOX.width} height={FEED_VIEWBOX.height} fill="url(#skyline)" />
 
-      {/* ground plane */}
-      <path d="M0 470 L1000 470 L1000 562.5 L0 562.5 Z" fill={isNight ? '#0a0f16' : '#121a24'} />
+      {/* Sky */}
+      <rect width={FEED_VIEWBOX.width} height={FEED_VIEWBOX.height * 0.55} fill="url(#ff-sky)" />
 
-      {/* perspective grid */}
-      {Array.from({ length: 12 }).map((_, i) => (
-        <line
-          key={`v${i}`}
-          x1={250 + i * 60}
-          y1={350}
-          x2={50 + i * 100}
-          y2={562.5}
-          stroke={isNight ? '#12202f' : '#1b2a3a'}
-          strokeWidth={1}
-        />
-      ))}
-      {Array.from({ length: 6 }).map((_, i) => (
-        <line
-          key={`h${i}`}
-          x1={0}
-          y1={470 - i * 22}
-          x2={1000}
-          y2={470 - i * 22}
-          stroke={isNight ? '#12202f' : '#1b2a3a'}
-          strokeWidth={1}
-        />
+      {/* Stars (night only) */}
+      {isNight && [
+        [120,40],[280,20],[410,55],[560,30],[700,18],[820,42],[940,28],
+        [60,80],[350,75],[620,65],[850,70],[180,95],[480,88],[730,82],
+      ].map(([sx,sy],i) => (
+        <circle key={i} cx={sx} cy={sy} r={0.8} fill="#a0c8e0" opacity={0.5 + (i % 3) * 0.15} />
       ))}
 
-      {/* physical border fence line */}
+      {/* Tree/hill silhouette */}
       <path
-        d="M0 470 L1000 470"
-        stroke={isNight ? '#2a3f58' : '#38506b'}
-        strokeWidth={2}
-        strokeDasharray="10 6"
+        d={`M0 ${FEED_VIEWBOX.height * 0.38} Q80 ${FEED_VIEWBOX.height * 0.32} 160 ${FEED_VIEWBOX.height * 0.36} T320 ${FEED_VIEWBOX.height * 0.34} T480 ${FEED_VIEWBOX.height * 0.37} T640 ${FEED_VIEWBOX.height * 0.33} T800 ${FEED_VIEWBOX.height * 0.36} T${FEED_VIEWBOX.width} ${FEED_VIEWBOX.height * 0.35} L${FEED_VIEWBOX.width} 0 L0 0Z`}
+        fill={isNight ? '#0a1820' : '#121e2c'}
+        opacity={0.7}
       />
 
-      {/* watch tower + pole */}
-      <g transform="translate(180, 360)" opacity={0.85}>
-        <rect x={0} y={0} width={70} height={110} fill={isNight ? '#1b2735' : '#2a3a4e'} />
-        <rect x={5} y={5} width={60} height={26} fill="#0a1119" />
-        <path d="M35 -30 L0 8 L70 8 Z" fill={isNight ? '#1f2d3d' : '#31445c'} />
-        <line x1={35} y1={-30} x2={35} y2={-52} stroke={isNight ? '#3a5168' : '#4a6482'} strokeWidth={3} />
-        <circle cx={35} cy={-56} r={4} fill={isNight ? '#f59e0b' : '#e11d48'} />
+      {/* Ground */}
+      <rect y={FEED_VIEWBOX.height * 0.55} width={FEED_VIEWBOX.width} height={FEED_VIEWBOX.height * 0.45} fill="url(#ff-ground)" />
+
+      {/* Perspective grid lines on ground */}
+      {Array.from({ length: 10 }, (_, i) => (
+        <line
+          key={`v${i}`}
+          x1={100 + i * 90} y1={FEED_VIEWBOX.height * 0.55}
+          x2={-200 + i * 175} y2={FEED_VIEWBOX.height}
+          stroke={grid} strokeWidth={1} opacity={0.8}
+        />
+      ))}
+      {Array.from({ length: 5 }, (_, i) => (
+        <line
+          key={`h${i}`}
+          x1={0} y1={FEED_VIEWBOX.height * 0.55 + i * (FEED_VIEWBOX.height * 0.45 / 5)}
+          x2={FEED_VIEWBOX.width} y2={FEED_VIEWBOX.height * 0.55 + i * (FEED_VIEWBOX.height * 0.45 / 5)}
+          stroke={grid} strokeWidth={1} opacity={0.6}
+        />
+      ))}
+
+      {/* Patrol road */}
+      <path
+        d={`M${FEED_VIEWBOX.width * 0.25} ${FEED_VIEWBOX.height} L${FEED_VIEWBOX.width * 0.38} ${FEED_VIEWBOX.height * 0.58} L${FEED_VIEWBOX.width * 0.72} ${FEED_VIEWBOX.height * 0.58} L${FEED_VIEWBOX.width * 0.85} ${FEED_VIEWBOX.height}`}
+        fill={road} opacity={0.9}
+      />
+      {/* Road center line */}
+      <path
+        d={`M${FEED_VIEWBOX.width * 0.315} ${FEED_VIEWBOX.height * 0.85} L${FEED_VIEWBOX.width * 0.385} ${FEED_VIEWBOX.height * 0.6}`}
+        stroke={isNight ? '#1a3040' : '#253848'} strokeWidth={2} strokeDasharray="8 6" opacity={0.6}
+      />
+
+      {/* Border fence line */}
+      <line
+        x1={0} y1={FEED_VIEWBOX.height * 0.58}
+        x2={FEED_VIEWBOX.width} y2={FEED_VIEWBOX.height * 0.58}
+        stroke={fence} strokeWidth={2.5}
+      />
+      {/* Fence posts */}
+      {Array.from({ length: 16 }, (_, i) => (
+        <g key={i}>
+          <line
+            x1={60 + i * 62} y1={FEED_VIEWBOX.height * 0.52}
+            x2={60 + i * 62} y2={FEED_VIEWBOX.height * 0.6}
+            stroke={fence} strokeWidth={2}
+          />
+          <line
+            x1={60 + i * 62 - 8} y1={FEED_VIEWBOX.height * 0.52}
+            x2={60 + i * 62 + 8} y2={FEED_VIEWBOX.height * 0.52}
+            stroke={fence} strokeWidth={1.5} opacity={0.6}
+          />
+        </g>
+      ))}
+      {/* Fence label */}
+      <rect x={8} y={FEED_VIEWBOX.height * 0.505} width={140} height={16} rx={3} fill="#050e18" fillOpacity={0.85} />
+      <text x={14} y={FEED_VIEWBOX.height * 0.521} fontSize={10} fontFamily="ui-monospace, monospace" fill={fence} fontWeight="600" dominantBaseline="middle">
+        PARAKH VIRTUAL FENCE
+      </text>
+
+      {/* Watchtower — left */}
+      <g transform={`translate(148, ${FEED_VIEWBOX.height * 0.35})`}>
+        {/* Tower body */}
+        <rect x={0} y={0} width={52} height={90} fill={isNight ? '#142030' : '#1e3040'} />
+        {/* Windows */}
+        <rect x={6} y={8} width={18} height={14} fill="#08131e" stroke={glow} strokeWidth={0.5} />
+        <rect x={28} y={8} width={18} height={14} fill="#08131e" stroke={glow} strokeWidth={0.5} />
+        {/* Roof */}
+        <path d="M-6 0 L26 -20 L58 0Z" fill={isNight ? '#1a2e3e' : '#263a4e'} />
+        {/* Antenna */}
+        <line x1={26} y1={-20} x2={26} y2={-38} stroke={isNight ? '#3a6080' : '#4a7090'} strokeWidth={2} />
+        {/* Light */}
+        <circle cx={26} cy={-40} r={4} fill={isNight ? '#f59e0b' : '#e11d48'} opacity={0.9} />
+        {isNight && <circle cx={26} cy={-40} r={10} fill="#f59e0b" opacity={0.15} />}
+        {/* CCTV arm */}
+        <line x1={52} y1={15} x2={68} y2={10} stroke={fence} strokeWidth={2} />
+        <rect x={68} y={6} width={12} height={8} rx={2} fill={isNight ? '#22d3ee' : '#2a90b0'} opacity={0.8} />
       </g>
 
-      {/* dirt track */}
-      <path d="M420 562.5 Q520 540 660 520 Q780 502 1000 500 L1000 562.5 Z" fill={isNight ? '#141d29' : '#20303f'} />
+      {/* Label: ENTRY POST */}
+      <rect x={140} y={FEED_VIEWBOX.height * 0.35 + 92} width={70} height={14} rx={3} fill="#050e18" fillOpacity={0.8} />
+      <text x={175} y={FEED_VIEWBOX.height * 0.35 + 102} textAnchor="middle" fontSize={9} fontFamily="ui-monospace, monospace" fill={label}>
+        ENTRY POST
+      </text>
 
-      {/* vignette */}
-      <rect width={FEED_VIEWBOX.width} height={FEED_VIEWBOX.height} fill="url(#skyline)" opacity={0} />
+      {/* Perimeter light cone (night) */}
+      {isNight && (
+        <path
+          d={`M174 ${FEED_VIEWBOX.height * 0.38} L60 ${FEED_VIEWBOX.height * 0.65} L290 ${FEED_VIEWBOX.height * 0.65}Z`}
+          fill="#f59e0b" opacity={0.04}
+        />
+      )}
+
+      {/* HUD corner reticle */}
+      <g opacity={0.3}>
+        <path d="M16 16 L16 28 M16 16 L28 16" stroke={isNight ? '#22d3ee' : '#3a7090'} strokeWidth={1.5} strokeLinecap="round" />
+        <path d={`M${FEED_VIEWBOX.width - 16} 16 L${FEED_VIEWBOX.width - 28} 16 M${FEED_VIEWBOX.width - 16} 16 L${FEED_VIEWBOX.width - 16} 28`} stroke={isNight ? '#22d3ee' : '#3a7090'} strokeWidth={1.5} strokeLinecap="round" />
+        <path d={`M16 ${FEED_VIEWBOX.height - 16} L28 ${FEED_VIEWBOX.height - 16} M16 ${FEED_VIEWBOX.height - 16} L16 ${FEED_VIEWBOX.height - 28}`} stroke={isNight ? '#22d3ee' : '#3a7090'} strokeWidth={1.5} strokeLinecap="round" />
+        <path d={`M${FEED_VIEWBOX.width - 16} ${FEED_VIEWBOX.height - 16} L${FEED_VIEWBOX.width - 28} ${FEED_VIEWBOX.height - 16} M${FEED_VIEWBOX.width - 16} ${FEED_VIEWBOX.height - 16} L${FEED_VIEWBOX.width - 16} ${FEED_VIEWBOX.height - 28}`} stroke={isNight ? '#22d3ee' : '#3a7090'} strokeWidth={1.5} strokeLinecap="round" />
+      </g>
+
+      {/* Mode label bottom-right */}
+      <rect x={FEED_VIEWBOX.width - 130} y={FEED_VIEWBOX.height - 26} width={122} height={18} rx={4} fill="#050e18" fillOpacity={0.85} />
+      <text
+        x={FEED_VIEWBOX.width - 69}
+        y={FEED_VIEWBOX.height - 14}
+        textAnchor="middle"
+        fontSize={10}
+        fontFamily="ui-monospace, monospace"
+        fill={isNight ? '#34d399' : '#60a8c8'}
+        fontWeight="600"
+      >
+        {isNight ? 'NVG IR · STANDBY' : 'OPTICAL · STANDBY'}
+      </text>
     </svg>
   )
 }

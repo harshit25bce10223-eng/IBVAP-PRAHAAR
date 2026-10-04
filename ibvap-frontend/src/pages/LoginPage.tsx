@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Lock, Mail, AlertTriangle, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/hooks'
 import { Button } from '@/components/ui'
+import './login.css'
 
 const DEMO_ACCOUNTS = [
   {
@@ -30,6 +31,59 @@ const DEMO_ACCOUNTS = [
     description: 'Full administrative, compliance & cryptographic ledger access',
   },
 ]
+
+/** Decorative brand artwork only; no connection to camera or inference state. */
+function LoginLandscape() {
+  return (
+    <div className="login-landscape" aria-hidden="true">
+      <svg viewBox="0 0 560 200" fill="none" focusable="false">
+        <defs>
+          <linearGradient id="login-sky" x2="0" y2="200" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#253b2e" /><stop offset="1" stopColor="#101c17" />
+          </linearGradient>
+          <linearGradient id="login-beam" x1="136" y1="70" x2="520" y2="70" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#dbe3b5" stopOpacity=".32" /><stop offset="1" stopColor="#dbe3b5" stopOpacity="0" />
+          </linearGradient>
+          <radialGradient id="login-moon">
+            <stop stopColor="#e4e5c6" stopOpacity=".15" /><stop offset="1" stopColor="#e4e5c6" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <path fill="url(#login-sky)" d="M0 0h560v200H0z" />
+        <circle cx="434" cy="44" r="56" fill="url(#login-moon)" />
+        <circle cx="434" cy="44" r="13" fill="#dbe0bc" opacity=".8" />
+        <g fill="#dbe0bc" opacity=".55">
+          <circle cx="54" cy="29" r="1" /><circle cx="252" cy="22" r="1.2" />
+          <circle cx="338" cy="48" r="1" /><circle cx="499" cy="25" r="1" />
+        </g>
+        <path d="M0 143 78 104 127 127 218 48 269 104 329 69 398 121 457 94 560 144V200H0Z" fill="#3d5340" />
+        <path d="m190 79 28-31 28 31-18-6-10 9-12-11Z" fill="#a7b593" opacity=".65" />
+        <path d="M0 165 62 139 149 165 265 118 356 150 435 115 560 158V200H0Z" fill="#273e2b" />
+        <path d="M0 185Q114 149 224 177T440 164T560 185V200H0Z" fill="#152a20" />
+        <path d="M352 141q-80 18-25 30t-23 29" stroke="#99ad90" strokeWidth="3" opacity=".4" />
+        <g className="login-light-beam">
+          <path d="M136 67 554 2V166Z" fill="url(#login-beam)" />
+          <path d="m136 67 418-65" stroke="#dbe3b5" strokeOpacity=".13" />
+        </g>
+        <g stroke="#acb78c" strokeWidth="2" strokeLinejoin="round">
+          <path d="m98 177 11-72h29l13 72M105 129l38 31m-4-38-36 38M111 105l28 24" />
+          <path d="M96 105h55V79H96z" fill="#14281e" />
+          <path d="m90 79 33-18 35 18Z" fill="#354d36" />
+          <path d="M104 88h11v10h-11zm27 0h11v10h-11z" fill="#bdcb91" stroke="none" />
+          <path d="M124 60V43m-6 0h12" />
+          <path d="m132 65 16-4 3 6-17 5Z" fill="#c2cb99" />
+        </g>
+        <g stroke="#c2cb99" strokeWidth="1.4" fill="none" className="login-signal">
+          <path d="M132 39q8 4 8 11m-4-18q12 5 12 17" />
+        </g>
+        <g fill="#0d2118">
+          <path d="m43 123-17 34h10l-16 21h46l-16-21h10Zm440-8-18 36h11l-17 25h48l-17-25h11Zm41 24-14 28h8l-13 19h38l-13-19h8Z" />
+        </g>
+        <path d="M18 188h524" stroke="#c2cb99" strokeOpacity=".15" />
+      </svg>
+      <div className="login-landscape-caption"><span>Inspired by the PRAHAAR emblem</span><span>Illustrative scene</span></div>
+    </div>
+  )
+}
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -79,7 +133,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#060A10] flex overflow-hidden relative">
+    <div className="login-experience min-h-screen w-full bg-bg flex overflow-hidden relative">
 
       {/* ── LEFT PANEL — PRAHAAR Branding ── */}
       <div className="hidden lg:flex lg:w-[52%] flex-col items-center justify-center relative overflow-hidden">
@@ -87,46 +141,45 @@ export function LoginPage() {
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: `linear-gradient(#2FD5E0 1px, transparent 1px), linear-gradient(90deg, #2FD5E0 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(#c2cb99 1px, transparent 1px), linear-gradient(90deg, #c2cb99 1px, transparent 1px)`,
             backgroundSize: '48px 48px',
           }}
         />
 
         {/* Deep glow blobs */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-brand/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-500/8 rounded-full blur-[100px] translate-x-1/4 translate-y-1/4 pointer-events-none" />
 
         {/* Scanline overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(47,213,224,0.012) 2px, rgba(47,213,224,0.012) 4px)`,
+            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(194,203,153,0.012) 2px, rgba(194,203,153,0.012) 4px)`,
           }}
         />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center px-12 max-w-xl">
+        <div className="login-brand-content relative z-10 flex flex-col items-center text-center px-12 py-8 max-w-xl">
           {/* Logo */}
-          <div className="relative mb-8">
+          <div className="relative mb-4">
             {/* Glow ring behind logo */}
-            <div className="absolute inset-0 rounded-full bg-cyan-400/10 blur-2xl scale-125" />
-            <div className="relative w-44 h-44 rounded-full overflow-hidden border-2 border-cyan-500/40 shadow-[0_0_60px_rgba(47,213,224,0.25),0_0_120px_rgba(47,213,224,0.08)]">
+            <div className="absolute inset-0 rounded-full bg-brand/10 blur-2xl scale-125" />
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-brand/40 shadow-[0_0_60px_rgba(194,203,153,0.15)]">
               <img
                 src="/prahaar-logo.jpg"
                 alt="PRAHAAR Logo"
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Live pulse ring */}
-            <span className="absolute bottom-3 right-3 h-4 w-4 rounded-full border-2 border-[#060A10] bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(63,203,140,0.8)]" />
           </div>
 
           {/* PRAHAAR wordmark */}
-          <div className="mb-2">
-            <h1 className="text-6xl font-black tracking-tight text-white leading-none">
-              PRA<span className="text-cyan-400">HAAR</span>
+          <div className="login-wordmark mb-2">
+            <span className="login-eyebrow">TEAM APEX CODE / SIH 2026</span>
+            <h1 className="text-5xl font-black tracking-tight text-white leading-none">
+              PRA<span className="text-brand">HAAR</span>
             </h1>
-            <p className="text-3xl font-bold text-cyan-300/60 tracking-[0.3em] mt-1" lang="hi">
+            <p className="text-3xl font-bold text-brand tracking-[0.3em] mt-1" lang="hi">
               प्रहार
             </p>
           </div>
@@ -135,41 +188,11 @@ export function LoginPage() {
           <p className="text-xs font-mono text-slate-400 uppercase tracking-[0.25em] mb-1">
             Intelligent Border Video Analytics Platform
           </p>
-          <p className="text-[11px] font-mono text-slate-500 tracking-wider mb-8">
+          <p className="text-[11px] font-mono text-slate-500 tracking-wider mb-6">
             Sashastra Seema Bal · Smart India Hackathon 2026
           </p>
 
-          {/* Feature pills */}
-          <div className="flex flex-wrap gap-2 justify-center mb-10">
-            {[
-              'Virtual Fence Engine',
-              'AI Risk Scoring',
-              'Multi-Camera Tracking',
-              'ANPR Intelligence',
-              'Tamper-Evident Ledger',
-              'GIS Digital Twin',
-            ].map((f) => (
-              <span
-                key={f}
-                className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-300/70"
-              >
-                {f}
-              </span>
-            ))}
-          </div>
-
-          {/* Status bar */}
-          <div className="w-full rounded-xl border border-[#1e2d40] bg-[#0d131d]/60 px-5 py-3 flex items-center justify-between backdrop-blur">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(63,203,140,0.8)]" />
-              <span className="text-[11px] font-mono text-emerald-300">SYSTEM OPERATIONAL</span>
-            </div>
-            <div className="flex items-center gap-3 text-[10px] font-mono text-slate-500">
-              <span>7 Components Active</span>
-              <span className="text-slate-600">|</span>
-              <span>PHASE 2</span>
-            </div>
-          </div>
+          <LoginLandscape />
 
           {/* Bottom classification strip */}
           <div className="mt-8 text-[9px] font-mono text-slate-600 uppercase tracking-[0.3em] flex items-center gap-3">
@@ -186,36 +209,37 @@ export function LoginPage() {
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none lg:hidden"
           style={{
-            backgroundImage: `linear-gradient(#2FD5E0 1px, transparent 1px), linear-gradient(90deg, #2FD5E0 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(#c2cb99 1px, transparent 1px), linear-gradient(90deg, #c2cb99 1px, transparent 1px)`,
             backgroundSize: '40px 40px',
           }}
         />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none lg:hidden" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-brand/8 rounded-full blur-3xl pointer-events-none lg:hidden" />
 
         <div className="w-full max-w-sm relative z-10">
 
           {/* Mobile logo + title (hidden on desktop) */}
           <div className="flex flex-col items-center text-center mb-8 lg:hidden">
             <div className="relative mb-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-cyan-500/40 shadow-[0_0_30px_rgba(47,213,224,0.2)]">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-brand/40 shadow-[0_0_30px_rgba(194,203,153,0.2)]">
                 <img src="/prahaar-logo.jpg" alt="PRAHAAR" className="w-full h-full object-cover" />
               </div>
-              <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-[#060A10] animate-pulse" />
+              <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-bg animate-pulse" />
             </div>
             <h1 className="text-3xl font-black text-white">
-              PRA<span className="text-cyan-400">HAAR</span>
+              PRA<span className="text-brand">HAAR</span>
             </h1>
-            <p className="text-sm text-cyan-300/50 font-bold tracking-[0.3em]" lang="hi">प्रहार</p>
+            <p className="text-sm text-brand font-bold tracking-[0.3em]" lang="hi">प्रहार</p>
             <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">
               Intelligent Border Video Analytics
             </p>
           </div>
 
           {/* Card */}
-          <div className="bg-[#0d131d] border border-[#1e2d40] rounded-2xl p-6 shadow-2xl">
+          <div className="login-access-card bg-surface border border-border rounded-2xl p-6 shadow-2xl">
             <div className="mb-6">
-              <h2 className="text-base font-semibold text-white">Command Console Access</h2>
-              <p className="text-[11px] text-slate-500 mt-0.5 font-mono">Authenticate to begin surveillance operations</p>
+              <div className="login-form-eyebrow"><Lock size={13} aria-hidden="true" /> ACCOUNT ACCESS</div>
+              <h2 className="text-2xl font-semibold tracking-tight text-white">Welcome to PRAHAAR.</h2>
+              <p className="text-sm text-slate-400 mt-2">Sign in to your workspace, or choose a demo profile below.</p>
             </div>
 
             {/* Session expired banner */}
@@ -253,7 +277,7 @@ export function LoginPage() {
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setFormError(null); clearError() }}
                     placeholder="operator@prhaar.local"
-                    className="w-full rounded-lg border border-[#1e2d40] bg-[#080c12] pl-9 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400/50 transition-colors"
+                    className="w-full rounded-lg border border-border bg-bg pl-9 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/50 transition-colors"
                     required
                   />
                 </div>
@@ -274,7 +298,7 @@ export function LoginPage() {
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setFormError(null); clearError() }}
                     placeholder="••••••••••••"
-                    className="w-full rounded-lg border border-[#1e2d40] bg-[#080c12] pl-9 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400/50 transition-colors"
+                    className="w-full rounded-lg border border-border bg-bg pl-9 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/50 transition-colors"
                     required
                   />
                   <button
@@ -302,12 +326,12 @@ export function LoginPage() {
             </form>
 
             {/* Demo accounts */}
-            <div className="mt-6 pt-5 border-t border-[#1e2d40]">
+            <div className="mt-6 pt-5 border-t border-border">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                   Demo Profiles
                 </span>
-                <span className="text-[10px] font-mono text-cyan-400/80 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                <span className="text-[10px] font-mono text-brand/80 bg-brand/10 px-2 py-0.5 rounded border border-brand/20">
                   Judge Access
                 </span>
               </div>
@@ -322,8 +346,8 @@ export function LoginPage() {
                       onClick={() => handleSelectDemo(acc.email, acc.password)}
                       className={`w-full text-left p-2.5 rounded-xl border transition-all duration-150 flex items-center justify-between gap-2 ${
                         isSelected
-                          ? 'border-cyan-500/50 bg-cyan-500/10 text-slate-100'
-                          : 'border-[#1e2d40] bg-[#080c12]/60 hover:bg-[#141d2c] hover:border-slate-700 text-slate-400'
+                          ? 'border-brand/50 bg-brand/10 text-slate-100'
+                          : 'border-border bg-bg/60 hover:bg-ssb-navy-raised hover:border-slate-700 text-slate-400'
                       }`}
                     >
                       <div className="min-w-0 flex-1">
@@ -331,10 +355,10 @@ export function LoginPage() {
                           <span className="text-xs font-semibold text-slate-200">{acc.role}</span>
                           <span className="text-[10px] font-mono text-slate-500">({acc.badge})</span>
                         </div>
-                        <p className="text-[10px] text-slate-500 truncate mt-0.5">{acc.description}</p>
+                        <p className="text-[11px] leading-relaxed text-slate-400 whitespace-normal mt-0.5">{acc.description}</p>
                       </div>
                       {isSelected ? (
-                        <CheckCircle2 className="h-4 w-4 text-cyan-400 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-brand shrink-0" />
                       ) : (
                         <span className="text-[10px] font-mono text-slate-600 shrink-0">Select</span>
                       )}
@@ -357,7 +381,7 @@ export function LoginPage() {
       </div>
 
       {/* Vertical divider between panels */}
-      <div className="hidden lg:block absolute left-[52%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent" />
+      <div className="hidden lg:block absolute left-[52%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-brand/20 to-transparent" />
     </div>
   )
 }
