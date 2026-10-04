@@ -37,7 +37,7 @@ export function ProvenanceChain({ chain, evidenceId, className }: ProvenanceChai
         <span className="font-mono text-slate-400">{chain.length} stages</span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-[#1e2d40] bg-[#080c12] p-2.5">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border bg-bg p-2.5">
         {chain.map((step, idx) => {
           const Icon = getIconForStep(step)
           const isLast = idx === chain.length - 1

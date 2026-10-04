@@ -45,7 +45,7 @@ function watchlistBadge(status: VehicleSighting['watchlistStatus']) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4">
+    <section className="rounded-xl border border-border bg-surface p-4">
       <h3 className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-3 border-b border-slate-800/60 pb-1.5">
         {title}
       </h3>
@@ -65,10 +65,10 @@ function CropBlock({ label, url, alt }: { label: string; url: string | null; alt
           src={url}
           alt={alt}
           loading="lazy"
-          className="w-full h-24 object-cover rounded-lg border border-[#1e2d40] bg-[#080c12]"
+          className="w-full h-24 object-cover rounded-lg border border-border bg-bg"
         />
       ) : (
-        <div className="h-24 rounded-lg border border-dashed border-[#1e2d40] bg-[#080c12] flex items-center justify-center">
+        <div className="h-24 rounded-lg border border-dashed border-border bg-bg flex items-center justify-center">
           <span className="text-[10px] font-mono text-slate-600">CONTENT UNAVAILABLE</span>
         </div>
       )}
@@ -247,7 +247,7 @@ export function SightingDetail({ sighting }: SightingDetailProps) {
       <Section title="08 · Event / Correlation">
         <div className="space-y-2">
           {sighting.eventRef ? (
-            <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+            <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
                 <span className="font-mono text-slate-200 text-xs">{sighting.eventRef}</span>
@@ -260,7 +260,7 @@ export function SightingDetail({ sighting }: SightingDetailProps) {
             <EmptyRow text="No event reference recorded." />
           )}
           {sighting.correlationRef ? (
-            <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+            <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
               <div className="flex items-center gap-2">
                 <Activity className="h-3.5 w-3.5 text-purple-400" />
                 <span className="font-mono text-slate-200 text-xs">{sighting.correlationRef}</span>
@@ -281,7 +281,7 @@ export function SightingDetail({ sighting }: SightingDetailProps) {
       {/* 09 — Incident */}
       <Section title="09 · Incident">
         {sighting.incidentRef ? (
-          <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
             <div className="flex items-center gap-2">
               <Shield className="h-3.5 w-3.5 text-red-400" />
               <span className="font-mono text-slate-200 text-xs">{sighting.incidentRef}</span>
@@ -298,7 +298,7 @@ export function SightingDetail({ sighting }: SightingDetailProps) {
       {/* 10 — Evidence (§22) */}
       <Section title="10 · Evidence">
         {sighting.evidenceRef ? (
-          <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
             <div className="flex items-center gap-2">
               <FileCheck className="h-3.5 w-3.5 text-emerald-400" />
               <span className="font-mono text-slate-200 text-xs">{sighting.evidenceRef}</span>

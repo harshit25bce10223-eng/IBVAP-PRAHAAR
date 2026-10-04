@@ -24,7 +24,7 @@ interface TrackSummaryProps {
 export function TrackSummary({ summary, demo = false, className }: TrackSummaryProps) {
   if (!summary) {
     return (
-      <div className={clsx('rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4', className)} role="status">
+      <div className={clsx('rounded-xl border border-border bg-surface p-4', className)} role="status">
         <p className="text-[11px] text-slate-500">Track summary unavailable.</p>
       </div>
     )
@@ -39,7 +39,7 @@ export function TrackSummary({ summary, demo = false, className }: TrackSummaryP
     .map(s => ({ label: formatTrackStatus(s), value: summary.byStatus[s] ?? 0 }))
 
   return (
-    <div className={clsx('rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4', className)} aria-label="Active tracks summary">
+    <div className={clsx('rounded-xl border border-border bg-surface p-4', className)} aria-label="Active tracks summary">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">Active Tracks</h3>
         <span className="font-mono text-xs text-slate-400">{summary.totalActive}</span>

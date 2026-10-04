@@ -13,6 +13,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { useCameraStore, useHealthStore } from '@/store'
+import type { HealthEntryState } from '@/store'
 import {
   CameraFleetSummary,
   CameraHealthTable,
@@ -57,6 +58,17 @@ export function CameraHealthPage() {
 
   const inspectingHealth = inspectingCameraId ? healthRecords[inspectingCameraId] ?? null : null
 
+  // Per-camera provider state (idle/loading/ready/error/last-known) so the
+  // table can render honest unavailable / last-known presentation instead of
+  // implying the camera is fine when telemetry never arrived (§35).
+  const entryStates = useMemo(() => {
+    const map: Record<string, { state: HealthEntryState; error: string | null }> = {}
+    for (const [id, entry] of Object.entries(healthEntries)) {
+      map[id] = { state: entry.state, error: entry.error }
+    }
+    return map
+  }, [healthEntries])
+
   // Refresh handler
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true)
@@ -67,10 +79,45 @@ export function CameraHealthPage() {
     }
   }, [cameraIds, refreshHealth])
 
-  const overallSource = healthList[0]?.source ?? 'DEMO'
+  // Header telemetry badge — reflects what actually arrived, never a
+  // reassuring default: DEMO fixtures, full live coverage, partial coverage
+  // (some cameras unavailable / last-known), or nothing at all (§36).
+  const telemetryBadge = useMemo(() => {
+    if (healthList.length === 0) {
+      const failed = Object.values(healthEntries).filter(e => e.state === 'error').length
+      return failed > 0
+        ? {
+            label: 'TELEMETRY UNAVAILABLE',
+            dot: 'bg-rose-400',
+            title: `${failed} camera(s) failed to report`,
+          }
+        : { label: 'AWAITING TELEMETRY', dot: 'bg-amber-400', title: 'Fetching camera health…' }
+    }
+    const source = healthList[0]?.source
+    if (source === 'DEMO') {
+      return { label: 'DEMO FIXTURES', dot: 'bg-cyan-400', title: 'Render fixtures — not live telemetry' }
+    }
+    if (source === 'UNAVAILABLE') {
+      return { label: 'TELEMETRY UNAVAILABLE', dot: 'bg-rose-400', title: 'Backend unreachable' }
+    }
+    const unavailable = cameraIds.length - healthList.length
+    const storeLastKnown = Object.values(healthEntries).filter(e => e.state === 'last-known').length
+    // Backend may itself label a record LAST_KNOWN (>60s old) — the header
+    // must not claim full live freshness in that case either.
+    const apiLastKnown = healthList.filter(h => h.source === 'LAST_KNOWN').length
+    const lastKnown = storeLastKnown + apiLastKnown
+    if (unavailable + lastKnown > 0) {
+      return {
+        label: 'LIVE TELEMETRY · PARTIAL',
+        dot: 'bg-amber-400',
+        title: `${unavailable} unavailable · ${lastKnown} last-known`,
+      }
+    }
+    return { label: 'LIVE TELEMETRY', dot: 'bg-prhaar-good', title: 'All cameras reporting' }
+  }, [healthEntries, healthList, cameraIds.length])
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto bg-[#080B10] p-4 lg:p-6 gap-5">
+    <div className="h-full flex flex-col overflow-y-auto bg-bg p-4 lg:p-6 gap-5">
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
         <div>
@@ -89,11 +136,12 @@ export function CameraHealthPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-white/10 bg-[#0F141C] text-[11px] font-mono text-slate-400">
-            <span className="w-2 h-2 rounded-full bg-prhaar-good animate-pulse" />
-            <span className="uppercase text-slate-300">
-              {overallSource === 'DEMO' ? 'DEMO FIXTURES' : 'LIVE TELEMETRY'}
-            </span>
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-white/10 bg-surface text-[11px] font-mono text-slate-400"
+            title={telemetryBadge.title}
+          >
+            <span className={`w-2 h-2 rounded-full ${telemetryBadge.dot}`} />
+            <span className="uppercase text-slate-300">{telemetryBadge.label}</span>
           </div>
 
           <Button
@@ -123,6 +171,7 @@ export function CameraHealthPage() {
         <CameraHealthTable
           cameras={cameras}
           healthRecords={healthRecords}
+          entryStates={entryStates}
           selectedFilter={selectedFilter}
           selectedCameraId={inspectingCameraId}
           onSelectCamera={id => setInspectingCameraId(id)}
@@ -131,7 +180,7 @@ export function CameraHealthPage() {
 
       {/* ── Camera Health Detail Drawer (12 Sections) ───────────────────────── */}
       <Drawer
-        open={Boolean(inspectingCameraId && inspectingHealth)}
+        open={Boolean(inspectingCameraId)}
         onClose={() => setInspectingCameraId(null)}
         title={inspectingCameraId ? `Sensor Health · ${inspectingCameraId}` : 'Sensor Health'}
         width="w-[520px]"
@@ -148,6 +197,11 @@ export function CameraHealthPage() {
           ) : (
             <div className="py-8 text-center text-slate-500 font-mono text-xs">
               No health telemetry available for this sensor.
+              {inspectingCameraId && entryStates[inspectingCameraId]?.error && (
+                <span className="block mt-2 text-amber-400/80">
+                  {entryStates[inspectingCameraId].error}
+                </span>
+              )}
             </div>
           )}
         </div>

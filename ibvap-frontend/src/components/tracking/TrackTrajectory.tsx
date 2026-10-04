@@ -140,7 +140,7 @@ export function TrackTrajectory({
     <div className="relative w-full h-full select-none overflow-hidden bg-[#070B11]">
       {/* ── Tactical HUD Top Bar ── */}
       <div className="absolute top-2 left-3 right-3 z-10 flex items-center justify-between text-[10px] font-mono pointer-events-auto">
-        <div className="flex items-center gap-2 bg-[#0C121D]/80 border border-[#1e2d40] px-2.5 py-1 rounded backdrop-blur">
+        <div className="flex items-center gap-2 bg-[#0C121D]/80 border border-border px-2.5 py-1 rounded backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_6px_rgba(47,213,224,0.8)]" />
           <span className="text-cyan-300 font-semibold uppercase tracking-wider">
             {viewMode === 'RADAR' ? 'TACTICAL RADAR VECTOR' : 'CAMERA FOV PLANE (16:9)'}
@@ -152,7 +152,7 @@ export function TrackTrajectory({
         </div>
 
         {/* Mode Switcher */}
-        <div className="flex items-center gap-1 bg-[#0C121D]/90 border border-[#1e2d40] p-0.5 rounded">
+        <div className="flex items-center gap-1 bg-[#0C121D]/90 border border-border p-0.5 rounded">
           <button
             type="button"
             onClick={() => setViewMode('RADAR')}
@@ -392,7 +392,7 @@ export function TrackTrajectory({
 
       {/* ── Tactical HUD Bottom Telemetry Strip ── */}
       <div className="absolute bottom-1.5 left-3 right-3 z-10 flex items-center justify-between text-[10px] font-mono pointer-events-none text-slate-400">
-        <div className="flex items-center gap-3 bg-[#0C121D]/80 border border-[#1e2d40] px-2.5 py-1 rounded backdrop-blur">
+        <div className="flex items-center gap-3 bg-[#0C121D]/80 border border-border px-2.5 py-1 rounded backdrop-blur">
           <span>POINTS: <strong className="text-cyan-300">{trailPoints.length}</strong></span>
           <span className="text-slate-600">|</span>
           <span>EST. PATH: <strong className="text-slate-200">~{estDisplacement}m</strong></span>
@@ -400,7 +400,7 @@ export function TrackTrajectory({
           <span>HEADING: <strong className="text-emerald-400">{track.direction || 'NE'}</strong></span>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#0C121D]/80 border border-[#1e2d40] px-2.5 py-1 rounded backdrop-blur">
+        <div className="flex items-center gap-2 bg-[#0C121D]/80 border border-border px-2.5 py-1 rounded backdrop-blur">
           <Compass className="h-3 w-3 text-cyan-400" />
           <span>VELOCITY: <strong className="text-cyan-300">{track.speed ? formatSpeed(track.speed) : '1.4 m/s'}</strong></span>
           <span className="text-slate-600">|</span>

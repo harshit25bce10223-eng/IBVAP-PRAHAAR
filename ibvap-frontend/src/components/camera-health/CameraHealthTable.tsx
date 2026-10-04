@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import type { CameraHealth, CameraHealthStatus } from '@/types/cameraHealth'
 import type { CameraDetail } from '@/types/camera'
+import type { HealthEntryState } from '@/store'
 import { CameraHealthBadge } from './CameraHealthBadge'
 import { formatAge, formatMetricValue } from './healthFormat'
 import { toneForStatus, TONE } from './healthTone'
@@ -23,6 +24,12 @@ import { toneForStatus, TONE } from './healthTone'
 export interface CameraHealthTableProps {
   cameras: CameraDetail[]
   healthRecords: Record<string, CameraHealth>
+  /**
+   * Provider state per camera (idle/loading/ready/error/last-known). Used to
+   * render honest UNAVAILABLE / last-known presentation instead of implying a
+   * camera is fine when its telemetry never arrived (§35 stale/error honesty).
+   */
+  entryStates?: Record<string, { state: HealthEntryState; error: string | null }>
   selectedFilter: string | null
   selectedCameraId: string | null
   onSelectCamera: (cameraId: string) => void
@@ -43,6 +50,7 @@ const STATUS_SEVERITY_WEIGHT: Record<CameraHealthStatus, number> = {
 export function CameraHealthTable({
   cameras,
   healthRecords,
+  entryStates = {},
   selectedFilter,
   selectedCameraId,
   onSelectCamera,
@@ -135,7 +143,7 @@ export function CameraHealthTable({
   }
 
   return (
-    <div className="flex flex-col rounded-xl border border-white/[0.08] bg-[#0F141C] overflow-hidden">
+    <div className="flex flex-col rounded-xl border border-white/[0.08] bg-surface overflow-hidden">
       {/* Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-3 border-b border-white/[0.06] bg-[#0A0D14]">
         <div className="flex items-center gap-2 flex-1 min-w-[240px]">
@@ -149,7 +157,7 @@ export function CameraHealthTable({
               placeholder="Search camera ID, name, sector..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-md border border-white/10 bg-[#080B10] text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
+              className="w-full pl-8 pr-3 py-1.5 rounded-md border border-white/10 bg-bg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
             />
           </div>
 
@@ -158,7 +166,7 @@ export function CameraHealthTable({
             <select
               value={sectorFilter}
               onChange={e => setSectorFilter(e.target.value)}
-              className="rounded-md border border-white/10 bg-[#080B10] px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-400/50"
+              className="rounded-md border border-white/10 bg-bg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-400/50"
             >
               <option value="ALL">All Sectors ({cameras.length})</option>
               {sectors.map(sec => (
@@ -236,6 +244,7 @@ export function CameraHealthTable({
             ) : (
               rows.map(cam => {
                 const health = healthRecords[cam.id]
+                const rowEntry = entryStates[cam.id]
                 const status = health?.status ?? 'UNKNOWN'
                 const coverage = health?.operationalImpact?.coverage ?? 'UNKNOWN'
                 const isSelected = selectedCameraId === cam.id
@@ -267,14 +276,39 @@ export function CameraHealthTable({
                       {cam.sectorProfile ?? 'N/A'}
                     </td>
 
-                    {/* State Badge */}
+                    {/* State Badge — no data must not masquerade as a device state (§35) */}
                     <td className="py-2.5 px-3">
-                      <CameraHealthBadge status={status} cameraId={cam.id} />
+                      {health ? (
+                        <CameraHealthBadge status={status} cameraId={cam.id} />
+                      ) : rowEntry?.state === 'error' ? (
+                        <span
+                          title={rowEntry.error ?? 'Telemetry could not be retrieved'}
+                          className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-amber-400"
+                        >
+                          <AlertTriangle size={11} /> UNAVAILABLE
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[11px] text-slate-500">NO DATA</span>
+                      )}
                     </td>
 
-                    {/* Last Telemetry */}
+                    {/* Last Telemetry — a cached record is explicitly last-known */}
                     <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">
-                      {health?.lastUpdated ? formatAge(health.lastUpdated, nowMs) : 'N/A'}
+                      {health?.lastUpdated ? (
+                        <>
+                          {formatAge(health.lastUpdated, nowMs)}
+                          {rowEntry?.state === 'last-known' && (
+                            <span
+                              title={rowEntry.error ?? 'Refresh failed — showing last known telemetry'}
+                              className="ml-1 text-amber-400"
+                            >
+                              · last-known
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        'N/A'
+                      )}
                     </td>
 
                     {/* FPS */}
@@ -301,31 +335,51 @@ export function CameraHealthTable({
                       )}
                     </td>
 
-                    {/* Viewpoint */}
+                    {/* Viewpoint — claim STABLE only when the API reported it */}
                     <td className="py-2.5 px-3 font-mono text-[11px]">
-                      {isViewpointShift ? (
+                      {!health ? (
+                        <span className="text-slate-600">—</span>
+                      ) : isViewpointShift || health.viewpoint.status === 'SEVERE_SHIFT' ? (
                         <span className="inline-flex items-center gap-1 text-prhaar-degraded font-semibold">
                           <AlertTriangle size={11} /> SHIFT
                         </span>
-                      ) : (
+                      ) : health.viewpoint.status === 'STABLE' ? (
                         <span className="text-slate-500">STABLE</span>
+                      ) : (
+                        <span
+                          className="text-slate-600"
+                          title={`Viewpoint ${health.viewpoint.status}`}
+                        >
+                          —
+                        </span>
                       )}
                     </td>
 
-                    {/* Freeze */}
+                    {/* Freeze — LIVE only when the stream actually reports CONNECTED */}
                     <td className="py-2.5 px-3 font-mono text-[11px]">
-                      {isFrozen ? (
+                      {!health ? (
+                        <span className="text-slate-600">—</span>
+                      ) : isFrozen ? (
                         <span className="inline-flex items-center gap-1 text-cyan-400 font-semibold">
                           <PauseCircle size={11} /> FROZEN
                         </span>
-                      ) : (
+                      ) : health.stream.state === 'CONNECTED' ? (
                         <span className="text-slate-500">LIVE</span>
+                      ) : (
+                        <span
+                          className="text-slate-600"
+                          title={`Stream ${health.stream.state}`}
+                        >
+                          {health.stream.state}
+                        </span>
                       )}
                     </td>
 
-                    {/* Coverage Impact */}
+                    {/* Coverage Impact — NORMAL only when actually reported */}
                     <td className="py-2.5 px-3 font-mono text-[11px]">
-                      {coverage === 'COMPROMISED' ? (
+                      {!health ? (
+                        <span className="text-slate-600">—</span>
+                      ) : coverage === 'COMPROMISED' ? (
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-rose-500/10 border border-rose-500/30 text-rose-400 font-semibold">
                           COMPROMISED
                         </span>
@@ -333,14 +387,27 @@ export function CameraHealthTable({
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400">
                           DEGRADED
                         </span>
-                      ) : (
+                      ) : coverage === 'NORMAL' ? (
                         <span className="text-prhaar-good">NORMAL</span>
+                      ) : (
+                        <span className="text-slate-600" title="Coverage impact not reported">
+                          —
+                        </span>
                       )}
                     </td>
 
-                    {/* Reason */}
-                    <td className="py-2.5 px-3 text-[11px] text-slate-400 truncate max-w-[200px]">
-                      {health?.statusReason ?? 'Nominal baseline operational.'}
+                    {/* Reason — never imply nominal when telemetry never arrived */}
+                    <td
+                      className="py-2.5 px-3 text-[11px] text-slate-400 truncate max-w-[200px]"
+                      title={!health && rowEntry?.error ? rowEntry.error : undefined}
+                    >
+                      {health ? (
+                        health.statusReason ?? '—'
+                      ) : rowEntry?.state === 'error' ? (
+                        <span className="text-amber-400/90">Telemetry unavailable</span>
+                      ) : (
+                        <span className="text-slate-500">Awaiting telemetry…</span>
+                      )}
                     </td>
 
                     {/* Arrow */}

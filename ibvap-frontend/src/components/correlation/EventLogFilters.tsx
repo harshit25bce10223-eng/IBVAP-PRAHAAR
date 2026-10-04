@@ -29,7 +29,7 @@ const SORTS: { value: EventLogQuery['sort']; label: string }[] = [
 
 function selectCls(compact?: boolean) {
   return clsx(
-    'rounded border border-white/10 bg-[#080c12] text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none',
+    'rounded border border-white/10 bg-bg text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none',
     compact ? 'px-1.5 py-1' : 'px-2 py-1.5'
   )
 }
@@ -50,7 +50,7 @@ export function EventLogFilters({ query, cameras, sectors, onChange, onReset }: 
     query.timeRange !== DEFAULT_CORRELATION_QUERY.timeRange
 
   return (
-    <div className="space-y-2.5 rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3">
+    <div className="space-y-2.5 rounded-xl border border-border bg-surface p-3">
       <div className="flex flex-wrap items-center gap-2">
         <input
           type="search"
@@ -58,7 +58,7 @@ export function EventLogFilters({ query, cameras, sectors, onChange, onReset }: 
           onChange={e => onChange({ search: e.target.value })}
           placeholder="Search INC, COR, CAM, EV, TRK…"
           aria-label="Search correlation groups"
-          className="min-w-[180px] rounded border border-white/10 bg-[#080c12] px-2 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
+          className="min-w-[180px] rounded border border-white/10 bg-bg px-2 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
         />
         <label className="flex items-center gap-1.5 text-[11px] text-slate-400">
           <span className="sr-only">Correlation</span>

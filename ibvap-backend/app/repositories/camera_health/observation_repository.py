@@ -1,11 +1,10 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # PRHAAR — Camera Health Observation Repository
 # ─────────────────────────────────────────────────────────────────────────────
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import delete, func, select
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.camera_health import CameraHealthObservation
@@ -15,30 +14,45 @@ class CameraHealthObservationRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
+    @staticmethod
+    def _as_utc(dt: datetime) -> datetime:
+        """F8 policy: naive timestamps are stored as UTC walls (SQLite drops
+        tzinfo on read-back). Normalize before computing epochs so bucket
+        boundaries are not shifted by the host's local offset."""
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+
     async def create(self, **data: Any) -> CameraHealthObservation:
         obs = CameraHealthObservation(**data)
         self.session.add(obs)
         await self.session.flush()
         return obs
 
-    async def upsert_by_sequence(
-        self, camera_id: str, source_sequence: int, **data: Any
-    ) -> tuple[CameraHealthObservation, bool]:
-        """Upsert observation by camera_id + source_sequence. Returns (obs, created)."""
-        stmt = sqlite_insert(CameraHealthObservation).values(
-            camera_id=camera_id, source_sequence=source_sequence, **data
+    async def get_by_sequence(
+        self, camera_id: str, source_sequence: int
+    ) -> CameraHealthObservation | None:
+        """Look up the observation for a (camera_id, source_sequence) pair.
+
+        Used by the ingest route to make re-sent observations idempotent: a
+        duplicate sequence (adapter retry, camera reboot resetting the counter)
+        updates the existing row instead of violating the unique constraint.
+        """
+        stmt = select(CameraHealthObservation).where(
+            CameraHealthObservation.camera_id == camera_id,
+            CameraHealthObservation.source_sequence == source_sequence,
         )
-        # On conflict, update the observation
-        stmt = stmt.on_conflict_do_update(
-            index_elements=["camera_id", "source_sequence"],
-            set_=data,
-        ).returning(CameraHealthObservation)
         result = await self.session.execute(stmt)
-        obs = result.scalar_one()
-        # Check if it was actually inserted (created) or updated
-        # We can't easily tell from this, so we'll just return the obs
-        # For true detection we'd need to query first or use a different approach
-        return obs, True  # Simplified
+        return result.scalar_one_or_none()
+
+    async def apply_update(
+        self, obs: CameraHealthObservation, **data: Any
+    ) -> CameraHealthObservation:
+        """Apply field updates to an existing observation and flush."""
+        for key, value in data.items():
+            setattr(obs, key, value)
+        await self.session.flush()
+        return obs
 
     async def get_latest(self, camera_id: str) -> CameraHealthObservation | None:
         stmt = (
@@ -125,12 +139,13 @@ class CameraHealthObservationRepository:
 
         buckets: dict[int, list[CameraHealthObservation]] = defaultdict(list)
         for o in obs:
-            bucket_ts = int(o.source_timestamp.timestamp() / bucket_seconds) * bucket_seconds
+            ts = self._as_utc(o.source_timestamp)
+            bucket_ts = int(ts.timestamp() / bucket_seconds) * bucket_seconds
             buckets[bucket_ts].append(o)
 
         result = []
         for bucket_ts, bucket_obs in sorted(buckets.items()):
-            bucket_data = {"timestamp": datetime.fromtimestamp(bucket_ts, tz=bucket_obs[0].source_timestamp.tzinfo)}
+            bucket_data = {"timestamp": datetime.fromtimestamp(bucket_ts, tz=timezone.utc)}
             if metrics:
                 for metric in metrics:
                     values = [getattr(o, metric, None) for o in bucket_obs if getattr(o, metric, None) is not None]

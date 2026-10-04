@@ -136,7 +136,7 @@ export function FenceZonePanel() {
   return (
     <div className="flex h-full flex-col gap-3 overflow-hidden text-slate-200">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#1e2d40]/60 pb-2">
+      <div className="flex items-center justify-between border-b border-border/60 pb-2">
         <div className="flex items-center gap-2">
           <Shield className="h-4 w-4 text-cyan-400" />
           <h3 className="text-sm font-semibold text-slate-100">Virtual Fence Zones</h3>
@@ -306,8 +306,8 @@ export function FenceZonePanel() {
 
       {/* Zone Detail Drawer / Inspection Dialog */}
       {inspectZone && (
-        <div className="fixed inset-y-0 right-0 w-80 bg-[#0d1117] border-l border-[#1e2d40] shadow-2xl p-4 flex flex-col gap-4 z-50">
-          <div className="flex items-center justify-between border-b border-[#1e2d40] pb-2">
+        <div className="fixed inset-y-0 right-0 w-80 bg-surface border-l border-border shadow-2xl p-4 flex flex-col gap-4 z-50">
+          <div className="flex items-center justify-between border-b border-border pb-2">
             <div>
               <span className="text-[10px] font-mono uppercase text-slate-500">Zone Configuration</span>
               <h4 className="text-sm font-bold font-mono text-cyan-300">{inspectZone.name}</h4>
@@ -353,7 +353,7 @@ export function FenceZonePanel() {
             </div>
           </div>
 
-          <div className="mt-auto pt-3 border-t border-[#1e2d40] flex gap-2">
+          <div className="mt-auto pt-3 border-t border-border flex gap-2">
             <Button
               size="sm"
               variant="outline"
@@ -398,7 +398,7 @@ function ZoneRow({
         'group flex flex-col gap-1.5 rounded-lg border p-2.5 transition-colors',
         editing
           ? 'border-cyan-500/60 bg-cyan-500/10 ring-1 ring-cyan-500/30'
-          : 'border-[#1e2d40]/70 bg-[#080c12]/60 hover:bg-[#080c12] hover:border-slate-700'
+          : 'border-border/70 bg-bg/60 hover:bg-bg hover:border-slate-700'
       )}
     >
       <div className="flex items-center justify-between gap-2">
@@ -520,7 +520,7 @@ function ZoneRuleForm({
         </label>
         <input
           id="zone-name"
-          className="min-w-0 flex-1 rounded border border-white/10 bg-[#080c12] px-2 py-1 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none"
+          className="min-w-0 flex-1 rounded border border-white/10 bg-bg px-2 py-1 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none"
           value={value?.name ?? ''}
           onChange={e => value && onChange({ ...value, name: e.target.value })}
           placeholder="e.g. Zone B (North Fence)"
@@ -589,7 +589,7 @@ function ZoneRuleForm({
                 rules: { ...value.rules, active_start: e.target.value },
               })
             }
-            className="w-20 rounded border border-white/10 bg-[#080c12] px-2 py-1 text-xs text-center text-slate-200 focus:border-cyan-400 focus:outline-none"
+            className="w-20 rounded border border-white/10 bg-bg px-2 py-1 text-xs text-center text-slate-200 focus:border-cyan-400 focus:outline-none"
           />
           <span className="text-slate-500">to</span>
           <input
@@ -604,7 +604,7 @@ function ZoneRuleForm({
                 rules: { ...value.rules, active_end: e.target.value },
               })
             }
-            className="w-20 rounded border border-white/10 bg-[#080c12] px-2 py-1 text-xs text-center text-slate-200 focus:border-cyan-400 focus:outline-none"
+            className="w-20 rounded border border-white/10 bg-bg px-2 py-1 text-xs text-center text-slate-200 focus:border-cyan-400 focus:outline-none"
           />
         </div>
 

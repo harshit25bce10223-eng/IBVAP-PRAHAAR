@@ -39,14 +39,14 @@ export function PageHeader({ title, subtitle, breadcrumbs, actions, badge, class
         </nav>
       )}
       {/* Title row */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <h1 className="text-xl font-bold text-slate-100 truncate">{title}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-100 break-words">{title}</h1>
           {badge}
         </div>
-        {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
-      {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+      {subtitle && <p className="text-sm leading-relaxed text-slate-400 max-w-3xl">{subtitle}</p>}
     </div>
   )
 }

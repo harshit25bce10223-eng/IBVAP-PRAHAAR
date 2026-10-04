@@ -1,0 +1,1 @@
+experiment_id,model,dataset_version,imgsz,batch,epochs,lr,augmentation,seed,precision,recall,mAP50,mAP50_95,small_recall,night_recall,occlusion_recall,latency_p50,latency_p95,memory,checkpoint_hash,decision

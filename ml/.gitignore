@@ -11,6 +11,18 @@
 **/export/*.engine
 **/export/*.torchscript
 
+# Catch-all: a weight binary is never a source artifact, wherever it lands.
+# Ultralytics writes pretrained checkpoints (e.g. yolo26n.pt) into the current
+# working directory, so the **/checkpoints/ patterns above do not cover strays.
+# Identity of every weight we use is recorded by SHA-256 in reports instead.
+*.pt
+*.pth
+*.onnx
+*.engine
+*.torchscript
+*.tflite
+*.paddle
+
 # Raw datasets (images/videos/labels stay on disk, referenced by manifest)
 c5_detection/datasets/**
 c6_tracking/datasets/**

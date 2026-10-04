@@ -1,0 +1,2089 @@
+{
+  "spec": "\u00a734 \u2014 real API validation, clean environment",
+  "started_utc": "2026-10-03T13:45:56.997147+00:00",
+  "environment": {
+    "backend": "C:\\SIH\\ibvap-backend",
+    "python": "C:\\SIH\\ibvap-backend\\venv\\Scripts\\python.exe",
+    "database_url": "sqlite+aiosqlite:///C:/Users/harsh/.qoder/tmp/c2_api_clean/clean.db",
+    "port": 8021,
+    "env_mode": "development",
+    "note": "Fresh DB file; alembic upgrade head; uvicorn real app. Payload telemetry mirrors measured benchmark records (see source_sample per entry)."
+  },
+  "checks": [
+    {
+      "name": "alembic_upgrade_head",
+      "ok": true,
+      "detail": {
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "g upgrade a1b2c3d4e5f6 -> e1467df5c282, add_anpr_tables\nINFO  [alembic.runtime.migration] Running upgrade e1467df5c282 -> ed2783c7ad30, add_missing_anpr_columns\nINFO  [alembic.runtime.migration] Running upgrade ed2783c7ad30 -> a4f7c0d91b2e, add_unique_member_correlation_event\nINFO  [alembic.runtime.migration] Running upgrade a4f7c0d91b2e -> c2b17f04a9d1, add_camera_health_current_shift_confidence\n"
+      }
+    },
+    {
+      "name": "backend_health",
+      "ok": true,
+      "detail": {
+        "response": {
+          "status": "ok",
+          "service": "prhaar",
+          "version": "1.0.0"
+        },
+        "wall_to_healthy": "ok"
+      }
+    },
+    {
+      "name": "ingest_http200[normal_frame]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "ingest_accepted[normal_frame]",
+      "ok": true,
+      "detail": {
+        "accepted": true,
+        "observationId": 1
+      }
+    },
+    {
+      "name": "ingest_derived_status[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "ONLINE",
+        "got": "ONLINE"
+      }
+    },
+    {
+      "name": "ingest_http200[degraded_frame]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "ingest_accepted[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "accepted": true,
+        "observationId": 2
+      }
+    },
+    {
+      "name": "ingest_derived_status[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "ingest_http200[frozen_sample]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "ingest_accepted[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "accepted": true,
+        "observationId": 3
+      }
+    },
+    {
+      "name": "ingest_derived_status[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "FROZEN",
+        "got": "FROZEN"
+      }
+    },
+    {
+      "name": "ingest_http200[viewpoint_sample]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "ingest_accepted[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "accepted": true,
+        "observationId": 4
+      }
+    },
+    {
+      "name": "ingest_derived_status[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "ingest_http200[network_degraded_sample]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "ingest_accepted[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "accepted": true,
+        "observationId": 5
+      }
+    },
+    {
+      "name": "ingest_derived_status[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "get_health_http200[normal_frame]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "state[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "ONLINE",
+        "got": "ONLINE"
+      }
+    },
+    {
+      "name": "source_LIVE[normal_frame]",
+      "ok": true,
+      "detail": "LIVE"
+    },
+    {
+      "name": "lastUpdated_valid_iso_recent[normal_frame]",
+      "ok": true,
+      "detail": {
+        "lastUpdated": "2026-10-03T13:46:03.304895+00:00",
+        "parsed": "2026-10-03 13:46:03.304895+00:00"
+      }
+    },
+    {
+      "name": "viewpoint_status[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "STABLE",
+        "got": "STABLE"
+      }
+    },
+    {
+      "name": "viewpoint_shiftDetected[normal_frame]",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "image_status[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected_any": [
+          "GOOD"
+        ],
+        "got": "GOOD"
+      }
+    },
+    {
+      "name": "image_sharpness_echo[normal_frame]",
+      "ok": true,
+      "detail": {
+        "sent": 0.76238,
+        "got": 0.76238
+      }
+    },
+    {
+      "name": "network_status[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "STABLE",
+        "got": "STABLE"
+      }
+    },
+    {
+      "name": "stream_state[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "CONNECTED",
+        "got": "CONNECTED"
+      }
+    },
+    {
+      "name": "get_health_http200[degraded_frame]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "state[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "source_LIVE[degraded_frame]",
+      "ok": true,
+      "detail": "LIVE"
+    },
+    {
+      "name": "lastUpdated_valid_iso_recent[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "lastUpdated": "2026-10-03T13:46:03.331895+00:00",
+        "parsed": "2026-10-03 13:46:03.331895+00:00"
+      }
+    },
+    {
+      "name": "viewpoint_status[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "UNKNOWN",
+        "got": "UNKNOWN"
+      }
+    },
+    {
+      "name": "viewpoint_shiftDetected[degraded_frame]",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "image_status[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected_any": [
+          "DEGRADED",
+          "FAILED"
+        ],
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "image_sharpness_echo[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "sent": 0.200305,
+        "got": 0.200305
+      }
+    },
+    {
+      "name": "network_status[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "STABLE",
+        "got": "STABLE"
+      }
+    },
+    {
+      "name": "stream_state[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "CONNECTED",
+        "got": "CONNECTED"
+      }
+    },
+    {
+      "name": "statusReason_present[degraded_frame]",
+      "ok": true,
+      "detail": "image quality degraded"
+    },
+    {
+      "name": "get_health_http200[frozen_sample]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "state[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "FROZEN",
+        "got": "FROZEN"
+      }
+    },
+    {
+      "name": "source_LIVE[frozen_sample]",
+      "ok": true,
+      "detail": "LIVE"
+    },
+    {
+      "name": "lastUpdated_valid_iso_recent[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "lastUpdated": "2026-10-03T13:46:03.352892+00:00",
+        "parsed": "2026-10-03 13:46:03.352892+00:00"
+      }
+    },
+    {
+      "name": "viewpoint_status[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "UNKNOWN",
+        "got": "UNKNOWN"
+      }
+    },
+    {
+      "name": "viewpoint_shiftDetected[frozen_sample]",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "image_status[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected_any": [
+          "GOOD"
+        ],
+        "got": "GOOD"
+      }
+    },
+    {
+      "name": "image_sharpness_echo[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "sent": 0.759489,
+        "got": 0.759489
+      }
+    },
+    {
+      "name": "network_status[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "STABLE",
+        "got": "STABLE"
+      }
+    },
+    {
+      "name": "stream_state[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "FROZEN",
+        "got": "FROZEN"
+      }
+    },
+    {
+      "name": "statusReason_present[frozen_sample]",
+      "ok": true,
+      "detail": "High frame drop rate suggests frozen stream"
+    },
+    {
+      "name": "get_health_http200[viewpoint_sample]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "state[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "source_LIVE[viewpoint_sample]",
+      "ok": true,
+      "detail": "LIVE"
+    },
+    {
+      "name": "lastUpdated_valid_iso_recent[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "lastUpdated": "2026-10-03T13:46:03.383893+00:00",
+        "parsed": "2026-10-03 13:46:03.383893+00:00"
+      }
+    },
+    {
+      "name": "viewpoint_status[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "SHIFT_DETECTED",
+        "got": "SHIFT_DETECTED"
+      }
+    },
+    {
+      "name": "viewpoint_shiftDetected[viewpoint_sample]",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "viewpoint_derived_context[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "fenceConfidenceNote": "Viewpoint shift detected \u2014 fence confidence reduced until officer review",
+        "detectedAt": "2026-10-03T13:46:03.383893+00:00"
+      }
+    },
+    {
+      "name": "image_status[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected_any": [
+          "DEGRADED",
+          "FAILED"
+        ],
+        "got": "FAILED"
+      }
+    },
+    {
+      "name": "image_sharpness_echo[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "sent": 0.403431,
+        "got": 0.403431
+      }
+    },
+    {
+      "name": "network_status[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "STABLE",
+        "got": "STABLE"
+      }
+    },
+    {
+      "name": "stream_state[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "CONNECTED",
+        "got": "CONNECTED"
+      }
+    },
+    {
+      "name": "statusReason_present[viewpoint_sample]",
+      "ok": true,
+      "detail": "image quality failed; viewpoint shift detected"
+    },
+    {
+      "name": "get_health_http200[network_degraded_sample]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "state[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "source_LIVE[network_degraded_sample]",
+      "ok": true,
+      "detail": "LIVE"
+    },
+    {
+      "name": "lastUpdated_valid_iso_recent[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "lastUpdated": "2026-10-03T13:46:03.405890+00:00",
+        "parsed": "2026-10-03 13:46:03.405890+00:00"
+      }
+    },
+    {
+      "name": "viewpoint_status[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "UNKNOWN",
+        "got": "UNKNOWN"
+      }
+    },
+    {
+      "name": "viewpoint_shiftDetected[network_degraded_sample]",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "image_status[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected_any": [
+          "GOOD"
+        ],
+        "got": "GOOD"
+      }
+    },
+    {
+      "name": "image_sharpness_echo[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "sent": 0.761899,
+        "got": 0.761899
+      }
+    },
+    {
+      "name": "network_status[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "stream_state[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "CONNECTED",
+        "got": "CONNECTED"
+      }
+    },
+    {
+      "name": "statusReason_present[network_degraded_sample]",
+      "ok": true,
+      "detail": "network degraded"
+    },
+    {
+      "name": "camera_wall_http200",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "camera_wall_all_5_present",
+      "ok": true,
+      "detail": [
+        "C2API-BLURRED",
+        "C2API-FROZEN",
+        "C2API-NETSEV",
+        "C2API-ONLINE",
+        "C2API-VIEWPOINT"
+      ]
+    },
+    {
+      "name": "camera_wall_state[normal_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "ONLINE",
+        "got": "ONLINE"
+      }
+    },
+    {
+      "name": "camera_wall_state[degraded_frame]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "camera_wall_state[frozen_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "FROZEN",
+        "got": "FROZEN"
+      }
+    },
+    {
+      "name": "camera_wall_state[viewpoint_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "camera_wall_state[network_degraded_sample]",
+      "ok": true,
+      "detail": {
+        "expected": "DEGRADED",
+        "got": "DEGRADED"
+      }
+    },
+    {
+      "name": "camera_wall_no_false_online",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "history_point_recent[C2API-ONLINE]",
+      "ok": true,
+      "detail": [
+        {
+          "timestamp": "2026-10-03T13:45:00Z",
+          "metrics": {}
+        }
+      ]
+    },
+    {
+      "name": "history_point_recent[C2API-VIEWPOINT]",
+      "ok": true,
+      "detail": [
+        {
+          "timestamp": "2026-10-03T13:45:00Z",
+          "metrics": {}
+        }
+      ]
+    },
+    {
+      "name": "zone_create[viewpoint_camera_context]",
+      "ok": true,
+      "detail": 201
+    },
+    {
+      "name": "track_and_evaluate_http200[viewpoint_camera_context]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "c1_incident_created[viewpoint_camera_context]",
+      "ok": true,
+      "detail": {
+        "incident": {
+          "incident_id": "INC-CB20766023",
+          "risk_score": 43,
+          "severity": "MEDIUM"
+        }
+      }
+    },
+    {
+      "name": "c1_low_reliability_factor[viewpoint_camera_context]",
+      "ok": true,
+      "detail": {
+        "expected": true,
+        "factor_keys": [
+          "RESTRICTED_ZONE_CROSSING",
+          "OBJECT_HUMAN",
+          "DETECTION_CONFIDENCE",
+          "LOW_RELIABILITY"
+        ]
+      }
+    },
+    {
+      "name": "zone_create[online_camera_context]",
+      "ok": true,
+      "detail": 201
+    },
+    {
+      "name": "track_and_evaluate_http200[online_camera_context]",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "name": "c1_incident_created[online_camera_context]",
+      "ok": true,
+      "detail": {
+        "incident": {
+          "incident_id": "INC-DB3D11F80D",
+          "risk_score": 58,
+          "severity": "MEDIUM"
+        }
+      }
+    },
+    {
+      "name": "c1_low_reliability_factor[online_camera_context]",
+      "ok": true,
+      "detail": {
+        "expected": false,
+        "factor_keys": [
+          "RESTRICTED_ZONE_CROSSING",
+          "OBJECT_HUMAN",
+          "DETECTION_CONFIDENCE"
+        ]
+      }
+    }
+  ],
+  "samples": [
+    {
+      "key": "normal_frame",
+      "camera_id": "C2API-ONLINE",
+      "source_sample": "C2-0001",
+      "source_class": "ONLINE",
+      "request": {
+        "sourceTimestamp": "2026-10-03T13:45:54.997147",
+        "sourceSequence": 1,
+        "stream": {
+          "streamConnected": true,
+          "sequenceNumber": 1,
+          "expectedFps": 25.0,
+          "observedFps": 25.0,
+          "frameDropRate": 0.0,
+          "frameAgeMs": 1000.0,
+          "reconnectCount": 0
+        },
+        "network": {
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "image": {
+          "sharpness": 0.76238,
+          "brightness": 0.536535,
+          "exposure": "NORMAL",
+          "contrast": 0.599455,
+          "noise": 0.651695
+        },
+        "viewpoint": {
+          "shiftScore": 0.01916,
+          "shiftConfidence": 0.503145,
+          "inlierRatio": 0.503145
+        },
+        "algorithmVersion": "prhaar-c2-api-validation"
+      },
+      "post_status_code": 200,
+      "post_response": {
+        "accepted": true,
+        "observationId": 1,
+        "currentStatus": "ONLINE"
+      },
+      "health_response": {
+        "cameraId": "C2API-ONLINE",
+        "status": "ONLINE",
+        "statusReason": null,
+        "lastUpdated": "2026-10-03T13:46:03.304895+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 8.307748,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.76238,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.536535,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "STABLE",
+          "shiftScore": 0.01916,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [],
+        "operationalImpact": {
+          "level": "NONE",
+          "coverage": "NORMAL",
+          "affectedModules": [],
+          "message": "No current impact."
+        },
+        "maintenance": null,
+        "lastKnown": null
+      }
+    },
+    {
+      "key": "degraded_frame",
+      "camera_id": "C2API-BLURRED",
+      "source_sample": "C2-0055",
+      "source_class": "BLURRED",
+      "request": {
+        "sourceTimestamp": "2026-10-03T13:45:54.997147",
+        "sourceSequence": 1,
+        "stream": {
+          "streamConnected": true,
+          "sequenceNumber": 1,
+          "expectedFps": 25.0,
+          "observedFps": 25.0,
+          "frameDropRate": 0.0,
+          "frameAgeMs": 1000.0,
+          "reconnectCount": 0
+        },
+        "network": {
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "image": {
+          "sharpness": 0.200305,
+          "brightness": 0.537587,
+          "exposure": "NORMAL",
+          "contrast": 0.566096,
+          "noise": 0.931638
+        },
+        "algorithmVersion": "prhaar-c2-api-validation"
+      },
+      "post_status_code": 200,
+      "post_response": {
+        "accepted": true,
+        "observationId": 2,
+        "currentStatus": "DEGRADED"
+      },
+      "health_response": {
+        "cameraId": "C2API-BLURRED",
+        "status": "DEGRADED",
+        "statusReason": "image quality degraded",
+        "lastUpdated": "2026-10-03T13:46:03.331895+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 8.334748,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "DEGRADED",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.200305,
+              "unit": "ratio",
+              "status": "DEGRADED",
+              "reason": "Below configured threshold"
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.537587,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Degradation detected"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "IMAGE-SHARPNESS-DEGRADATION",
+            "title": "Image sharpness degradation",
+            "impact": "MEDIUM",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Tracking",
+            "Detection"
+          ],
+          "message": "image quality degraded"
+        },
+        "maintenance": null,
+        "lastKnown": null
+      }
+    },
+    {
+      "key": "frozen_sample",
+      "camera_id": "C2API-FROZEN",
+      "source_sample": "C2-0169",
+      "source_class": "STREAM_DROP_FROZEN",
+      "request": {
+        "sourceTimestamp": "2026-10-03T13:45:55.397147+00:00",
+        "sourceSequence": 1,
+        "stream": {
+          "streamConnected": true,
+          "sequenceNumber": 1,
+          "expectedFps": 25.0,
+          "observedFps": 25.0,
+          "frameDropRate": 0.7466,
+          "frameAgeMs": 1000.0,
+          "reconnectCount": 0
+        },
+        "network": {
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "image": {
+          "sharpness": 0.759489,
+          "brightness": 0.538741,
+          "exposure": "NORMAL",
+          "contrast": 0.591067,
+          "noise": 0.651287
+        },
+        "algorithmVersion": "prhaar-c2-api-validation"
+      },
+      "post_status_code": 200,
+      "post_response": {
+        "accepted": true,
+        "observationId": 3,
+        "currentStatus": "FROZEN"
+      },
+      "health_response": {
+        "cameraId": "C2API-FROZEN",
+        "status": "FROZEN",
+        "statusReason": "High frame drop rate suggests frozen stream",
+        "lastUpdated": "2026-10-03T13:46:03.352892+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "FROZEN",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": 74.66000000000001,
+          "staleSeconds": 7.955745,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.759489,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.538741,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "STREAM-FROZEN",
+            "title": "Stream frozen",
+            "impact": "HIGH",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Virtual Fence",
+            "Detection",
+            "Live visibility"
+          ],
+          "message": "High frame drop rate suggests frozen stream"
+        },
+        "maintenance": {
+          "recommended": true,
+          "reason": "Camera frozen",
+          "durationLabel": "Unknown",
+          "impactNote": "Coverage compromised until feed is restored"
+        },
+        "lastKnown": null
+      }
+    },
+    {
+      "key": "viewpoint_sample",
+      "camera_id": "C2API-VIEWPOINT",
+      "source_sample": "C2-0141",
+      "source_class": "VIEWPOINT_CHANGED",
+      "request": {
+        "sourceTimestamp": "2026-10-03T19:15:55.797147+05:30",
+        "sourceSequence": 1,
+        "stream": {
+          "streamConnected": true,
+          "sequenceNumber": 1,
+          "expectedFps": 25.0,
+          "observedFps": 25.0,
+          "frameDropRate": 0.0,
+          "frameAgeMs": 1000.0,
+          "reconnectCount": 0
+        },
+        "network": {
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "image": {
+          "sharpness": 0.403431,
+          "brightness": 0.447248,
+          "exposure": "UNDEREXPOSED",
+          "contrast": 0.862678,
+          "noise": 0.723627
+        },
+        "viewpoint": {
+          "shiftScore": 0.423052,
+          "shiftConfidence": 0.631579,
+          "inlierRatio": 0.631579
+        },
+        "algorithmVersion": "prhaar-c2-api-validation"
+      },
+      "post_status_code": 200,
+      "post_response": {
+        "accepted": true,
+        "observationId": 4,
+        "currentStatus": "DEGRADED"
+      },
+      "health_response": {
+        "cameraId": "C2API-VIEWPOINT",
+        "status": "DEGRADED",
+        "statusReason": "image quality failed; viewpoint shift detected",
+        "lastUpdated": "2026-10-03T13:46:03.383893+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 7.586746,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "FAILED",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.403431,
+              "unit": "ratio",
+              "status": "DEGRADED",
+              "reason": "Below configured threshold"
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.447248,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "DEGRADED",
+              "unit": null,
+              "status": "DEGRADED",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Degradation detected"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "SHIFT_DETECTED",
+          "shiftScore": 0.423052,
+          "detectedAt": "2026-10-03T13:46:03.383893+00:00",
+          "shiftDetected": true,
+          "fenceConfidenceNote": "Viewpoint shift detected \u2014 fence confidence reduced until officer review"
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "POSSIBLE-VIEWPOINT-SHIFT",
+            "title": "Possible viewpoint shift",
+            "impact": "HIGH",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          },
+          {
+            "issueId": "IMAGE-SHARPNESS-DEGRADATION",
+            "title": "Image sharpness degradation",
+            "impact": "MEDIUM",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Tracking",
+            "Virtual Fence",
+            "Detection"
+          ],
+          "message": "image quality failed; viewpoint shift detected"
+        },
+        "maintenance": null,
+        "lastKnown": null
+      }
+    },
+    {
+      "key": "network_degraded_sample",
+      "camera_id": "C2API-NETSEV",
+      "source_sample": "C2-0236",
+      "source_class": "NETWORK_JITTER_SEVERE",
+      "request": {
+        "sourceTimestamp": "2026-10-03T13:45:56.197147+00:00",
+        "sourceSequence": 1,
+        "stream": {
+          "streamConnected": true,
+          "sequenceNumber": 1,
+          "expectedFps": 25.0,
+          "observedFps": 25.0,
+          "frameDropRate": 0.0,
+          "frameAgeMs": 1000.0,
+          "reconnectCount": 0
+        },
+        "network": {
+          "latencyMs": 169.6,
+          "latencyVarianceMs": 130.9,
+          "packetLossPercent": 0.97,
+          "heartbeatAgeSec": 2.0
+        },
+        "image": {
+          "sharpness": 0.761899,
+          "brightness": 0.538421,
+          "exposure": "NORMAL",
+          "contrast": 0.592221,
+          "noise": 0.650618
+        },
+        "algorithmVersion": "prhaar-c2-api-validation"
+      },
+      "post_status_code": 200,
+      "post_response": {
+        "accepted": true,
+        "observationId": 5,
+        "currentStatus": "DEGRADED"
+      },
+      "health_response": {
+        "cameraId": "C2API-NETSEV",
+        "status": "DEGRADED",
+        "statusReason": "network degraded",
+        "lastUpdated": "2026-10-03T13:46:03.405890+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 7.208743,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.761899,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.538421,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "DEGRADED",
+          "latencyMs": 169.6,
+          "latencyVarianceMs": 130.9,
+          "packetLossPercent": 0.97,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "NETWORK-DEGRADED",
+            "title": "Network degraded",
+            "impact": "MEDIUM",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Live visibility"
+          ],
+          "message": "network degraded"
+        },
+        "maintenance": null,
+        "lastKnown": null
+      }
+    }
+  ],
+  "camera_wall": [
+    {
+      "cameraId": "C2API-ONLINE",
+      "status": "ONLINE",
+      "statusReason": null,
+      "lastUpdated": "2026-10-03T13:46:03.304895+00:00",
+      "source": "LIVE",
+      "regionProfile": {
+        "configured": true,
+        "region": "MIXED_BORDER_SECTOR",
+        "terrain": null,
+        "location": null
+      },
+      "stream": {
+        "state": "CONNECTED",
+        "fps": 25.0,
+        "expectedFps": 25.0,
+        "frameDropPercent": null,
+        "staleSeconds": 8.307748,
+        "reconnectCount": 0
+      },
+      "image": {
+        "status": "GOOD",
+        "metrics": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "value": 0.76238,
+            "unit": "ratio",
+            "status": "GOOD",
+            "reason": null
+          }
+        ],
+        "backgroundStability": "Stable against slow baseline"
+      },
+      "network": {
+        "status": "STABLE",
+        "latencyMs": 25.0,
+        "latencyVarianceMs": 8.0,
+        "packetLossPercent": 0.1,
+        "heartbeatAgeSec": 2.0
+      },
+      "viewpoint": {
+        "status": "STABLE",
+        "shiftScore": 0.01916,
+        "detectedAt": null,
+        "shiftDetected": false,
+        "fenceConfidenceNote": null
+      },
+      "operationalImpact": {
+        "level": "NONE",
+        "coverage": "NORMAL",
+        "affectedModules": [],
+        "message": "No current impact."
+      },
+      "lastKnown": null
+    },
+    {
+      "cameraId": "C2API-BLURRED",
+      "status": "DEGRADED",
+      "statusReason": "image quality degraded",
+      "lastUpdated": "2026-10-03T13:46:03.331895+00:00",
+      "source": "LIVE",
+      "regionProfile": {
+        "configured": true,
+        "region": "MIXED_BORDER_SECTOR",
+        "terrain": null,
+        "location": null
+      },
+      "stream": {
+        "state": "CONNECTED",
+        "fps": 25.0,
+        "expectedFps": 25.0,
+        "frameDropPercent": null,
+        "staleSeconds": 8.334748,
+        "reconnectCount": 0
+      },
+      "image": {
+        "status": "DEGRADED",
+        "metrics": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "value": 0.200305,
+            "unit": "ratio",
+            "status": "DEGRADED",
+            "reason": "Below configured threshold"
+          }
+        ],
+        "backgroundStability": "Degradation detected"
+      },
+      "network": {
+        "status": "STABLE",
+        "latencyMs": 25.0,
+        "latencyVarianceMs": 8.0,
+        "packetLossPercent": 0.1,
+        "heartbeatAgeSec": 2.0
+      },
+      "viewpoint": {
+        "status": "UNKNOWN",
+        "shiftScore": null,
+        "detectedAt": null,
+        "shiftDetected": false,
+        "fenceConfidenceNote": null
+      },
+      "operationalImpact": {
+        "level": "DEGRADED",
+        "coverage": "DEGRADED",
+        "affectedModules": [
+          "Tracking",
+          "Detection"
+        ],
+        "message": "image quality degraded"
+      },
+      "lastKnown": null
+    },
+    {
+      "cameraId": "C2API-FROZEN",
+      "status": "FROZEN",
+      "statusReason": "High frame drop rate suggests frozen stream",
+      "lastUpdated": "2026-10-03T13:46:03.352892+00:00",
+      "source": "LIVE",
+      "regionProfile": {
+        "configured": true,
+        "region": "MIXED_BORDER_SECTOR",
+        "terrain": null,
+        "location": null
+      },
+      "stream": {
+        "state": "FROZEN",
+        "fps": 25.0,
+        "expectedFps": 25.0,
+        "frameDropPercent": 74.66000000000001,
+        "staleSeconds": 7.955745,
+        "reconnectCount": 0
+      },
+      "image": {
+        "status": "GOOD",
+        "metrics": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "value": 0.759489,
+            "unit": "ratio",
+            "status": "GOOD",
+            "reason": null
+          }
+        ],
+        "backgroundStability": "Stable against slow baseline"
+      },
+      "network": {
+        "status": "STABLE",
+        "latencyMs": 25.0,
+        "latencyVarianceMs": 8.0,
+        "packetLossPercent": 0.1,
+        "heartbeatAgeSec": 2.0
+      },
+      "viewpoint": {
+        "status": "UNKNOWN",
+        "shiftScore": null,
+        "detectedAt": null,
+        "shiftDetected": false,
+        "fenceConfidenceNote": null
+      },
+      "operationalImpact": {
+        "level": "DEGRADED",
+        "coverage": "DEGRADED",
+        "affectedModules": [
+          "Virtual Fence",
+          "Detection",
+          "Live visibility"
+        ],
+        "message": "High frame drop rate suggests frozen stream"
+      },
+      "lastKnown": null
+    },
+    {
+      "cameraId": "C2API-VIEWPOINT",
+      "status": "DEGRADED",
+      "statusReason": "image quality failed; viewpoint shift detected",
+      "lastUpdated": "2026-10-03T13:46:03.383893+00:00",
+      "source": "LIVE",
+      "regionProfile": {
+        "configured": true,
+        "region": "MIXED_BORDER_SECTOR",
+        "terrain": null,
+        "location": null
+      },
+      "stream": {
+        "state": "CONNECTED",
+        "fps": 25.0,
+        "expectedFps": 25.0,
+        "frameDropPercent": null,
+        "staleSeconds": 7.586746,
+        "reconnectCount": 0
+      },
+      "image": {
+        "status": "FAILED",
+        "metrics": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "value": 0.403431,
+            "unit": "ratio",
+            "status": "DEGRADED",
+            "reason": "Below configured threshold"
+          }
+        ],
+        "backgroundStability": "Degradation detected"
+      },
+      "network": {
+        "status": "STABLE",
+        "latencyMs": 25.0,
+        "latencyVarianceMs": 8.0,
+        "packetLossPercent": 0.1,
+        "heartbeatAgeSec": 2.0
+      },
+      "viewpoint": {
+        "status": "SHIFT_DETECTED",
+        "shiftScore": 0.423052,
+        "detectedAt": "2026-10-03T13:46:03.383893+00:00",
+        "shiftDetected": true,
+        "fenceConfidenceNote": "Viewpoint shift detected \u2014 fence confidence reduced until officer review"
+      },
+      "operationalImpact": {
+        "level": "DEGRADED",
+        "coverage": "DEGRADED",
+        "affectedModules": [
+          "Tracking",
+          "Virtual Fence",
+          "Detection"
+        ],
+        "message": "image quality failed; viewpoint shift detected"
+      },
+      "lastKnown": null
+    },
+    {
+      "cameraId": "C2API-NETSEV",
+      "status": "DEGRADED",
+      "statusReason": "network degraded",
+      "lastUpdated": "2026-10-03T13:46:03.405890+00:00",
+      "source": "LIVE",
+      "regionProfile": {
+        "configured": true,
+        "region": "MIXED_BORDER_SECTOR",
+        "terrain": null,
+        "location": null
+      },
+      "stream": {
+        "state": "CONNECTED",
+        "fps": 25.0,
+        "expectedFps": 25.0,
+        "frameDropPercent": null,
+        "staleSeconds": 7.208743,
+        "reconnectCount": 0
+      },
+      "image": {
+        "status": "GOOD",
+        "metrics": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "value": 0.761899,
+            "unit": "ratio",
+            "status": "GOOD",
+            "reason": null
+          }
+        ],
+        "backgroundStability": "Stable against slow baseline"
+      },
+      "network": {
+        "status": "DEGRADED",
+        "latencyMs": 169.6,
+        "latencyVarianceMs": 130.9,
+        "packetLossPercent": 0.97,
+        "heartbeatAgeSec": 2.0
+      },
+      "viewpoint": {
+        "status": "UNKNOWN",
+        "shiftScore": null,
+        "detectedAt": null,
+        "shiftDetected": false,
+        "fenceConfidenceNote": null
+      },
+      "operationalImpact": {
+        "level": "DEGRADED",
+        "coverage": "DEGRADED",
+        "affectedModules": [
+          "Live visibility"
+        ],
+        "message": "network degraded"
+      },
+      "lastKnown": null
+    }
+  ],
+  "history": [
+    {
+      "camera_id": "C2API-ONLINE",
+      "http": 200,
+      "points": [
+        {
+          "timestamp": "2026-10-03T13:45:00Z",
+          "metrics": {}
+        }
+      ]
+    },
+    {
+      "camera_id": "C2API-VIEWPOINT",
+      "http": 200,
+      "points": [
+        {
+          "timestamp": "2026-10-03T13:45:00Z",
+          "metrics": {}
+        }
+      ]
+    }
+  ],
+  "c1_context_http": [
+    {
+      "name": "viewpoint_camera_context",
+      "zone_http": 201,
+      "zone": {
+        "zone_id": "ZONE-118026B6",
+        "camera_id": "C2API-VIEWPOINT",
+        "name": "API validation zone (C2API-VIEWPOINT)",
+        "polygon": [
+          {
+            "x": 0.2,
+            "y": 0.2
+          },
+          {
+            "x": 0.8,
+            "y": 0.2
+          },
+          {
+            "x": 0.8,
+            "y": 0.8
+          },
+          {
+            "x": 0.2,
+            "y": 0.8
+          }
+        ],
+        "rules": {},
+        "active": true,
+        "created_at": "2026-10-03T13:46:03.579002Z",
+        "updated_at": "2026-10-03T13:46:03.579002Z"
+      },
+      "eval_http": 200,
+      "eval_response": {
+        "track": {
+          "track_id": "TRK-API-VIEW-1",
+          "camera_id": "C2API-VIEWPOINT",
+          "object_type": "HUMAN"
+        },
+        "evaluation": {
+          "representative_point": {
+            "x": 0.5,
+            "y": 0.65
+          },
+          "zones": [
+            {
+              "zone_id": "ZONE-118026B6",
+              "zone_name": "API validation zone (C2API-VIEWPOINT)",
+              "is_inside": true,
+              "previously_inside": false,
+              "transition": "ENTRY",
+              "rule_passed": true,
+              "event": {
+                "created": true,
+                "event_id": "EVT-F7EF917AF7"
+              },
+              "incident": {
+                "created": true,
+                "incident_id": "INC-CB20766023",
+                "risk_score": 43,
+                "severity": "MEDIUM",
+                "factors": [
+                  {
+                    "code": "RESTRICTED_ZONE_CROSSING",
+                    "label": "Restricted zone crossing",
+                    "points": 25,
+                    "evidence": "Track TRK-API-VIEW-1 entered zone ZONE-118026B6."
+                  },
+                  {
+                    "code": "OBJECT_HUMAN",
+                    "label": "Human object type",
+                    "points": 15,
+                    "evidence": "Detected object type: HUMAN."
+                  },
+                  {
+                    "code": "DETECTION_CONFIDENCE",
+                    "label": "Detection confidence",
+                    "points": 18,
+                    "evidence": "Confidence 0.90 x 20"
+                  },
+                  {
+                    "code": "LOW_RELIABILITY",
+                    "label": "Uncertainty penalty",
+                    "points": -15,
+                    "evidence": "Uncertainty engine reported LOW reliability."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "event": {
+          "created": true,
+          "event_id": "EVT-F7EF917AF7"
+        },
+        "incident": {
+          "created": true,
+          "incident_id": "INC-CB20766023",
+          "risk_score": 43,
+          "severity": "MEDIUM",
+          "factors": [
+            {
+              "code": "RESTRICTED_ZONE_CROSSING",
+              "label": "Restricted zone crossing",
+              "points": 25,
+              "evidence": "Track TRK-API-VIEW-1 entered zone ZONE-118026B6."
+            },
+            {
+              "code": "OBJECT_HUMAN",
+              "label": "Human object type",
+              "points": 15,
+              "evidence": "Detected object type: HUMAN."
+            },
+            {
+              "code": "DETECTION_CONFIDENCE",
+              "label": "Detection confidence",
+              "points": 18,
+              "evidence": "Confidence 0.90 x 20"
+            },
+            {
+              "code": "LOW_RELIABILITY",
+              "label": "Uncertainty penalty",
+              "points": -15,
+              "evidence": "Uncertainty engine reported LOW reliability."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "online_camera_context",
+      "zone_http": 201,
+      "zone": {
+        "zone_id": "ZONE-80FC9D1B",
+        "camera_id": "C2API-ONLINE",
+        "name": "API validation zone (C2API-ONLINE)",
+        "polygon": [
+          {
+            "x": 0.2,
+            "y": 0.2
+          },
+          {
+            "x": 0.8,
+            "y": 0.2
+          },
+          {
+            "x": 0.8,
+            "y": 0.8
+          },
+          {
+            "x": 0.2,
+            "y": 0.8
+          }
+        ],
+        "rules": {},
+        "active": true,
+        "created_at": "2026-10-03T13:46:03.664014Z",
+        "updated_at": "2026-10-03T13:46:03.664014Z"
+      },
+      "eval_http": 200,
+      "eval_response": {
+        "track": {
+          "track_id": "TRK-API-ONLINE-1",
+          "camera_id": "C2API-ONLINE",
+          "object_type": "HUMAN"
+        },
+        "evaluation": {
+          "representative_point": {
+            "x": 0.5,
+            "y": 0.65
+          },
+          "zones": [
+            {
+              "zone_id": "ZONE-80FC9D1B",
+              "zone_name": "API validation zone (C2API-ONLINE)",
+              "is_inside": true,
+              "previously_inside": false,
+              "transition": "ENTRY",
+              "rule_passed": true,
+              "event": {
+                "created": true,
+                "event_id": "EVT-9381EA3936"
+              },
+              "incident": {
+                "created": true,
+                "incident_id": "INC-DB3D11F80D",
+                "risk_score": 58,
+                "severity": "MEDIUM",
+                "factors": [
+                  {
+                    "code": "RESTRICTED_ZONE_CROSSING",
+                    "label": "Restricted zone crossing",
+                    "points": 25,
+                    "evidence": "Track TRK-API-ONLINE-1 entered zone ZONE-80FC9D1B."
+                  },
+                  {
+                    "code": "OBJECT_HUMAN",
+                    "label": "Human object type",
+                    "points": 15,
+                    "evidence": "Detected object type: HUMAN."
+                  },
+                  {
+                    "code": "DETECTION_CONFIDENCE",
+                    "label": "Detection confidence",
+                    "points": 18,
+                    "evidence": "Confidence 0.90 x 20"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "event": {
+          "created": true,
+          "event_id": "EVT-9381EA3936"
+        },
+        "incident": {
+          "created": true,
+          "incident_id": "INC-DB3D11F80D",
+          "risk_score": 58,
+          "severity": "MEDIUM",
+          "factors": [
+            {
+              "code": "RESTRICTED_ZONE_CROSSING",
+              "label": "Restricted zone crossing",
+              "points": 25,
+              "evidence": "Track TRK-API-ONLINE-1 entered zone ZONE-80FC9D1B."
+            },
+            {
+              "code": "OBJECT_HUMAN",
+              "label": "Human object type",
+              "points": 15,
+              "evidence": "Detected object type: HUMAN."
+            },
+            {
+              "code": "DETECTION_CONFIDENCE",
+              "label": "Detection confidence",
+              "points": 18,
+              "evidence": "Confidence 0.90 x 20"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "finished_utc": "2026-10-03T13:46:03.717922+00:00",
+  "summary": {
+    "checks_total": 90,
+    "checks_failed": 0,
+    "failed_names": []
+  }
+}

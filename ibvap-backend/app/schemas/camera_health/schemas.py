@@ -266,6 +266,9 @@ class HealthObservationIngestResponse(BaseModel):
     accepted: bool
     observationId: int | None = None
     currentStatus: CameraHealthStatus | None = None
+    # True when (camera_id, source_sequence) already existed and the row was
+    # updated idempotently instead of inserted (adapter retry / seq reset).
+    duplicate: bool = False
 
 
 # ── Config Schemas ─────────────────────────────────────────────────────────

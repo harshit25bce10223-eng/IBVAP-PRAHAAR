@@ -76,7 +76,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
   return (
     <Drawer open={open} onClose={onClose} title={`Track Inspector — ${track.trackId}`}>
       {/* Identity strip */}
-      <div className="mb-4 flex items-center justify-between border-b border-[#1e2d40] pb-3">
+      <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
         <div>
           <h2 className="text-sm font-semibold text-slate-200">{track.trackId}</h2>
           <p className="mt-0.5 text-xs text-slate-400">
@@ -117,7 +117,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
 
       <div className="space-y-4">
         {/* Section: Current Observation (§54) */}
-        <section className="rounded-lg border border-[#1e2d40] bg-[#0d1117] p-3" aria-label="Current observation">
+        <section className="rounded-lg border border-border bg-surface p-3" aria-label="Current observation">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Current Observation</h3>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
             <div className="flex items-center justify-between">
@@ -170,7 +170,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
         </section>
 
         {/* Section: Lifecycle (§53) */}
-        <section className="rounded-lg border border-[#1e2d40] bg-[#0d1117] p-3" aria-label="Track lifecycle">
+        <section className="rounded-lg border border-border bg-surface p-3" aria-label="Track lifecycle">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Lifecycle</h3>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
             <div className="flex items-center justify-between">
@@ -246,7 +246,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
         )}
 
         {/* Section: Detection History (§55) */}
-        <section className="rounded-lg border border-[#1e2d40] bg-[#0d1117] p-3" aria-label="Detection history">
+        <section className="rounded-lg border border-border bg-surface p-3" aria-label="Detection history">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Detection History</h3>
             <span className="font-mono text-[11px] text-slate-500">{track.detectionCount} observations</span>
@@ -264,7 +264,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
 
         {/* Section: Trajectory (§56) */}
         {track.trajectory && track.trajectory.length > 0 && (
-          <section className="rounded-lg border border-[#1e2d40] bg-[#0d1117] p-3" aria-label="Trajectory">
+          <section className="rounded-lg border border-border bg-surface p-3" aria-label="Trajectory">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Trajectory</h3>
             <p className="text-[10px] text-slate-500 mb-2">
               {track.trajectory.length} waypoints · {(track.trajectory.length > 30 ? 'showing last 30' : 'full history')}
@@ -341,7 +341,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
         )}
 
         {/* Section: Relationships (§57) */}
-        <section className="rounded-lg border border-[#1e2d40] bg-[#0d1117] p-3" aria-label="Downstream references">
+        <section className="rounded-lg border border-border bg-surface p-3" aria-label="Downstream references">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Downstream Links</h3>
           <dl className="space-y-2 text-[11px]">
             {track.eventId && (
@@ -429,7 +429,7 @@ export function TrackInspector({ open, onClose, track, cameraLabel }: TrackInspe
         )}
 
         {/* Footer */}
-        <div className="border-t border-[#1e2d40] pt-3 flex items-center justify-between text-[10px] text-slate-500">
+        <div className="border-t border-border pt-3 flex items-center justify-between text-[10px] text-slate-500">
           <span>Provider: {track.provider ?? '—'} · Tracker: {track.trackerName ?? '—'} v{track.trackerVersion ?? '—'}</span>
           <span className="font-mono">rev {track.revision ?? 0}</span>
         </div>

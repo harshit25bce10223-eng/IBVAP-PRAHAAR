@@ -11,7 +11,7 @@ import type { CorrelationGroup } from '@/types/eventCorrelation'
 export function CorrelationHistory({ group }: { group: CorrelationGroup }) {
   const transitions = [...group.history.transitions]
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Correlation history">
+    <section className="rounded-xl border border-border bg-surface p-4" aria-label="Correlation history">
       <h3 className="text-sm font-semibold text-slate-200">Correlation history</h3>
       <p className="mt-0.5 font-mono text-[10px] text-slate-500">
         created {formatDate(group.history.createdAt)} {formatClock(group.history.createdAt)} · updated {formatClock(group.history.updatedAt)}
@@ -27,7 +27,7 @@ export function CorrelationHistory({ group }: { group: CorrelationGroup }) {
               <li key={`${t.status}-${t.at}`} className="flex gap-3">
                 <div className="flex flex-col items-center">
                   <span className={clsx('mt-1 h-2 w-2 rounded-full', TONE[tone].dot)} aria-hidden />
-                  {!isLast && <span className="w-px flex-1 bg-[#1e2d40]" aria-hidden />}
+                  {!isLast && <span className="w-px flex-1 bg-border" aria-hidden />}
                 </div>
                 <div className="pb-2">
                   <p className={clsx('font-mono text-[11px] font-semibold uppercase tracking-wider', TONE[tone].text)}>

@@ -14,10 +14,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<Variant, string> = {
-  primary: 'bg-cyan-500 hover:bg-cyan-400 text-[#080a0f] font-semibold shadow-[0_0_12px_-2px_rgba(34,211,238,0.4)] hover:shadow-[0_0_16px_-2px_rgba(34,211,238,0.6)]',
+  primary: 'bg-brand hover:bg-brand-hover text-bg font-semibold shadow-sm',
   ghost:   'bg-transparent hover:bg-white/5 text-slate-300 hover:text-white border border-transparent hover:border-white/10',
   danger:  'bg-red-600/90 hover:bg-red-500 text-white shadow-[0_0_12px_-2px_rgba(239,68,68,0.4)]',
-  outline: 'bg-transparent border border-[#1e2d40] hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400',
+  outline: 'bg-transparent border border-border hover:border-brand/60 text-slate-200 hover:text-brand',
   success: 'bg-emerald-600 hover:bg-emerald-500 text-white',
 }
 
@@ -42,9 +42,9 @@ export function Button({
     <button
       disabled={disabled || isLoading}
       className={clsx(
-        'inline-flex items-center justify-center rounded-md font-medium',
+        'inline-flex items-center justify-center rounded-lg font-medium',
         'transition-all duration-150 outline-none',
-        'focus-visible:ring-2 focus-visible:ring-cyan-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080a0f]',
+        'focus-visible:ring-2 focus-visible:ring-brand/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
         'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
         variantStyles[variant],
         sizeStyles[size],

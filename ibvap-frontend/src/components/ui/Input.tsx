@@ -29,14 +29,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={clsx(
-              'w-full rounded-md bg-[#0d1117] border text-sm text-slate-100 placeholder-slate-600',
+              'w-full rounded-lg bg-bg border text-sm text-slate-100 placeholder-slate-500',
               'py-2.5 outline-none transition-all duration-150',
-              'focus:border-cyan-500/70 focus:ring-2 focus:ring-cyan-500/20',
+              'focus:border-brand/70 focus:ring-2 focus:ring-brand/20',
               leftIcon  ? 'pl-9'  : 'pl-3',
               rightIcon ? 'pr-9'  : 'pr-3',
               error
                 ? 'border-red-500/70 focus:border-red-500 focus:ring-red-500/20'
-                : 'border-[#1e2d40] hover:border-[#2a3f58]',
+                : 'border-border hover:border-ssb-border',
               className
             )}
             {...rest}

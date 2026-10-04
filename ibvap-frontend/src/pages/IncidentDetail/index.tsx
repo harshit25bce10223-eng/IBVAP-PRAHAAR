@@ -95,7 +95,7 @@ export function IncidentDetail() {
     return (
       <div className="h-full overflow-y-auto p-4 md:p-6 space-y-5">
         <PageHeader title="Correlation Detail" subtitle={correlationId} />
-        <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4">
+        <section className="rounded-xl border border-border bg-surface p-4">
           {detailState === 'loading' || detailState === 'idle' ? (
             <div
               className="mx-auto my-10 h-6 w-6 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent"
@@ -278,7 +278,7 @@ export function IncidentDetail() {
                     {relationships.map(r => (
                       <li
                         key={`${r.fromEventId}-${r.toEventId}-${r.type}`}
-                        className="rounded-md border border-white/10 bg-[#0d1117]/40 px-3 py-2"
+                        className="rounded-md border border-white/10 bg-surface/40 px-3 py-2"
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-mono text-[11px] text-slate-300">{r.fromEventId}</span>
@@ -309,7 +309,7 @@ export function IncidentDetail() {
                 {plateReads.map(p => (
                   <li
                     key={`${p.eventId}-${p.plate}`}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-white/10 bg-[#0d1117]/40 px-3 py-2"
+                    className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-white/10 bg-surface/40 px-3 py-2"
                   >
                     <Link
                       to={`/anpr?search=${encodeURIComponent(p.plate)}`}
@@ -352,7 +352,7 @@ export function IncidentDetail() {
                 return (
                   <li
                     key={`${m.eventId}-cam`}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-white/10 bg-[#0d1117]/40 px-3 py-2"
+                    className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-white/10 bg-surface/40 px-3 py-2"
                   >
                     <Link to={`/camera/${m.cameraId}`} className="font-mono text-xs text-cyan-300 hover:text-cyan-200">
                       {m.cameraId}
@@ -503,7 +503,7 @@ export function IncidentDetail() {
 
 function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label={title}>
+    <section className="rounded-xl border border-border bg-surface p-4" aria-label={title}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-slate-200">{title}</h3>
         {action}

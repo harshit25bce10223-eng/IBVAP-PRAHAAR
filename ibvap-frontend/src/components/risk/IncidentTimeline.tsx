@@ -157,18 +157,18 @@ export function IncidentTimeline({
 
   return (
     <div className={clsx('space-y-4', className)}>
-      <div className="flex items-center justify-between text-xs font-mono text-slate-400 border-b border-[#1e2d40] pb-2">
+      <div className="flex items-center justify-between text-xs font-mono text-slate-400 border-b border-border pb-2">
         <span className="uppercase tracking-wider font-semibold">Incident Chronology</span>
         <span className="text-[10px] text-slate-500">{steps.length} Verified Milestones</span>
       </div>
 
-      <ol className="relative border-l border-[#1e2d40] ml-3.5 space-y-4">
+      <ol className="relative border-l border-border ml-3.5 space-y-4">
         {steps.map((step, idx) => {
           const Icon = step.icon
           return (
             <li key={idx} className="ml-5 group">
               {/* Node dot */}
-              <span className="absolute -left-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#0d1117] border border-cyan-500/50 text-cyan-400 group-hover:border-cyan-400 transition-colors">
+              <span className="absolute -left-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-surface border border-cyan-500/50 text-cyan-400 group-hover:border-cyan-400 transition-colors">
                 <Icon className="h-2.5 w-2.5" />
               </span>
 

@@ -1,4 +1,4 @@
-﻿// PlateCandidatePanel.tsx — Ranked OCR candidate list
+// PlateCandidatePanel.tsx — Ranked OCR candidate list
 import { clsx } from 'clsx'
 import type { PlateCandidate } from '@/types/anpr'
 
@@ -22,7 +22,7 @@ function confColor(c: number): string {
 export function PlateCandidatePanel({ candidates, className }: PlateCandidatePanelProps) {
   if (!candidates.length) {
     return (
-      <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#080c12] p-3', className)}>
+      <div className={clsx('rounded-lg border border-border bg-bg p-3', className)}>
         <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-2">Candidate Reads</div>
         <div className="text-slate-600 text-xs font-mono italic">No OCR candidates available</div>
       </div>
@@ -30,7 +30,7 @@ export function PlateCandidatePanel({ candidates, className }: PlateCandidatePan
   }
 
   return (
-    <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#080c12] p-3', className)}>
+    <div className={clsx('rounded-lg border border-border bg-bg p-3', className)}>
       <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-2">Candidate Reads</div>
       <div className="space-y-1.5">
         {candidates.map(c => (

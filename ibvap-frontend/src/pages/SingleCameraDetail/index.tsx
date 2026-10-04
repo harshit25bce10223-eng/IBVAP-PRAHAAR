@@ -205,14 +205,14 @@ export function SingleCameraDetail() {
   const activeTracks = tracks.length
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-y-auto bg-bg">
       {/* Camera header: identity → liveness → sector → risk */}
-      <header className="flex items-center justify-between gap-3 h-14 px-4 border-b border-[#1e2d40] bg-[#0d1117]/80">
+      <header className="flex items-center justify-between gap-3 h-14 px-4 border-b border-border bg-surface/80">
         <div className="flex items-center gap-3 min-w-0">
           <label htmlFor="camera-select" className="sr-only">Select camera</label>
           <select
             id="camera-select"
-            className="rounded border border-white/10 bg-[#080c12] px-2 py-1 text-xs text-slate-200 focus:border-cyan-400/60 focus:outline-none"
+            className="rounded border border-white/10 bg-bg px-2 py-1 text-xs text-slate-200 focus:border-cyan-400/60 focus:outline-none"
             value={selectedCameraId}
             onChange={e => setSelectedCamera(e.target.value)}
           >
@@ -278,7 +278,7 @@ export function SingleCameraDetail() {
         <section className="flex-1 flex flex-col min-w-0 p-4 gap-4 overflow-y-auto" style={{ flex: '0 1 70%' }}>
           <div className="relative w-full shrink-0" style={{ aspectRatio: FEED_ASPECT }}>
             {loading ? (
-              <div className="absolute inset-0 rounded-xl border border-[#1e2d40] bg-[#0d1117] animate-pulse" aria-label="Loading camera feed" role="status">
+              <div className="absolute inset-0 rounded-xl border border-border bg-surface animate-pulse" aria-label="Loading camera feed" role="status">
                 <span className="sr-only">Loading camera feed…</span>
               </div>
             ) : (
@@ -321,7 +321,7 @@ export function SingleCameraDetail() {
         </section>
 
         {/* Right rail: uncertainty → health → risk */}
-        <aside className="flex flex-col gap-4 p-4 border-l border-[#1e2d40] bg-[#0d1117]/60 overflow-y-auto shrink-0" style={{ flex: '0 0 30%', minWidth: 300, maxWidth: 400 }}>
+        <aside className="flex flex-col gap-4 p-4 border-l border-border bg-surface/60 overflow-y-auto shrink-0" style={{ flex: '0 0 30%', minWidth: 300, maxWidth: 400 }}>
           <UncertaintyPanel
             trackId={uncertainty?.trackId ?? null}
             zonesChecked={uncertainty?.zones ?? null}
@@ -343,7 +343,7 @@ export function SingleCameraDetail() {
               )}
             </>
           ) : (
-            <div role="alert" className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4">
+            <div role="alert" className="rounded-xl border border-border bg-surface p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-300">Camera health unavailable</p>
               <p className="mt-1 text-[11px] text-slate-500">
                 {healthError ?? 'Health telemetry could not be retrieved.'} Fence, risk and feed continue where possible.
@@ -385,9 +385,9 @@ export function SingleCameraDetail() {
 
           <RelatedEventsPanel groups={relatedGroups} state={relatedState} error={relatedError} onRetry={retryRelated} />
 
-          <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Tracking and Detections">
+          <section className="rounded-xl border border-border bg-surface p-4" aria-label="Tracking and Detections">
             {/* Tab Selector between Tracks and Detections */}
-            <div className="flex items-center justify-between gap-2 border-b border-[#1e2d40] pb-2 mb-3">
+            <div className="flex items-center justify-between gap-2 border-b border-border pb-2 mb-3">
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -448,7 +448,7 @@ export function SingleCameraDetail() {
                   <label className="flex items-center gap-1 text-[11px] text-slate-500" title="Display filter — boxes are only hidden, never altered">
                     Class filter
                     <select
-                      className="rounded border border-white/10 bg-[#080c12] px-1.5 py-1 text-[11px] text-slate-300 focus:border-cyan-400/60 focus:outline-none"
+                      className="rounded border border-white/10 bg-bg px-1.5 py-1 text-[11px] text-slate-300 focus:border-cyan-400/60 focus:outline-none"
                       value={classFilter}
                       onChange={e => setClassFilter(e.target.value as DetectionResult['class'] | 'ALL')}
                     >
@@ -461,7 +461,7 @@ export function SingleCameraDetail() {
                   <label className="flex items-center gap-1 text-[11px] text-slate-500" title="Display filter — frontend only">
                     Min confidence
                     <select
-                      className="rounded border border-white/10 bg-[#080c12] px-1.5 py-1 text-[11px] text-slate-300 focus:border-cyan-400/60 focus:outline-none"
+                      className="rounded border border-white/10 bg-bg px-1.5 py-1 text-[11px] text-slate-300 focus:border-cyan-400/60 focus:outline-none"
                       value={confidenceMin ?? ''}
                       onChange={e => setConfidenceMin(e.target.value === '' ? null : Number(e.target.value))}
                     >
@@ -532,7 +532,7 @@ function UncertaintyPanel({ trackId, zonesChecked, inside }: {
 }) {
   if (!trackId) {
     return (
-      <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Observation reliability">
+      <section className="rounded-xl border border-border bg-surface p-4" aria-label="Observation reliability">
         <h3 className="text-sm font-semibold text-slate-200">Observation Reliability</h3>
         <p className="mt-2 text-[11px] text-slate-500">
           No evaluated observation yet. Reliability appears here once the backend evaluates a track.
@@ -546,7 +546,7 @@ function UncertaintyPanel({ trackId, zonesChecked, inside }: {
     )
   }
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Observation reliability">
+    <section className="rounded-xl border border-border bg-surface p-4" aria-label="Observation reliability">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">Observation Reliability</h3>
         <span className="font-mono text-[10px] text-slate-500" title="Evaluated track">{trackId}</span>
@@ -583,7 +583,7 @@ function RelatedEventsPanel({ groups, state, error, onRetry }: {
   onRetry: () => void
 }) {
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Related events">
+    <section className="rounded-xl border border-border bg-surface p-4" aria-label="Related events">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">Related events</h3>
         <span className="font-mono text-[10px] text-slate-500">{groups.length}</span>

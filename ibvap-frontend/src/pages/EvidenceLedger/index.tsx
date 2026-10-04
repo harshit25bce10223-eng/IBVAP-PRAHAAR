@@ -58,7 +58,7 @@ export function EvidenceLedger() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto p-4 gap-4 bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-y-auto p-4 gap-4 bg-bg">
       <PageHeader
         title="PRAMAAN · Evidence & Tamper-Evident Ledger"
         subtitle="End-to-End Secure & Tamper-Evident Pipeline · Section 65B(4) Admissibility Compliance"
@@ -76,7 +76,7 @@ export function EvidenceLedger() {
       />
 
       {/* Summary strip: count · ledger standing · last verification */}
-      <dl className="flex flex-wrap gap-x-8 gap-y-2 rounded-xl border border-[#1e2d40] bg-[#0d1117] px-4 py-3">
+      <dl className="flex flex-wrap gap-x-8 gap-y-2 rounded-xl border border-border bg-surface px-4 py-3">
         <SummaryItem label="Evidence records" value={ledger ? formatCount(ledger.recordCount) : '—'} />
         <div className="flex flex-col gap-0.5">
           <dt className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ledger</dt>
@@ -92,7 +92,7 @@ export function EvidenceLedger() {
       </dl>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-[#1e2d40]" role="tablist" aria-label="Ledger views">
+      <div className="flex gap-1 border-b border-border" role="tablist" aria-label="Ledger views">
         <TabButton active={tab === 'evidence'} onClick={() => setTab('evidence')} label={`Evidence${page ? ` (${page.total})` : ''}`} id="tab-evidence" />
         <TabButton active={tab === 'audit'} onClick={() => setTab('audit')} label={`Audit log${audit.length > 0 ? ` (${audit.length})` : ''}`} id="tab-audit" />
       </div>
@@ -218,7 +218,7 @@ function PageBtn({ label, disabled, onClick, children }: { label: string; disabl
 
 function TableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3 space-y-2" role="status" aria-label="Loading evidence records">
+    <div className="rounded-xl border border-border bg-surface p-3 space-y-2" role="status" aria-label="Loading evidence records">
       {Array.from({ length: rows }).map((_, i) => (
         <Skeleton key={i} className="h-8 w-full" />
       ))}

@@ -25,7 +25,7 @@ interface TrackTimelineProps {
 export function TrackTimeline({ observations, objectClass, highlightedId, compact = false }: TrackTimelineProps) {
   if (observations.length === 0) {
     return (
-      <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#0d1117] p-4 text-center', !compact && 'min-h-[120px]')}>
+      <div className={clsx('rounded-lg border border-border bg-surface p-4 text-center', !compact && 'min-h-[120px]')}>
         <p className="text-[11px] text-slate-500">No observation history available for this track.</p>
       </div>
     )

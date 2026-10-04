@@ -135,7 +135,7 @@ export function CameraFleetSummary({
             type="button"
             onClick={() => onSelectFilter(isActive ? null : item.id)}
             className={`flex flex-col justify-between p-3 rounded-lg border text-left transition-all cursor-pointer ${
-              isActive ? item.activeBg : `border-white/[0.08] bg-[#0F141C] ${item.bg}`
+              isActive ? item.activeBg : `border-white/[0.08] bg-surface ${item.bg}`
             }`}
           >
             <div className="flex items-center justify-between gap-1 w-full text-slate-400 mb-2">

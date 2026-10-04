@@ -21,7 +21,7 @@ const DIRECTIONS: VehicleDirection[] = ['NORTH', 'SOUTH', 'EAST', 'WEST', 'INBOU
 
 const WATCHLIST_OPTIONS: WatchlistStatus[] = ['WATCHLIST_MATCH', 'NO_MATCH', 'NOT_CHECKED', 'UNKNOWN']
 
-const inputCls = 'bg-[#080c12] border border-[#1e2d40] rounded-lg px-3 py-1.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 w-full'
+const inputCls = 'bg-bg border border-border rounded-lg px-3 py-1.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 w-full'
 const selectCls = inputCls
 const dateCls = inputCls + ' [color-scheme:dark]'
 const labelCls = 'block text-[9px] font-mono uppercase tracking-wider text-slate-600 mb-0.5'
@@ -80,7 +80,7 @@ export function ANPRFilters() {
   const confidencePct = Math.round(filter.confidenceMin * 100)
 
   return (
-    <div className="space-y-2 p-3 rounded-xl border border-[#1e2d40] bg-[#0d1117]">
+    <div className="space-y-2 p-3 rounded-xl border border-border bg-surface">
       <div className="flex items-center justify-between">
         <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500">Filters</div>
         <div className="text-[9px] font-mono text-slate-600">Enter in search runs a plate search</div>

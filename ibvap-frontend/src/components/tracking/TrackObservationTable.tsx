@@ -35,7 +35,7 @@ const BODY_CELL = 'px-2 py-1.5 text-[11px] text-slate-300 whitespace-nowrap'
 export function TrackObservationTable({ observations, history, compact = false }: TrackObservationTableProps) {
   if (observations.length === 0) {
     return (
-      <div className="rounded-lg border border-[#1e2d40] bg-[#080c12] p-4 text-center">
+      <div className="rounded-lg border border-border bg-bg p-4 text-center">
         <p className="text-[11px] text-slate-500">No observations recorded for this track.</p>
       </div>
     )
@@ -46,14 +46,14 @@ export function TrackObservationTable({ observations, history, compact = false }
     .sort((a, b) => new Date(a.observedAt).getTime() - new Date(b.observedAt).getTime())
 
   return (
-    <div className={clsx('overflow-x-auto rounded-lg border border-[#1e2d40]', !compact && 'max-h-96 overflow-y-auto')}>
+    <div className={clsx('overflow-x-auto rounded-lg border border-border', !compact && 'max-h-96 overflow-y-auto')}>
       <table className="w-full border-collapse">
         <caption className="sr-only">
           Track observations in chronological order. Track State is derived from recorded lifecycle transitions;
           the Provider column reflects the source recorded on each observation.
         </caption>
-        <thead className="sticky top-0 z-10 bg-[#0d1117]">
-          <tr className="border-b border-[#1e2d40]">
+        <thead className="sticky top-0 z-10 bg-surface">
+          <tr className="border-b border-border">
             <th scope="col" className={HEAD_CELL}>Time</th>
             <th scope="col" className={HEAD_CELL}>Detection ID</th>
             <th scope="col" className={HEAD_CELL}>Camera</th>
@@ -108,7 +108,7 @@ export function TrackObservationTable({ observations, history, compact = false }
           })}
         </tbody>
       </table>
-      <p className="border-t border-[#1e2d40] bg-[#0d1117] px-2 py-1.5 text-[9px] leading-relaxed text-slate-500">
+      <p className="border-t border-border bg-surface px-2 py-1.5 text-[9px] leading-relaxed text-slate-500">
         Track State is derived from recorded lifecycle transitions and shows '—' where no record covers that instant.
         The Provider column reflects the source recorded per observation (LIVE / EDGE / CENTRAL / DEMO).
       </p>

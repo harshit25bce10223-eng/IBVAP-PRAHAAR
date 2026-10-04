@@ -89,14 +89,14 @@ export function RiskFactorsPanel({
   return (
     <div
       className={clsx(
-        'rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4 flex flex-col gap-4 text-slate-200',
+        'rounded-xl border border-border bg-surface p-4 flex flex-col gap-4 text-slate-200',
         className
       )}
       role="region"
       aria-label="Risk Assessment Panel"
     >
       {/* ── 1. Top Header: Score, Severity & Reliability ── */}
-      <div className="flex items-start justify-between gap-3 border-b border-[#1e2d40]/60 pb-3">
+      <div className="flex items-start justify-between gap-3 border-b border-border/60 pb-3">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
@@ -237,7 +237,7 @@ export function RiskFactorsPanel({
       )}
 
       {/* ── 7. Raw Score Summary ── */}
-      <div className="pt-2 border-t border-[#1e2d40]/60 flex items-center justify-between text-xs font-mono text-slate-400">
+      <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-mono text-slate-400">
         <span>Aggregate Raw Score</span>
         <span className="text-slate-200 font-semibold tabular-nums">
           {rawTotal} {rawTotal !== score ? `(clamped to ${score})` : ''}
@@ -246,7 +246,7 @@ export function RiskFactorsPanel({
 
       {/* ── 8. Source References & Deep Links ── */}
       {!compact && (
-        <section className="pt-2 border-t border-[#1e2d40]/60 space-y-1.5">
+        <section className="pt-2 border-t border-border/60 space-y-1.5">
           <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
             Intelligence Traceability
           </span>

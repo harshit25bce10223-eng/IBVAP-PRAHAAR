@@ -1,0 +1,392 @@
+{
+  "spec": "PRHAAR C5 sections 27-29 (metrics, condition-wise metrics, target); evaluation-only: no estimates, empty means not measurable from this data",
+  "generated_ist": "2026-10-04 08:09:26 IST",
+  "experiment_id": "dryrun_plumbing",
+  "checkpoint": {
+    "weights": "C:\\SIH\\ml\\c5_detection\\training\\runs\\dryrun_plumbing\\weights\\best.pt",
+    "sha256": "92db71aa3cff5aae7cff18b744d6d29e931567d2b509922d9f484a869c247ec3"
+  },
+  "dataset": {
+    "data_yaml": "C:\\SIH\\ml\\c5_detection\\datasets\\_synthetic_smoke\\data.yaml",
+    "data_yaml_sha256": "3216ceb08e19a311bed4effccc21b76fdc53294b2e4fd6789bfda724fad482c2",
+    "taxonomy_version": "1.0",
+    "split": "val",
+    "n_images": 6,
+    "dataset_version": "datayaml-3216ceb08e19a311",
+    "split_hash": null
+  },
+  "eval_config": {
+    "imgsz": 320,
+    "batch": 8,
+    "conf": "ultralytics default (not passed): NMS/mAP 0.001 (engine/validator.py:138-139); confusion matrix 0.25 (val.py:54)",
+    "iou": "ultralytics default 0.7",
+    "plots": true
+  },
+  "software": {
+    "python": "3.11.9",
+    "ultralytics": "8.4.118",
+    "torch": "2.5.1+cu121",
+    "note": "recorded so the cited ultralytics source lines stay traceable"
+  },
+  "metrics": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": null,
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "per_class": {
+      "PERSON": {
+        "p": 0.0,
+        "r": 0.0,
+        "ap50": 0.0,
+        "ap50_95": 0.0,
+        "gt_boxes": 4.0
+      },
+      "MOTORCYCLE": {
+        "p": 0.0,
+        "r": 0.0,
+        "ap50": 0.0,
+        "ap50_95": 0.0,
+        "gt_boxes": 4.0
+      },
+      "BICYCLE": {
+        "p": 0.0,
+        "r": 0.0,
+        "ap50": 0.0,
+        "ap50_95": 0.0,
+        "gt_boxes": 6.0
+      },
+      "CAR": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      },
+      "LIGHT_VEHICLE": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      },
+      "TRUCK": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      },
+      "BUS": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      },
+      "TRACTOR": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      },
+      "ANIMAL": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      },
+      "AUTO_RICKSHAW": {
+        "p": null,
+        "r": null,
+        "ap50": null,
+        "ap50_95": 0.0,
+        "gt_boxes": 0.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        4.0,
+        4.0,
+        6.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "confusion_matrix_conf": 0.25,
+    "confusion_matrix_conf_source": "ultralytics 0.25 default when conf arg is None (models/yolo/detect/val.py:54); not introspectable from metrics",
+    "confusion_matrix_convention": "rows = predicted class, cols = true class, background = last row/col (utils/metrics.py:432-479)",
+    "fp_total": 0.0,
+    "fn_total": 14.0,
+    "fp_per_image": 0.0,
+    "fp_per_image_note": "fp_total (cm background column at conf 0.25) / split image count",
+    "recall_groups": {
+      "person_recall": 0.0,
+      "motorcycle_recall": 0.0,
+      "animal_recall": null,
+      "vehicle_recall_gt_weighted": null,
+      "vehicle_recall_detail": {},
+      "vehicle_recall_note": "recall weighted by GT box counts over CAR,LIGHT_VEHICLE,TRUCK,BUS,AUTO_RICKSHAW"
+    }
+  },
+  "latency": {
+    "n": 3,
+    "p50_ms": 38.93,
+    "p95_ms": 46.42,
+    "mean_ms": 40.82,
+    "device": "0",
+    "note": "batch-1 predict at conf 0.25, warmup 3, torch.cuda.synchronize per image"
+  },
+  "memory": {
+    "vram_peak_gib": 0.082,
+    "note": "process peak across val + latency bench"
+  },
+  "condition_wise": {
+    "DAY": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "NIGHT": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "RAIN": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "FOG": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "FOREST": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "HILL": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "AGRICULTURE": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "SETTLEMENT": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "LONG-RANGE": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "SMALL-OBJECT": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "OCCLUSION": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "LOW-RESOLUTION": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    },
+    "DEGRADED-CAMERA": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "reason": "no condition labels in dataset metadata (no day/night/weather source fields)"
+    }
+  },
+  "runtime_seconds": 18.2,
+  "val_seconds": 11.7,
+  "not_measured": {
+    "small_recall": "produced by size-bucketed error analysis (task #33); cell stays empty",
+    "night_recall": "no night-condition labels in dataset",
+    "occlusion_recall": "no occlusion-condition labels in dataset"
+  },
+  "experiment_log_row": {
+    "experiment_id": "dryrun_plumbing",
+    "model": "yolo26n.pt",
+    "dataset_version": "datayaml-3216ceb08e19a311",
+    "imgsz": 320,
+    "batch": 8,
+    "epochs": 1,
+    "lr": "default",
+    "augmentation": "default",
+    "seed": 0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "small_recall": "",
+    "night_recall": "",
+    "occlusion_recall": "",
+    "latency_p50": 38.93,
+    "latency_p95": 46.42,
+    "memory": 0.082,
+    "checkpoint_hash": "92db71aa3cff5aae7cff18b744d6d29e931567d2b509922d9f484a869c247ec3",
+    "decision": ""
+  }
+}

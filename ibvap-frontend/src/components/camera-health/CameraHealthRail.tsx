@@ -23,7 +23,7 @@ export function CameraHealthRail({ health, onOpenDetails }: {
   const netTone = TONE[toneForNetwork(health.network.status)]
 
   return (
-    <section aria-label={`Camera health for ${health.cameraId}`} className="rounded-xl border border-[#1e2d40] bg-[#0d1117]">
+    <section aria-label={`Camera health for ${health.cameraId}`} className="rounded-xl border border-border bg-surface">
       <div className="flex items-center justify-between px-4 pt-3">
         <h3 className="text-sm font-semibold text-slate-200">Camera Health</h3>
         <CameraHealthBadge status={health.status} cameraId={health.cameraId} />

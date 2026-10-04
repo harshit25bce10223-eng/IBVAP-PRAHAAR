@@ -27,11 +27,11 @@ export function EvidenceTable({
   onSelect: (record: EvidenceRecord) => void
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-[#1e2d40] bg-[#0d1117]">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
       <table className="w-full min-w-[960px] border-collapse text-left">
         <caption className="sr-only">Tamper-evident evidence records</caption>
         <thead>
-          <tr className="border-b border-[#1e2d40] text-[10px] uppercase tracking-wider text-slate-500">
+          <tr className="border-b border-border text-[10px] uppercase tracking-wider text-slate-500">
             <Th label="Evidence ID" />
             <Th label="Incident ID" />
             <SortTh label="Captured at" active={sort === 'captured_at'} order={order} onClick={() => onSort('captured_at')} />

@@ -10,3 +10,8 @@ pytest==8.3.4
 pytest-asyncio==0.24.0
 httpx==0.28.1
 pytest-cov==6.0.0
+
+# Camera health domain (C2): ORB feature matching / freeze detection.
+# headless variant — server deployment, no GUI libs (F12).
+numpy==2.4.6
+opencv-python-headless==5.0.0.93

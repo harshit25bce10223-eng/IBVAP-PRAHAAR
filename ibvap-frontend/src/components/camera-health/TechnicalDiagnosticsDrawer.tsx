@@ -60,7 +60,7 @@ export function TechnicalDiagnosticsDrawer({ open, onClose, health }: TechnicalD
             <Eye size={13} className="text-slate-400" />
             Computer Vision Telemetry
           </h4>
-          <div className="rounded-lg border border-white/[0.08] bg-[#0F141C] p-3 space-y-2.5 font-mono text-[11px]">
+          <div className="rounded-lg border border-white/[0.08] bg-surface p-3 space-y-2.5 font-mono text-[11px]">
             <div className="flex justify-between items-center py-0.5 border-b border-white/[0.04]">
               <span className="text-slate-500">Sharpness (Laplacian var)</span>
               <span className="text-slate-200">
@@ -104,7 +104,7 @@ export function TechnicalDiagnosticsDrawer({ open, onClose, health }: TechnicalD
             <Activity size={13} className="text-slate-400" />
             Stream & Temporal Invariance
           </h4>
-          <div className="rounded-lg border border-white/[0.08] bg-[#0F141C] p-3 space-y-2.5 font-mono text-[11px]">
+          <div className="rounded-lg border border-white/[0.08] bg-surface p-3 space-y-2.5 font-mono text-[11px]">
             <div className="flex justify-between items-center py-0.5 border-b border-white/[0.04]">
               <span className="text-slate-500">Delivered / Expected FPS</span>
               <span className="text-slate-200">
@@ -136,7 +136,7 @@ export function TechnicalDiagnosticsDrawer({ open, onClose, health }: TechnicalD
             <Layers size={13} className="text-slate-400" />
             ROI Exclusion Context
           </h4>
-          <div className="rounded-lg border border-white/[0.08] bg-[#0F141C] p-3 space-y-2 text-[11px]">
+          <div className="rounded-lg border border-white/[0.08] bg-surface p-3 space-y-2 text-[11px]">
             <p className="text-slate-400">
               Active computer vision masks applied to eliminate false positives from ambient motion:
             </p>

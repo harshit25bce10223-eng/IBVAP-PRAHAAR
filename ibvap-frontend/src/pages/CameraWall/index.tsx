@@ -68,8 +68,8 @@ export function CameraWall() {
   }, [])
 
   return (
-    <div className="relative h-full flex flex-col overflow-y-auto p-4 gap-4 bg-[#080c12]">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#1e2d40] pb-4 flex-shrink-0">
+    <div className="relative h-full flex flex-col overflow-y-auto p-4 gap-4 bg-bg">
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4 flex-shrink-0">
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <h1 className="text-xl font-semibold text-slate-100 tracking-[0.08em] uppercase">PARAKH · Live Camera Wall</h1>
@@ -103,7 +103,7 @@ export function CameraWall() {
         <label className="flex items-center gap-1.5 text-[11px] text-slate-400" title="Display filter — boxes are only hidden, never altered">
           <span className="text-slate-500">Class</span>
           <select
-            className="rounded border border-white/10 bg-[#080c12] px-2 py-1.5 text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none"
+            className="rounded border border-white/10 bg-bg px-2 py-1.5 text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none"
             value={classFilter}
             onChange={e => setClassFilter(e.target.value as DetectionResult['class'] | 'ALL')}
           >
@@ -118,7 +118,7 @@ export function CameraWall() {
         <label className="flex items-center gap-1.5 text-[11px] text-slate-400" title="Display filter — frontend only">
           <span className="text-slate-500">Min confidence</span>
           <select
-            className="rounded border border-white/10 bg-[#080c12] px-2 py-1.5 text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none"
+            className="rounded border border-white/10 bg-bg px-2 py-1.5 text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none"
             value={confidenceMin ?? ''}
             onChange={e => setConfidenceMin(e.target.value === '' ? null : Number(e.target.value))}
           >
@@ -144,7 +144,7 @@ export function CameraWall() {
             return (
               <article
                 key={camera.id}
-                className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3 flex flex-col gap-2"
+                className="rounded-xl border border-border bg-surface p-3 flex flex-col gap-2"
                 aria-label={`Camera ${camera.id} tile`}
               >
                 <div className="relative" style={{ aspectRatio: '16 / 9' }}>

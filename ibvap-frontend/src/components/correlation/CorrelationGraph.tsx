@@ -50,7 +50,7 @@ export function CorrelationGraph({ group, relationships, onSelect }: Correlation
             {outgoing.map((e, j) => {
               const target = byId.get(e.toEventId)
               return (
-                <div key={`${e.fromEventId}-${e.toEventId}-${j}`} className="ml-3 border-l border-[#1e2d40] pl-3">
+                <div key={`${e.fromEventId}-${e.toEventId}-${j}`} className="ml-3 border-l border-border pl-3">
                   <p className="flex items-center gap-1.5 py-1 text-[9px] font-mono uppercase tracking-wider text-slate-500" title={e.explanation}>
                     <span
                       className={clsx(
@@ -80,7 +80,7 @@ function GraphNode({ member, isPrimary, onSelect }: {
     'rounded-md border px-2 py-1 font-mono text-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 transition-colors'
   const box = isPrimary
     ? 'border-prhaar-accent/40 bg-prhaar-accent/10 text-prhaar-accent inline-block'
-    : 'border-white/10 bg-[#0d1117]/40 text-slate-300 inline-block hover:border-cyan-500/40'
+    : 'border-white/10 bg-surface/40 text-slate-300 inline-block hover:border-cyan-500/40'
   const label = (
     <>
       <span className="tabular-nums">{formatClockShort(member.timestamp)}</span>{' '}

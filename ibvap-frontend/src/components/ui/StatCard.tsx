@@ -28,7 +28,7 @@ const trendColor: Record<TrendDir, string> = {
 }
 
 const variantBorder: Record<string, string> = {
-  default:  'border-[#1e2d40]',
+  default:  'border-border',
   critical: 'border-red-500/30',
   warning:  'border-amber-500/30',
   safe:     'border-emerald-500/30',
@@ -40,8 +40,8 @@ export function StatCard({
   return (
     <div
       className={clsx(
-        'rounded-xl border bg-[#0d1117] p-5 flex flex-col gap-3',
-        'transition-colors hover:border-[#2a3f58]',
+        'rounded-xl border bg-surface p-5 flex flex-col gap-3',
+        'transition-colors hover:border-ssb-border',
         variantBorder[variant],
         className
       )}

@@ -117,28 +117,28 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <Link
           to={`/camera/${health.cameraId}`}
-          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-[#0F141C] text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
+          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-surface text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
         >
           <Video size={12} />
           <span>View Feed</span>
         </Link>
         <Link
           to="/incident-intel"
-          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-[#0F141C] text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
+          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-surface text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
         >
           <Waypoints size={12} />
           <span>Incidents</span>
         </Link>
         <Link
           to="/events"
-          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-[#0F141C] text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
+          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-surface text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
         >
           <Crosshair size={12} />
           <span>Tracks</span>
         </Link>
         <Link
           to={`/camera/${health.cameraId}/vehicles`}
-          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-[#0F141C] text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
+          className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border border-white/10 bg-surface text-[11px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
         >
           <Car size={12} />
           <span>Vehicles</span>
@@ -154,7 +154,7 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
 
       {/* ── 8. COVERAGE IMPACT (CAMERA HEALTH ≠ BORDER COVERAGE) ───────────── */}
       <DetailSection title="Border Coverage Impact">
-        <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-3 space-y-2">
+        <div className="rounded-lg border border-white/[0.06] bg-surface p-3 space-y-2">
           <CoverageImpact impact={health.operationalImpact} />
           {health.status === 'ONLINE' && health.operationalImpact?.coverage === 'COMPROMISED' && (
             <div className="flex items-center gap-2 p-2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[11px]">
@@ -171,13 +171,13 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
       {/* ── 3. LIVE / RECENT QUALITY METRICS ─────────────────────────────────── */}
       <DetailSection title="Stream & Live Telemetry Quality">
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-2.5">
+          <div className="rounded-lg border border-white/[0.06] bg-surface p-2.5">
             <span className="text-[10px] text-slate-500 font-mono uppercase">Stream State</span>
             <div className="font-mono text-xs font-semibold text-slate-200 mt-0.5">
               {STREAM_LABEL[health.stream.state]}
             </div>
           </div>
-          <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-2.5">
+          <div className="rounded-lg border border-white/[0.06] bg-surface p-2.5">
             <span className="text-[10px] text-slate-500 font-mono uppercase">Delivered FPS</span>
             <div className="font-mono text-xs font-semibold text-slate-200 mt-0.5">
               {health.stream.fps !== null ? `${health.stream.fps} fps` : 'N/A'}
@@ -187,13 +187,13 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
               </span>
             </div>
           </div>
-          <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-2.5">
+          <div className="rounded-lg border border-white/[0.06] bg-surface p-2.5">
             <span className="text-[10px] text-slate-500 font-mono uppercase">Frame Drop Rate</span>
             <div className="font-mono text-xs font-semibold text-slate-200 mt-0.5">
               {formatMetricValue(health.stream.frameDropPercent, '%')}
             </div>
           </div>
-          <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-2.5">
+          <div className="rounded-lg border border-white/[0.06] bg-surface p-2.5">
             <span className="text-[10px] text-slate-500 font-mono uppercase">Network Latency</span>
             <div className="font-mono text-xs font-semibold text-slate-200 mt-0.5">
               {formatMetricValue(health.network.latencyMs, 'ms')}
@@ -202,7 +202,7 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
         </div>
 
         {health.image.metrics.length > 0 && (
-          <div className="mt-2 rounded-lg border border-white/[0.06] bg-[#0F141C] p-2.5">
+          <div className="mt-2 rounded-lg border border-white/[0.06] bg-surface p-2.5">
             <span className="text-[10px] text-slate-500 font-mono uppercase block mb-1">
               Optical Quality Factors
             </span>
@@ -217,7 +217,7 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
 
       {/* ── 7. BASELINE COMPARISON ─────────────────────────────────────────── */}
       <DetailSection title="Baseline Comparison & Trend">
-        <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-3 space-y-2.5">
+        <div className="rounded-lg border border-white/[0.06] bg-surface p-3 space-y-2.5">
           <div className="flex items-center justify-between text-[11px] pb-2 border-b border-white/[0.04]">
             <span className="text-slate-400">Sharpness vs Expected Baseline</span>
             <div className="flex items-center gap-2 font-mono">
@@ -265,11 +265,11 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
       {/* ── 5. VIEWPOINT & 6. FREEZE STATUS ────────────────────────────────── */}
       <DetailSection title="Viewpoint Stability & Freeze Analysis">
         <div className="space-y-2">
-          <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-3">
+          <div className="rounded-lg border border-white/[0.06] bg-surface p-3">
             <ViewpointStability viewpoint={health.viewpoint} nowMs={nowMs} />
           </div>
 
-          <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-3 flex items-center justify-between text-[11px]">
+          <div className="rounded-lg border border-white/[0.06] bg-surface p-3 flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-2">
               <PauseCircle
                 size={14}
@@ -293,7 +293,7 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
 
       {/* ── 9. & 10. DOWNSTREAM IMPACT ─────────────────────────────────────── */}
       <DetailSection title="Downstream Module Impact">
-        <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-3 space-y-2 text-[11px]">
+        <div className="rounded-lg border border-white/[0.06] bg-surface p-3 space-y-2 text-[11px]">
           <div className="flex items-start gap-2">
             <ShieldAlert size={14} className="shrink-0 text-amber-400 mt-0.5" />
             <div>
@@ -310,7 +310,7 @@ export function CameraHealthDetails({ health, onOpenDiagnostics }: CameraHealthD
 
       {/* ── 11. CONFIGURATION & PROFILE ───────────────────────────────────── */}
       <DetailSection title="Deployment Profile & Configuration">
-        <div className="rounded-lg border border-white/[0.06] bg-[#0F141C] p-3 space-y-1.5">
+        <div className="rounded-lg border border-white/[0.06] bg-surface p-3 space-y-1.5">
           <KeyRow label="Sector Region" value={region.region ?? 'INDO-NEPAL'} />
           <KeyRow label="Terrain Class" value={region.terrain ?? 'FOOTHILL / PLAINS'} />
           <KeyRow label="Location" value={region.location ?? 'Perimeter observation post'} />

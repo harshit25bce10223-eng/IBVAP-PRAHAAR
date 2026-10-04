@@ -82,7 +82,7 @@ function SignalBlock({ label, member, primary, onSelect }: {
   )
   const base =
     'block w-full rounded-lg border px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 transition-colors'
-  const border = primary ? 'border-prhaar-accent/40 bg-prhaar-accent/5' : 'border-white/10 bg-[#0d1117]/40'
+  const border = primary ? 'border-prhaar-accent/40 bg-prhaar-accent/5' : 'border-white/10 bg-surface/40'
   if (onSelect) {
     return (
       <button type="button" onClick={() => onSelect(member)} className={clsx(base, border, 'hover:border-cyan-500/40')} aria-label={`Inspect signal ${member.eventId}`}>

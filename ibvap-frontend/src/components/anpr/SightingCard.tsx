@@ -1,4 +1,4 @@
-﻿// SightingCard.tsx — Compact list card for a single VehicleSighting
+// SightingCard.tsx — Compact list card for a single VehicleSighting
 import { clsx } from 'clsx'
 import { AlertTriangle, FileCheck } from 'lucide-react'
 import { Badge } from '@/components/ui'
@@ -55,10 +55,10 @@ export function SightingCard({ sighting, selected, onClick }: SightingCardProps)
       onClick={onClick}
       className={clsx(
         'w-full text-left rounded-lg border p-3 transition-colors',
-        'hover:border-cyan-500/40 hover:bg-[#0d1117]',
+        'hover:border-cyan-500/40 hover:bg-surface',
         selected
-          ? 'border-cyan-500/60 bg-[#0d1117] ring-1 ring-cyan-500/20'
-          : 'border-[#1e2d40] bg-[#080c12]'
+          ? 'border-cyan-500/60 bg-surface ring-1 ring-cyan-500/20'
+          : 'border-border bg-bg'
       )}
       aria-pressed={selected}
     >

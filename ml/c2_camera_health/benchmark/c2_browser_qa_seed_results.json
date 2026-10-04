@@ -1,0 +1,1148 @@
+{
+  "spec": "\u00a735/\u00a736 browser QA seeding \u2014 real fleet ids on live backend :8021",
+  "started_utc": "2026-10-03T17:19:28.929569+00:00",
+  "base": "http://127.0.0.1:8021",
+  "samples": [
+    {
+      "camera_id": "CAM-07",
+      "expected_status": "ONLINE",
+      "expected_stream": "CONNECTED",
+      "expected_viewpoint": "STABLE",
+      "source_sample": "C2-0001",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-07",
+        "status": "ONLINE",
+        "statusReason": null,
+        "lastUpdated": "2026-10-03T17:19:29.404501+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 2.472034,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.76238,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.536535,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "STABLE",
+          "shiftScore": 0.01916,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [],
+        "operationalImpact": {
+          "level": "NONE",
+          "coverage": "NORMAL",
+          "affectedModules": [],
+          "message": "No current impact."
+        },
+        "maintenance": null,
+        "lastKnown": null
+      },
+      "actual_status": "ONLINE",
+      "actual_status_reason": null,
+      "actual_stream_state": "CONNECTED",
+      "actual_viewpoint_status": "STABLE",
+      "actual_source": "LIVE",
+      "actual_coverage": "NORMAL"
+    },
+    {
+      "camera_id": "CAM-12",
+      "expected_status": "ONLINE",
+      "expected_stream": "CONNECTED",
+      "expected_viewpoint": "STABLE",
+      "source_sample": "C2-0001 (regime)",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-12",
+        "status": "ONLINE",
+        "statusReason": null,
+        "lastUpdated": "2026-10-03T17:19:29.510471+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 2.579624,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.744812,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.541271,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "STABLE",
+          "shiftScore": 0.021543,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [],
+        "operationalImpact": {
+          "level": "NONE",
+          "coverage": "NORMAL",
+          "affectedModules": [],
+          "message": "No current impact."
+        },
+        "maintenance": null,
+        "lastKnown": null
+      },
+      "actual_status": "ONLINE",
+      "actual_status_reason": null,
+      "actual_stream_state": "CONNECTED",
+      "actual_viewpoint_status": "STABLE",
+      "actual_source": "LIVE",
+      "actual_coverage": "NORMAL"
+    },
+    {
+      "camera_id": "CAM-09",
+      "expected_status": "ONLINE",
+      "expected_stream": "CONNECTED",
+      "expected_viewpoint": "STABLE",
+      "source_sample": "C2-0001 (regime)",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-09",
+        "status": "ONLINE",
+        "statusReason": null,
+        "lastUpdated": "2026-10-03T17:19:29.551321+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 2.621752,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.755066,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.529873,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "STABLE",
+          "shiftScore": 0.018211,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [],
+        "operationalImpact": {
+          "level": "NONE",
+          "coverage": "NORMAL",
+          "affectedModules": [],
+          "message": "No current impact."
+        },
+        "maintenance": null,
+        "lastKnown": null
+      },
+      "actual_status": "ONLINE",
+      "actual_status_reason": null,
+      "actual_stream_state": "CONNECTED",
+      "actual_viewpoint_status": "STABLE",
+      "actual_source": "LIVE",
+      "actual_coverage": "NORMAL"
+    },
+    {
+      "camera_id": "CAM-03",
+      "expected_status": "DEGRADED",
+      "expected_stream": "CONNECTED",
+      "expected_viewpoint": "UNKNOWN",
+      "source_sample": "C2-0055",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-03",
+        "status": "DEGRADED",
+        "statusReason": "image quality degraded",
+        "lastUpdated": "2026-10-03T17:19:29.596422+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 2.665841,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "DEGRADED",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.200305,
+              "unit": "ratio",
+              "status": "DEGRADED",
+              "reason": "Below configured threshold"
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.537587,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Degradation detected"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "IMAGE-SHARPNESS-DEGRADATION",
+            "title": "Image sharpness degradation",
+            "impact": "MEDIUM",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Detection",
+            "Tracking"
+          ],
+          "message": "image quality degraded"
+        },
+        "maintenance": null,
+        "lastKnown": null
+      },
+      "actual_status": "DEGRADED",
+      "actual_status_reason": "image quality degraded",
+      "actual_stream_state": "CONNECTED",
+      "actual_viewpoint_status": "UNKNOWN",
+      "actual_source": "LIVE",
+      "actual_coverage": "DEGRADED"
+    },
+    {
+      "camera_id": "CAM-14",
+      "expected_status": "DEGRADED",
+      "expected_stream": "CONNECTED",
+      "expected_viewpoint": "SHIFT_DETECTED",
+      "source_sample": "C2-0141",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-14",
+        "status": "DEGRADED",
+        "statusReason": "image quality failed; viewpoint shift detected",
+        "lastUpdated": "2026-10-03T17:19:29.640486+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "CONNECTED",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 2.710917,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "FAILED",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.403431,
+              "unit": "ratio",
+              "status": "DEGRADED",
+              "reason": "Below configured threshold"
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.447248,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "DEGRADED",
+              "unit": null,
+              "status": "DEGRADED",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Degradation detected"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "SHIFT_DETECTED",
+          "shiftScore": 0.423052,
+          "detectedAt": "2026-10-03T17:19:29.640486+00:00",
+          "shiftDetected": true,
+          "fenceConfidenceNote": "Viewpoint shift detected \u2014 fence confidence reduced until officer review"
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "POSSIBLE-VIEWPOINT-SHIFT",
+            "title": "Possible viewpoint shift",
+            "impact": "HIGH",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          },
+          {
+            "issueId": "IMAGE-SHARPNESS-DEGRADATION",
+            "title": "Image sharpness degradation",
+            "impact": "MEDIUM",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Detection",
+            "Virtual Fence",
+            "Tracking"
+          ],
+          "message": "image quality failed; viewpoint shift detected"
+        },
+        "maintenance": null,
+        "lastKnown": null
+      },
+      "actual_status": "DEGRADED",
+      "actual_status_reason": "image quality failed; viewpoint shift detected",
+      "actual_stream_state": "CONNECTED",
+      "actual_viewpoint_status": "SHIFT_DETECTED",
+      "actual_source": "LIVE",
+      "actual_coverage": "DEGRADED"
+    },
+    {
+      "camera_id": "CAM-05",
+      "expected_status": "FROZEN",
+      "expected_stream": "FROZEN",
+      "expected_viewpoint": "UNKNOWN",
+      "source_sample": "C2-0169",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-05",
+        "status": "FROZEN",
+        "statusReason": "High frame drop rate suggests frozen stream",
+        "lastUpdated": "2026-10-03T17:19:29.675555+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "FROZEN",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": 74.66000000000001,
+          "staleSeconds": 2.345986,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.759489,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.538741,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "STREAM-FROZEN",
+            "title": "Stream frozen",
+            "impact": "HIGH",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Virtual Fence",
+            "Detection",
+            "Live visibility"
+          ],
+          "message": "High frame drop rate suggests frozen stream"
+        },
+        "maintenance": {
+          "recommended": true,
+          "reason": "Camera frozen",
+          "durationLabel": "Unknown",
+          "impactNote": "Coverage compromised until feed is restored"
+        },
+        "lastKnown": null
+      },
+      "actual_status": "FROZEN",
+      "actual_status_reason": "High frame drop rate suggests frozen stream",
+      "actual_stream_state": "FROZEN",
+      "actual_viewpoint_status": "UNKNOWN",
+      "actual_source": "LIVE",
+      "actual_coverage": "DEGRADED"
+    },
+    {
+      "camera_id": "CAM-08",
+      "expected_status": "STALE",
+      "expected_stream": "STALE",
+      "expected_viewpoint": "UNKNOWN",
+      "source_sample": "aged freshness (stale_after_seconds=30)",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-08",
+        "status": "STALE",
+        "statusReason": "No fresh frames for 91s (threshold: 30s)",
+        "lastUpdated": "2026-10-03T17:19:29.716614+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "STALE",
+          "fps": 25.0,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 90.787045,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.76238,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.536535,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "STREAM-STALE",
+            "title": "Stream stale",
+            "impact": "HIGH",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "DEGRADED",
+          "coverage": "DEGRADED",
+          "affectedModules": [
+            "Virtual Fence",
+            "Detection",
+            "Live visibility"
+          ],
+          "message": "No fresh frames for 91s (threshold: 30s)"
+        },
+        "maintenance": {
+          "recommended": true,
+          "reason": "Camera stale",
+          "durationLabel": "Unknown",
+          "impactNote": "Coverage compromised until feed is restored"
+        },
+        "lastKnown": null
+      },
+      "actual_status": "STALE",
+      "actual_status_reason": "No fresh frames for 91s (threshold: 30s)",
+      "actual_stream_state": "STALE",
+      "actual_viewpoint_status": "UNKNOWN",
+      "actual_source": "LIVE",
+      "actual_coverage": "DEGRADED"
+    },
+    {
+      "camera_id": "CAM-19",
+      "expected_status": "OFFLINE",
+      "expected_stream": "DISCONNECTED",
+      "expected_viewpoint": "UNKNOWN",
+      "source_sample": "disconnected stream",
+      "get_status_code": 200,
+      "response": {
+        "cameraId": "CAM-19",
+        "status": "OFFLINE",
+        "statusReason": "Stream disconnected",
+        "lastUpdated": "2026-10-03T17:19:29.756469+00:00",
+        "source": "LIVE",
+        "regionProfile": {
+          "configured": true,
+          "region": "MIXED_BORDER_SECTOR",
+          "terrain": null,
+          "location": null
+        },
+        "stream": {
+          "state": "DISCONNECTED",
+          "fps": null,
+          "expectedFps": 25.0,
+          "frameDropPercent": null,
+          "staleSeconds": 5.8269,
+          "reconnectCount": 0
+        },
+        "image": {
+          "status": "GOOD",
+          "metrics": [
+            {
+              "metric": "sharpness",
+              "label": "Sharpness",
+              "value": 0.76238,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "brightness",
+              "label": "Brightness",
+              "value": 0.536535,
+              "unit": "ratio",
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "exposure",
+              "label": "Exposure",
+              "value": "GOOD",
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            },
+            {
+              "metric": "noise",
+              "label": "Noise",
+              "value": null,
+              "unit": null,
+              "status": "GOOD",
+              "reason": null
+            }
+          ],
+          "backgroundStability": "Stable against slow baseline"
+        },
+        "network": {
+          "status": "STABLE",
+          "latencyMs": 25.0,
+          "latencyVarianceMs": 8.0,
+          "packetLossPercent": 0.1,
+          "heartbeatAgeSec": 2.0
+        },
+        "viewpoint": {
+          "status": "UNKNOWN",
+          "shiftScore": null,
+          "detectedAt": null,
+          "shiftDetected": false,
+          "fenceConfidenceNote": null
+        },
+        "trends": [
+          {
+            "metric": "sharpness",
+            "label": "Sharpness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "brightness",
+            "label": "Brightness",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          },
+          {
+            "metric": "latency",
+            "label": "Latency",
+            "direction": "UNKNOWN",
+            "deltaPercent": null,
+            "window": "7 DAYS",
+            "persistence": null,
+            "series": []
+          }
+        ],
+        "issues": [
+          {
+            "issueId": "STREAM-DISCONNECTED",
+            "title": "Stream disconnected",
+            "impact": "HIGH",
+            "firstSeen": null,
+            "lastSeen": null,
+            "count": 1,
+            "durationLabel": null,
+            "impactNote": null,
+            "affectedModules": []
+          }
+        ],
+        "operationalImpact": {
+          "level": "COMPROMISED",
+          "coverage": "COMPROMISED",
+          "affectedModules": [
+            "Virtual Fence",
+            "Detection",
+            "Live visibility"
+          ],
+          "message": "Coverage compromised. Camera offline."
+        },
+        "maintenance": {
+          "recommended": true,
+          "reason": "Camera offline",
+          "durationLabel": "Unknown",
+          "impactNote": "Coverage compromised until feed is restored"
+        },
+        "lastKnown": null
+      },
+      "actual_status": "OFFLINE",
+      "actual_status_reason": "Stream disconnected",
+      "actual_stream_state": "DISCONNECTED",
+      "actual_viewpoint_status": "UNKNOWN",
+      "actual_source": "LIVE",
+      "actual_coverage": "COMPROMISED"
+    }
+  ],
+  "all_expected_states_met": true,
+  "fleet_list_status": 200,
+  "fleet_list": [
+    {
+      "cameraId": "CAM-07",
+      "status": "ONLINE"
+    },
+    {
+      "cameraId": "CAM-12",
+      "status": "ONLINE"
+    },
+    {
+      "cameraId": "CAM-09",
+      "status": "ONLINE"
+    },
+    {
+      "cameraId": "CAM-03",
+      "status": "DEGRADED"
+    },
+    {
+      "cameraId": "CAM-14",
+      "status": "DEGRADED"
+    },
+    {
+      "cameraId": "CAM-05",
+      "status": "FROZEN"
+    },
+    {
+      "cameraId": "CAM-08",
+      "status": "STALE"
+    },
+    {
+      "cameraId": "CAM-19",
+      "status": "OFFLINE"
+    }
+  ]
+}

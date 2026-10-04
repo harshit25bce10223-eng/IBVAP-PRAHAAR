@@ -1,0 +1,158 @@
+{
+  "benchmark": "PRHAAR-C2-PERFORMANCE",
+  "cadence": {
+    "freeze_interval_sec": 0.6,
+    "streamp_fps": 25.0
+  },
+  "environment": {
+    "cv2_version": "5.0.0",
+    "numpy_version": "2.4.6"
+  },
+  "frame_h": 180,
+  "frame_w": 320,
+  "module_hashes": {
+    "app/core/config.py": "bef246a2f72dd7675d0b5297f7443cb8ca518c337d095b9cf7b40bc358ff0253",
+    "app/domain/camera_health/analyzer.py": "86ec6d8300a0133ca0f0f74ad5f144107e3fcce441f79f7d9da62b85583b5d6e",
+    "app/domain/camera_health/baseline_engine.py": "09c2efe87fa273e08c13954a4b0f6bc44f40aa147bea6b6b7ff5cb675931cb65",
+    "app/domain/camera_health/freeze.py": "6b10c7e5b2f626897e98a5d292042789e73ee6baa3b95a6ba0352b45eaf79cfe",
+    "app/domain/camera_health/image_quality.py": "5dff8afbbdc16fe0a030081eaea5155faa3cf2f7b3bf48e143cbbafebe676e97",
+    "app/domain/camera_health/state_engine.py": "8b7e48c7dfa8681f3cf12a920dee13039c9a94cef1b799afb811a4c7327402f3",
+    "app/domain/camera_health/trend_engine.py": "ce543ea834c42bf404ed994dd7dfd0bd3a1ccfad2326e1c5214f76ed7f2e418b",
+    "app/domain/camera_health/viewpoint.py": "7b5d822a8b7264aa711710cf804ab0b17e4e99710e62adbb44a6643718f822ec"
+  },
+  "note": "Local development timings \u2014 no production-capacity claims (\u00a742).",
+  "pool_seed": 20760930,
+  "pool_size": 1000,
+  "results": [
+    {
+      "freeze": {
+        "max_ms": 0.177,
+        "n_measured": 1,
+        "p50_ms": 0.177,
+        "p95_ms": 0.177
+      },
+      "full_analyze_observation": {
+        "max_ms": 12.386,
+        "n_measured": 1,
+        "p50_ms": 12.386,
+        "p95_ms": 12.386
+      },
+      "image_quality": {
+        "max_ms": 20.948,
+        "n_measured": 1,
+        "p50_ms": 20.948,
+        "p95_ms": 20.948
+      },
+      "n": 1,
+      "state_derivation": {
+        "max_ms": 0.125,
+        "n_measured": 1,
+        "p50_ms": 0.125,
+        "p95_ms": 0.125
+      },
+      "viewpoint": null
+    },
+    {
+      "freeze": {
+        "max_ms": 1.185,
+        "n_measured": 10,
+        "p50_ms": 0.538,
+        "p95_ms": 1.114
+      },
+      "full_analyze_observation": {
+        "max_ms": 14.733,
+        "n_measured": 10,
+        "p50_ms": 12.398,
+        "p95_ms": 14.351
+      },
+      "image_quality": {
+        "max_ms": 11.256,
+        "n_measured": 10,
+        "p50_ms": 6.403,
+        "p95_ms": 10.666
+      },
+      "n": 10,
+      "state_derivation": {
+        "max_ms": 0.081,
+        "n_measured": 10,
+        "p50_ms": 0.026,
+        "p95_ms": 0.074
+      },
+      "viewpoint": {
+        "max_ms": 8.512,
+        "n_measured": 9,
+        "p50_ms": 6.244,
+        "p95_ms": 8.011
+      }
+    },
+    {
+      "freeze": {
+        "max_ms": 1.903,
+        "n_measured": 100,
+        "p50_ms": 0.749,
+        "p95_ms": 1.001
+      },
+      "full_analyze_observation": {
+        "max_ms": 99.648,
+        "n_measured": 100,
+        "p50_ms": 18.191,
+        "p95_ms": 29.351
+      },
+      "image_quality": {
+        "max_ms": 9.254,
+        "n_measured": 100,
+        "p50_ms": 7.486,
+        "p95_ms": 8.606
+      },
+      "n": 100,
+      "state_derivation": {
+        "max_ms": 0.106,
+        "n_measured": 100,
+        "p50_ms": 0.019,
+        "p95_ms": 0.026
+      },
+      "viewpoint": {
+        "max_ms": 33.619,
+        "n_measured": 99,
+        "p50_ms": 7.099,
+        "p95_ms": 10.114
+      }
+    },
+    {
+      "freeze": {
+        "max_ms": 3.993,
+        "n_measured": 1000,
+        "p50_ms": 0.663,
+        "p95_ms": 1.29
+      },
+      "full_analyze_observation": {
+        "max_ms": 43.996,
+        "n_measured": 1000,
+        "p50_ms": 25.571,
+        "p95_ms": 31.653
+      },
+      "image_quality": {
+        "max_ms": 435.364,
+        "n_measured": 1000,
+        "p50_ms": 8.695,
+        "p95_ms": 13.235
+      },
+      "n": 1000,
+      "state_derivation": {
+        "max_ms": 0.366,
+        "n_measured": 1000,
+        "p50_ms": 0.032,
+        "p95_ms": 0.043
+      },
+      "viewpoint": {
+        "max_ms": 125.764,
+        "n_measured": 999,
+        "p50_ms": 8.112,
+        "p95_ms": 26.417
+      }
+    }
+  ],
+  "run_utc": "2026-10-03T17:00:30.739609+00:00",
+  "version": "v1",
+  "wall_seconds": 68.103
+}

@@ -60,6 +60,7 @@ class CameraHealthCurrent(Base):
     # Viewpoint
     viewpoint_status: Mapped[str | None] = mapped_column(String(32), nullable=True)
     shift_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    shift_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     shift_detected: Mapped[bool] = mapped_column(default=False)
     shift_detected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     fence_confidence_note: Mapped[str | None] = mapped_column(Text, nullable=True)

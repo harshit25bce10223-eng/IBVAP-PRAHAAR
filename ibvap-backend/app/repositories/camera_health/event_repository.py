@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # PRHAAR — Camera Health Event Repository
 # ─────────────────────────────────────────────────────────────────────────────
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import select
@@ -33,7 +33,7 @@ class CameraHealthEventRepository:
             set_={
                 "last_seen": data.get("last_seen"),
                 "occurrence_count": CameraHealthEvent.occurrence_count + 1,
-                "updated_at": datetime.now(timedelta.utcnow().tzinfo) if hasattr(timedelta, 'utcnow') else datetime.now(),
+                "updated_at": datetime.now(timezone.utc),
             },
         ).returning(CameraHealthEvent)
         result = await self.session.execute(stmt)

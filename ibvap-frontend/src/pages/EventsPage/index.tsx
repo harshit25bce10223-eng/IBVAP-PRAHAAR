@@ -81,7 +81,7 @@ export function EventsPage() {
   )
 
   return (
-    <div className="h-full flex flex-col overflow-hidden p-4 gap-4 bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-hidden p-4 gap-4 bg-bg">
       <PageHeader
         title="Event / Incident Log"
         subtitle="Correlation engine output — grouped signals, not isolated alerts"

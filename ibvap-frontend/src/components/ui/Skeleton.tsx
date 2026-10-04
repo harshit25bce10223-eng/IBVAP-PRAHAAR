@@ -37,7 +37,7 @@ export function Skeleton({ className, lines = 1, circle = false }: SkeletonProps
 
 export function StatCardSkeleton() {
   return (
-    <div className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-5 space-y-3">
+    <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
       <div className="flex items-center justify-between">
         <Skeleton className="h-3 w-24" />
         <Skeleton className="h-8 w-8" circle />

@@ -308,7 +308,7 @@ export function EvidenceDetail({ record }: { record: EvidenceRecord }) {
             onChange={e => setNote(e.target.value)}
             rows={2}
             placeholder="Note for the case file — stored separately, never merged into original evidence."
-            className="w-full rounded-md border border-white/10 bg-[#080c12] px-2.5 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
+            className="w-full rounded-md border border-white/10 bg-bg px-2.5 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
           />
         </label>
         <div className="mt-1.5 flex items-center gap-2">

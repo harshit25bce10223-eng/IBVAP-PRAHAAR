@@ -1,4 +1,4 @@
-﻿// VehicleHistoryTimeline.tsx — Vertical multi-camera sighting timeline
+// VehicleHistoryTimeline.tsx — Vertical multi-camera sighting timeline
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { VehicleClassBadge } from './VehicleClassBadge'
@@ -31,7 +31,7 @@ export function VehicleHistoryTimeline({ history, className }: VehicleHistoryTim
                 : 'border-cyan-400 bg-cyan-900/30'
             )} />
             {i < sightings.length - 1 && (
-              <div className="w-px flex-1 bg-[#1e2d40] my-0.5" style={{ minHeight: '24px' }} />
+              <div className="w-px flex-1 bg-border my-0.5" style={{ minHeight: '24px' }} />
             )}
           </div>
 

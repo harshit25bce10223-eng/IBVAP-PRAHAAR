@@ -38,7 +38,7 @@ export function CorrelationExplanation({ group }: { group: CorrelationGroup }) {
   const facets = group.explanation.length > 0 ? group.explanation : fallback
 
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label={heading}>
+    <section className="rounded-xl border border-border bg-surface p-4" aria-label={heading}>
       <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
         <span className={clsx('h-2 w-2 rounded-full', TONE[tone].dot)} aria-hidden />
         {heading}

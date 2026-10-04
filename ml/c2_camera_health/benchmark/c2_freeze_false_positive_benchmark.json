@@ -1,0 +1,741 @@
+{
+  "corpus_manifest": {
+    "name": "PRHAAR-C2-FREEZE-FALSE-POSITIVE",
+    "version": "v1",
+    "frame_w": 320,
+    "frame_h": 180,
+    "frames_per_sample": 12,
+    "samples_per_category": 10,
+    "base_seed": 20260930,
+    "categories": [
+      {
+        "name": "quiet_static_scene",
+        "description": "static scene, per-frame +-1 level encoder requantization dither",
+        "expected_frozen": false
+      },
+      {
+        "name": "quiet_scene_sensor_noise",
+        "description": "static scene + per-frame Gaussian sensor noise sigma=2.0",
+        "expected_frozen": false
+      },
+      {
+        "name": "quiet_tiny_object_movement",
+        "description": "sub-floor noise + 12x12 low-contrast object moving 3 px/frame",
+        "expected_frozen": false
+      },
+      {
+        "name": "quiet_distant_pedestrian",
+        "description": "sub-floor noise + 6x14 low-contrast blob moving 4 px/frame",
+        "expected_frozen": false
+      },
+      {
+        "name": "quiet_distant_vehicle",
+        "description": "sub-floor noise + 18x8 low-contrast blob moving 15 px/frame",
+        "expected_frozen": false
+      },
+      {
+        "name": "normal_environmental_movement",
+        "description": "sigma=1.5 noise + vegetation sway (4 patches, 1 px/frame roll)",
+        "expected_frozen": false
+      },
+      {
+        "name": "true_bit_exact_freeze",
+        "description": "identical frame repeated every second (encoder repeating a frame)",
+        "expected_frozen": true
+      },
+      {
+        "name": "true_repeated_frame_freeze",
+        "description": "repeated frame + sub-floor re-encode dither every 5th frame",
+        "expected_frozen": true
+      }
+    ],
+    "detector": {
+      "persistence_frames": 10,
+      "noise_floor": 0.001,
+      "movement_spread_factor": 8.0,
+      "region_grid": [
+        4,
+        4
+      ],
+      "scale_factor": 0.125
+    }
+  },
+  "corpus_manifest_sha256": "713e2dff21a7959601d86b60df637f4b28bd16cb634df85477411f36c79da542",
+  "summary": {
+    "false_freeze_rate_final": 0.0,
+    "false_freeze_rate_any": 0.0,
+    "true_freeze_recall": 1.0,
+    "quiet_samples": 60,
+    "true_samples": 20
+  },
+  "per_category": {
+    "quiet_static_scene": {
+      "description": "static scene, per-frame +-1 level encoder requantization dither",
+      "expected_frozen": false,
+      "n_samples": 10,
+      "frozen_final_count": 0,
+      "frozen_any_count": 0,
+      "first_frozen_frames": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "samples": [
+        {
+          "seed": 20260930,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260931,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260932,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260933,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260934,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260935,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260936,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260937,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260938,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20260939,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        }
+      ],
+      "false_freeze_rate_final": 0.0,
+      "false_freeze_rate_any": 0.0
+    },
+    "quiet_scene_sensor_noise": {
+      "description": "static scene + per-frame Gaussian sensor noise sigma=2.0",
+      "expected_frozen": false,
+      "n_samples": 10,
+      "frozen_final_count": 0,
+      "frozen_any_count": 0,
+      "first_frozen_frames": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "samples": [
+        {
+          "seed": 20261930,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261931,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261932,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261933,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261934,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261935,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261936,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261937,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261938,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20261939,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        }
+      ],
+      "false_freeze_rate_final": 0.0,
+      "false_freeze_rate_any": 0.0
+    },
+    "quiet_tiny_object_movement": {
+      "description": "sub-floor noise + 12x12 low-contrast object moving 3 px/frame",
+      "expected_frozen": false,
+      "n_samples": 10,
+      "frozen_final_count": 0,
+      "frozen_any_count": 0,
+      "first_frozen_frames": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "samples": [
+        {
+          "seed": 20262930,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262931,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262932,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262933,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262934,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262935,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262936,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262937,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262938,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20262939,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        }
+      ],
+      "false_freeze_rate_final": 0.0,
+      "false_freeze_rate_any": 0.0
+    },
+    "quiet_distant_pedestrian": {
+      "description": "sub-floor noise + 6x14 low-contrast blob moving 4 px/frame",
+      "expected_frozen": false,
+      "n_samples": 10,
+      "frozen_final_count": 0,
+      "frozen_any_count": 0,
+      "first_frozen_frames": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "samples": [
+        {
+          "seed": 20263930,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263931,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263932,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263933,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263934,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263935,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263936,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263937,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263938,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20263939,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        }
+      ],
+      "false_freeze_rate_final": 0.0,
+      "false_freeze_rate_any": 0.0
+    },
+    "quiet_distant_vehicle": {
+      "description": "sub-floor noise + 18x8 low-contrast blob moving 15 px/frame",
+      "expected_frozen": false,
+      "n_samples": 10,
+      "frozen_final_count": 0,
+      "frozen_any_count": 0,
+      "first_frozen_frames": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "samples": [
+        {
+          "seed": 20264930,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264931,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264932,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264933,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264934,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264935,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264936,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264937,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264938,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20264939,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        }
+      ],
+      "false_freeze_rate_final": 0.0,
+      "false_freeze_rate_any": 0.0
+    },
+    "normal_environmental_movement": {
+      "description": "sigma=1.5 noise + vegetation sway (4 patches, 1 px/frame roll)",
+      "expected_frozen": false,
+      "n_samples": 10,
+      "frozen_final_count": 0,
+      "frozen_any_count": 0,
+      "first_frozen_frames": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "samples": [
+        {
+          "seed": 20265930,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265931,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265932,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265933,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265934,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265935,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265936,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265937,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265938,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        },
+        {
+          "seed": 20265939,
+          "frozen_final": false,
+          "frozen_any": false,
+          "first_frozen_frame": null
+        }
+      ],
+      "false_freeze_rate_final": 0.0,
+      "false_freeze_rate_any": 0.0
+    },
+    "true_bit_exact_freeze": {
+      "description": "identical frame repeated every second (encoder repeating a frame)",
+      "expected_frozen": true,
+      "n_samples": 10,
+      "frozen_final_count": 10,
+      "frozen_any_count": 10,
+      "first_frozen_frames": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "samples": [
+        {
+          "seed": 20266930,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266931,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266932,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266933,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266934,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266935,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266936,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266937,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266938,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20266939,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        }
+      ],
+      "true_freeze_recall": 1.0
+    },
+    "true_repeated_frame_freeze": {
+      "description": "repeated frame + sub-floor re-encode dither every 5th frame",
+      "expected_frozen": true,
+      "n_samples": 10,
+      "frozen_final_count": 10,
+      "frozen_any_count": 10,
+      "first_frozen_frames": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "samples": [
+        {
+          "seed": 20267930,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267931,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267932,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267933,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267934,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267935,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267936,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267937,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267938,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        },
+        {
+          "seed": 20267939,
+          "frozen_final": true,
+          "frozen_any": true,
+          "first_frozen_frame": 10
+        }
+      ],
+      "true_freeze_recall": 1.0
+    }
+  },
+  "environment": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "cv2": "5.0.0"
+  },
+  "generated_at": "2026-10-03T12:53:15.888977+00:00"
+}

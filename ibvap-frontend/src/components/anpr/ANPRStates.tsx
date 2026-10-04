@@ -1,4 +1,4 @@
-﻿// ANPREmptyState.tsx
+// ANPREmptyState.tsx
 import { Car } from 'lucide-react'
 
 interface ANPREmptyStateProps {
@@ -8,7 +8,7 @@ interface ANPREmptyStateProps {
 export function ANPREmptyState({ message }: ANPREmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-      <div className="h-12 w-12 rounded-xl border border-[#1e2d40] bg-[#0d1117] flex items-center justify-center">
+      <div className="h-12 w-12 rounded-xl border border-border bg-surface flex items-center justify-center">
         <Car className="h-6 w-6 text-slate-600" />
       </div>
       <div>

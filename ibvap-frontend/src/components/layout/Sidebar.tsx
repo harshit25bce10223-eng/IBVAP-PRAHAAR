@@ -7,7 +7,7 @@
 
 import { clsx } from 'clsx'
 import { NavLink } from 'react-router-dom'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Shield } from 'lucide-react'
 import prahaarLogo from '@/assets/branding/prahaar-logo.jpg'
 import { useAuth } from '@/hooks'
 import { useUIStore } from '@/store'
@@ -28,49 +28,54 @@ export function Sidebar() {
     <aside
       className={clsx(
         'flex flex-col h-full flex-shrink-0',
-        'bg-ssb-navy border-r border-ssb-border',
+        'bg-gradient-to-b from-[#0a1826] to-[#07111a] border-r border-white/[0.06]',
         'transition-all duration-300 ease-in-out',
-        sidebarCollapsed ? 'w-[60px]' : 'w-[230px]'
+        sidebarCollapsed ? 'w-[60px]' : 'w-[230px] xl:w-[260px]'
       )}
       aria-label="Primary navigation"
     >
       {/* Branding — official प्रहार logo */}
       <div className={clsx(
-        'flex items-center border-b border-ssb-border h-16 flex-shrink-0',
+        'flex items-center border-b border-white/[0.06] h-14 flex-shrink-0',
         sidebarCollapsed ? 'justify-center px-0' : 'px-4 gap-3'
       )}>
-        <img
-          src={prahaarLogo}
-          alt="प्रहार — Intelligent Border Surveillance"
-          className={clsx(
-            'flex-shrink-0 object-contain',
-            sidebarCollapsed ? 'h-8 w-8' : 'h-10 w-auto'
-          )}
-        />
+        <div className={clsx(
+          'flex-shrink-0 rounded-lg overflow-hidden border border-brand/40 shadow-[0_0_12px_rgba(194,203,153,0.12)]',
+          sidebarCollapsed ? 'h-8 w-8' : 'h-9 w-9'
+        )}>
+          <img
+            src={prahaarLogo}
+            alt="प्रहार — Intelligent Border Surveillance"
+            className="h-full w-full object-cover"
+          />
+        </div>
         {!sidebarCollapsed && (
           <div className="min-w-0 leading-tight">
-            <span className="block text-[8px] font-semibold tracking-[0.2em] text-ssb-green-bright uppercase">
+            <span className="block text-[8px] font-bold tracking-[0.22em] text-brand/80 uppercase">
               Intelligent Border Surveillance
             </span>
-            <span className="block text-[7.5px] font-medium tracking-[0.16em] text-ssb-text-muted/70 uppercase">
+            <span className="block text-[7px] font-medium tracking-[0.18em] text-white/25 uppercase">
               SSB Command &amp; Control
             </span>
           </div>
         )}
       </div>
 
-      {/* Zone indicator */}
+      {/* Zone indicator — compact sector badge */}
       {!sidebarCollapsed && (
-        <div className="px-4 py-2.5 border-b border-ssb-border flex-shrink-0">
+        <div className="px-3 py-2 border-b border-white/[0.05] flex-shrink-0">
           {hasFullSectorAccess ? (
-            <div className="flex items-center gap-1.5 text-[11px]">
-              <span className="h-1.5 w-1.5 rounded-full bg-ssb-green-bright" aria-hidden />
-              <span className="text-ssb-text-muted font-medium tracking-wide">Full Sector View</span>
+            <div className="flex items-center gap-2 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.8)]" aria-hidden />
+              <span className="text-[10px] font-mono font-semibold tracking-[0.14em] text-emerald-400 uppercase">Full Sector</span>
             </div>
           ) : (
-            <div className="text-[11px] text-ssb-text-muted">
-              <span className="text-ssb-text font-medium block">{user.assignedZone?.code}</span>
-              <span className="truncate block">{user.assignedZone?.name}</span>
+            <div className="flex items-center gap-2 rounded-md bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5">
+              <Shield size={10} className="text-cyan-400 flex-shrink-0" aria-hidden />
+              <div className="min-w-0">
+                <span className="text-[10px] font-mono font-bold tracking-[0.12em] text-cyan-300 block truncate">{user.assignedZone?.code}</span>
+                <span className="text-[9px] font-mono text-white/30 block truncate">{user.assignedZone?.name}</span>
+              </div>
             </div>
           )}
         </div>
@@ -81,8 +86,8 @@ export function Sidebar() {
         {Array.from(grouped.entries()).map(([section, items]) => (
           <div key={section}>
             {!sidebarCollapsed && (
-              <div className="px-4 pt-3.5 pb-1">
-                <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-ssb-text-muted/70">
+              <div className="px-4 pt-4 pb-1">
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/25">
                   {section}
                 </span>
               </div>
@@ -96,7 +101,7 @@ export function Sidebar() {
 
       {/* Device cert status */}
       {!sidebarCollapsed && user.deviceCert && (
-        <div className="border-t border-ssb-border px-3 py-3 flex-shrink-0">
+        <div className="border-t border-white/[0.06] px-3 py-3 flex-shrink-0">
           <DeviceCertStatus status={user.deviceCert.status} />
         </div>
       )}
@@ -105,13 +110,13 @@ export function Sidebar() {
       <button
         onClick={toggleSidebar}
         className={clsx(
-          'border-t border-ssb-border flex items-center justify-center py-3 flex-shrink-0',
-          'text-ssb-text-muted hover:text-ssb-white hover:bg-ssb-white/5 transition-colors'
+          'border-t border-white/[0.06] flex items-center justify-center py-3 flex-shrink-0',
+          'text-white/20 hover:text-white/60 hover:bg-white/[0.04] transition-colors'
         )}
         title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
     </aside>
   )
@@ -125,30 +130,36 @@ function SidebarItem({ item, collapsed }: { item: NavItem; collapsed: boolean })
   return (
     <NavLink
       to={item.href}
-      title={collapsed ? item.label : undefined}
+      title={item.label}
       className={({ isActive }) =>
         clsx(
-          'flex items-center mx-2 rounded-md transition-colors duration-150 group',
-          collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2',
+          'flex items-center mx-2 rounded-md transition-all duration-150 group',
+          collapsed ? 'justify-center p-2.5' : 'gap-2.5 px-3 py-2.5',
           item.comingSoon && 'pointer-events-none opacity-40',
           isActive
-            ? 'bg-ssb-green text-ssb-white border border-ssb-green-bright/40'
-            : 'text-ssb-text-muted hover:text-ssb-white hover:bg-ssb-white/5 border border-transparent'
+            ? 'bg-cyan-500/10 text-cyan-300 border-l-2 border-cyan-400 shadow-[inset_0_0_12px_rgba(34,211,238,0.05)] pl-[10px]'
+            : 'text-white/35 hover:text-white/80 hover:bg-white/[0.05] border border-transparent'
         )
       }
       aria-disabled={item.comingSoon || undefined}
     >
-      <Icon size={16} className="flex-shrink-0" aria-hidden />
+      <Icon
+        size={15}
+        className={clsx(
+          'flex-shrink-0 transition-colors',
+        )}
+        aria-hidden
+      />
       {!collapsed && (
         <>
-          <span className="flex-1 text-xs font-medium truncate">{item.label}</span>
-          {item.badge && (
+          <span className="min-w-0 flex-1 text-[12px] leading-snug font-medium tracking-wide whitespace-normal break-words">{item.label}</span>
+          {item.badge && !item.label.startsWith(item.badge) && (
             <Badge variant={item.badgeVariant ?? 'default'} size="sm">
               {item.badge}
             </Badge>
           )}
           {item.comingSoon && (
-            <span className="text-[9px] text-ssb-text-muted/70 font-mono">SOON</span>
+            <span className="text-[8px] text-white/20 font-mono tracking-widest">SOON</span>
           )}
         </>
       )}
@@ -179,9 +190,9 @@ function DeviceCertStatus({ status }: { status: CertStatus }) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-md bg-ssb-navy-deep/60 px-2.5 py-1.5 border border-ssb-border/60">
+    <div className="flex items-center gap-2 rounded-md bg-black/30 px-2.5 py-1.5 border border-white/[0.07]">
       <StatusIndicator status={statusMap[status]} />
-      <span className={clsx('text-[11px] font-medium truncate', cfg.className)}>
+      <span className={clsx('text-[10px] font-mono font-medium tracking-wide truncate', cfg.className)}>
         {cfg.label}
       </span>
     </div>

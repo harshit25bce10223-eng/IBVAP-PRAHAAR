@@ -52,7 +52,7 @@ export function IncidentTimeline({
   const items = toItems(incidents, events)
 
   return (
-    <div className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4">
+    <div className="rounded-xl border border-border bg-surface p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
           <ShieldAlert className="h-4 w-4 text-red-400" />

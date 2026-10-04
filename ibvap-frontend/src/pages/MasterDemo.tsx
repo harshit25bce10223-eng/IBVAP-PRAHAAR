@@ -898,10 +898,12 @@ export function MasterDemo() {
           )}
         </section>
         <aside>
-          <div className="master-question">
-            <small>{step.module}</small>
-            <h2>{step.question}</h2>
-          </div>
+          {step.question !== step.title && (
+            <div className="master-question">
+              <small>{step.module}</small>
+              <h2>{step.question}</h2>
+            </div>
+          )}
           {showNotes
             ? card(
                 'Simple explanation',

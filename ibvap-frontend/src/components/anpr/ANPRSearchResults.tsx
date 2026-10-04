@@ -64,7 +64,7 @@ export function ANPRSearchResults({
 }: ANPRSearchResultsProps) {
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="p-3 border-b border-[#1e2d40] flex items-center justify-between flex-shrink-0 bg-[#080c12]/40">
+      <div className="p-3 border-b border-border flex items-center justify-between flex-shrink-0 bg-bg/40">
         <div className="flex items-center gap-2 min-w-0">
           <Search className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
           <span className="text-xs font-mono font-semibold uppercase text-slate-300 truncate">
@@ -110,7 +110,7 @@ export function ANPRSearchResults({
               'w-full text-left p-2 rounded-lg border transition-colors',
               s.sightingId === selectedId
                 ? 'border-cyan-500/50 bg-cyan-500/10'
-                : 'border-[#1e2d40] bg-[#080c12]/40 hover:bg-slate-800/40'
+                : 'border-border bg-bg/40 hover:bg-slate-800/40'
             )}
           >
             <div className="flex items-center justify-between gap-2">
@@ -139,7 +139,7 @@ export function ANPRSearchResults({
         ))}
       </div>
 
-      <div className="px-3 py-1.5 border-t border-[#1e2d40] text-[10px] font-mono text-slate-500 flex-shrink-0">
+      <div className="px-3 py-1.5 border-t border-border text-[10px] font-mono text-slate-500 flex-shrink-0">
         Match labels: exact normalized / raw read / partial / candidate / related sighting.
         Partial and related results are not identity confirmation.
       </div>

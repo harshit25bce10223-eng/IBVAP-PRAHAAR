@@ -109,7 +109,7 @@ export function RouteAnalysis() {
   const showResults = Boolean(data && (phase === 'results' || phase === 'simulating' || phase === 'analyzing'))
 
   return (
-    <div className="h-full flex flex-col gap-3.5 overflow-y-auto p-4 md:p-6 bg-[#080B10]">
+    <div className="h-full flex flex-col gap-3.5 overflow-y-auto p-4 md:p-6 bg-bg">
       {/* Page identity */}
       <header className="flex items-end justify-between flex-shrink-0">
         <div>
@@ -169,7 +169,7 @@ export function RouteAnalysis() {
             </div>
 
             {/* Right Panel: Complete Route Comparison — ALL 3 ROUTES VISIBLE! */}
-            <div className="w-[375px] flex-shrink-0 flex flex-col h-full bg-[#0C121D] rounded-xl border border-[#1E2D40] p-3 shadow-xl overflow-hidden">
+            <div className="w-[375px] flex-shrink-0 flex flex-col h-full bg-[#0C121D] rounded-xl border border-border p-3 shadow-xl overflow-hidden">
               <RouteComparisonPanel
                 routes={data.routes}
                 selectedRouteId={selection.routeId}

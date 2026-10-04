@@ -79,10 +79,10 @@ export function RouteMap({
   const isRouteSelected = (id: string) => selectedRouteId === id
 
   return (
-    <div className={clsx('relative rounded-xl border border-[#1E2D40] overflow-hidden bg-[#070D15] shadow-2xl flex flex-col', className)}>
+    <div className={clsx('relative rounded-xl border border-border overflow-hidden bg-[#070D15] shadow-2xl flex flex-col', className)}>
       {/* ── Tactical Header HUD ── */}
       <div className="absolute top-2.5 left-3 right-3 z-10 flex items-center justify-between text-[10px] font-mono pointer-events-none">
-        <div className="flex items-center gap-2 bg-[#0C121D]/90 border border-[#1E2D40] px-3 py-1 rounded backdrop-blur shadow-lg">
+        <div className="flex items-center gap-2 bg-[#0C121D]/90 border border-border px-3 py-1 rounded backdrop-blur shadow-lg">
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(63,203,140,0.8)]" />
           <span className="text-emerald-300 font-semibold tracking-wider">TACTICAL ROUTE MAP</span>
           <span className="text-slate-600">|</span>
@@ -91,7 +91,7 @@ export function RouteMap({
           <span className="text-cyan-400">3 FEASIBLE PATHS</span>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#0C121D]/90 border border-[#1E2D40] px-3 py-1 rounded backdrop-blur shadow-lg">
+        <div className="flex items-center gap-2 bg-[#0C121D]/90 border border-border px-3 py-1 rounded backdrop-blur shadow-lg">
           <span className="text-slate-400">WINDOW: <strong className="text-cyan-300">{timeWindow}</strong></span>
           <span className="text-slate-600">|</span>
           <span className="text-slate-400">WGS-84: <strong className="text-slate-200">{data.coords}</strong></span>
@@ -461,7 +461,7 @@ export function RouteMap({
 
       {/* ── Tactical Footer HUD ── */}
       <div className="absolute bottom-2 left-3 right-3 z-10 flex items-center justify-between text-[10px] font-mono pointer-events-none text-slate-400">
-        <div className="flex items-center gap-3 bg-[#0C121D]/90 border border-[#1E2D40] px-3 py-1 rounded backdrop-blur">
+        <div className="flex items-center gap-3 bg-[#0C121D]/90 border border-border px-3 py-1 rounded backdrop-blur">
           <span>RECOMMENDED: <strong className="text-emerald-400">ROUTE B (SCORE 38)</strong></span>
           <span className="text-slate-600">|</span>
           <span>LOWEST BUFFER EXPOSURE</span>
@@ -469,7 +469,7 @@ export function RouteMap({
           <span>FULL SENSOR LINE-OF-SIGHT</span>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#0C121D]/90 border border-[#1E2D40] px-3 py-1 rounded backdrop-blur">
+        <div className="flex items-center gap-2 bg-[#0C121D]/90 border border-border px-3 py-1 rounded backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
           <span className="text-slate-300">SCALE: 1:25,000</span>
           <span className="text-slate-600">|</span>

@@ -67,10 +67,10 @@ export function HealthTimeline({ health }: { health: CameraHealth }) {
           <div key={idx} className="relative flex items-start gap-2.5 text-[11px]">
             {/* Timeline node */}
             <div
-              className={`absolute -left-4 top-1 w-3 h-3 rounded-full border border-[#080B10] ${tone.dot} flex items-center justify-center`}
+              className={`absolute -left-4 top-1 w-3 h-3 rounded-full border border-bg ${tone.dot} flex items-center justify-center`}
             />
 
-            <div className="flex-1 bg-[#0F141C] border border-white/[0.06] rounded-md p-2.5">
+            <div className="flex-1 bg-surface border border-white/[0.06] rounded-md p-2.5">
               <div className="flex items-center justify-between gap-2 mb-1">
                 <div className="flex items-center gap-1.5">
                   {t.fromStatus && (

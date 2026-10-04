@@ -47,7 +47,7 @@ export function ANPRProviderStatus({
   return (
     <div
       className={clsx(
-        'flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-1.5 border border-[#1e2d40] rounded-lg bg-[#0d1117] text-[11px] font-mono',
+        'flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-1.5 border border-border rounded-lg bg-surface text-[11px] font-mono',
         className
       )}
     >

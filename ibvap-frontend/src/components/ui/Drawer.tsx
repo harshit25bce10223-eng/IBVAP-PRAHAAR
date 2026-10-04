@@ -42,19 +42,20 @@ export function Drawer({ open, onClose, title, width = 'w-[480px]', children, fo
       {/* Panel */}
       <div
         className={clsx(
-          'relative z-10 flex flex-col h-full border-l border-[#1e2d40]',
-          'bg-[#0d1117] shadow-2xl transition-transform duration-300 ease-in-out',
+          'relative z-10 flex flex-col h-full max-w-[100vw] border-l border-border',
+          'bg-surface shadow-2xl transition-transform duration-300 ease-in-out',
           width,
           open ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between border-b border-[#1e2d40] px-6 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between gap-4 border-b border-border bg-ssb-navy-raised/50 px-6 py-5 flex-shrink-0">
             <h2 className="text-base font-semibold text-slate-100">{title}</h2>
             <button
               onClick={onClose}
-              className="rounded-md p-1 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+              aria-label="Close panel"
+              className="rounded-lg p-2 text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-colors"
             >
               <X size={16} />
             </button>
@@ -64,7 +65,7 @@ export function Drawer({ open, onClose, title, width = 'w-[480px]', children, fo
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
         {/* Footer */}
         {footer && (
-          <div className="border-t border-[#1e2d40] px-6 py-4 flex-shrink-0 flex justify-end gap-3">
+          <div className="border-t border-border px-6 py-4 flex-shrink-0 flex justify-end gap-3">
             {footer}
           </div>
         )}

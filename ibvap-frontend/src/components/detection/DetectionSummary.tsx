@@ -25,7 +25,7 @@ interface DetectionSummaryProps {
 export function DetectionSummary({ summary, demo = false, title = 'Active detections', scopeNote, className }: DetectionSummaryProps) {
   if (!summary) {
     return (
-      <div className={clsx('rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4', className)} role="status">
+      <div className={clsx('rounded-xl border border-border bg-surface p-4', className)} role="status">
         <p className="text-[11px] text-slate-500">Detection summary unavailable.</p>
       </div>
     )
@@ -41,7 +41,7 @@ export function DetectionSummary({ summary, demo = false, title = 'Active detect
   const limitedQuality = (summary.qualitySummary.LIMITED ?? 0) + (summary.qualitySummary.POOR ?? 0)
 
   return (
-    <div className={clsx('rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4', className)} aria-label={title}>
+    <div className={clsx('rounded-xl border border-border bg-surface p-4', className)} aria-label={title}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">{title}</h3>
         <span className="font-mono text-xs text-slate-400">{formatDetectionCount(summary.total)}</span>

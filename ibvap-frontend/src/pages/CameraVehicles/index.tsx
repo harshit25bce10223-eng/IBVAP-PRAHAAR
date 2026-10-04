@@ -78,9 +78,9 @@ export function CameraVehicles() {
     : ''
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#080c12]">
+    <div className="h-full flex flex-col overflow-hidden bg-bg">
       {/* Header */}
-      <header className="border-b border-[#1e2d40] bg-[#0d1117] px-4 py-3 flex-shrink-0 space-y-2">
+      <header className="border-b border-border bg-surface px-4 py-3 flex-shrink-0 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -98,7 +98,7 @@ export function CameraVehicles() {
                   FEED: {feedState ?? 'UNKNOWN'}
                 </span>
                 {cameraFeed?.providerHealth && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-[#1e2d40] bg-[#080c12] text-slate-400 font-mono">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-bg text-slate-400 font-mono">
                     PROVIDER: {cameraFeed.providerHealth}
                   </span>
                 )}
@@ -126,7 +126,7 @@ export function CameraVehicles() {
                   fetchCameraSummary(cameraId)
                 }
               }}
-              className="p-2 rounded-lg border border-[#1e2d40] bg-[#0d1117] text-slate-300 hover:text-white transition-colors"
+              className="p-2 rounded-lg border border-border bg-surface text-slate-300 hover:text-white transition-colors"
               title="Refresh camera feed"
             >
               <RefreshCw className={`h-4 w-4 ${cameraFeedState === 'loading' ? 'animate-spin text-cyan-400' : ''}`} />
@@ -135,7 +135,7 @@ export function CameraVehicles() {
         </div>
 
         {/* Camera observation counts (provider-reported; counts only, no accuracy claims) */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-slate-400 bg-[#080c12]/60 px-3 py-1 rounded border border-[#1e2d40]/60">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-slate-400 bg-bg/60 px-3 py-1 rounded border border-border/60">
           {summaryForCamera ? (
             <>
               <span>Observations: <span className="text-slate-200">{summaryForCamera.totalSightings}</span></span>
@@ -153,8 +153,8 @@ export function CameraVehicles() {
       {/* Main Workspace */}
       <div className="flex-1 min-h-0 flex px-4 py-4 gap-4 overflow-hidden">
         {/* Left Column: Sighting List */}
-        <div className="w-96 flex-shrink-0 flex flex-col border border-[#1e2d40] rounded-xl bg-[#0d1117] overflow-hidden">
-          <div className="p-3 border-b border-[#1e2d40] flex items-center justify-between flex-shrink-0 bg-[#080c12]/40">
+        <div className="w-96 flex-shrink-0 flex flex-col border border-border rounded-xl bg-surface overflow-hidden">
+          <div className="p-3 border-b border-border flex items-center justify-between flex-shrink-0 bg-bg/40">
             <span className="text-xs font-mono font-semibold uppercase text-slate-300">
               Sightings ({feedSightings.length})
             </span>
@@ -199,7 +199,7 @@ export function CameraVehicles() {
         </div>
 
         {/* Right Column: Sighting Details */}
-        <div className="flex-1 flex flex-col border border-[#1e2d40] rounded-xl bg-[#0d1117] overflow-hidden">
+        <div className="flex-1 flex flex-col border border-border rounded-xl bg-surface overflow-hidden">
           {selectedSighting ? (
             <SightingDetail sighting={selectedSighting} />
           ) : (

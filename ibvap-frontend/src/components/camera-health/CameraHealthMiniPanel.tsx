@@ -17,7 +17,7 @@ export function CameraHealthMiniPanel({ records }: { records: CameraHealth[] }) 
   const attention = records.filter(r => r.status !== 'ONLINE')
 
   return (
-    <section aria-label="Camera health summary" className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4">
+    <section aria-label="Camera health summary" className="rounded-xl border border-border bg-surface p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">Camera Health</h3>
         <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-cyan-400">

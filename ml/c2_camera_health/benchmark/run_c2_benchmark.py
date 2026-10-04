@@ -384,10 +384,17 @@ def main():
     #   naive representation of the current UTC wall clock, which the engine
     #   then interprets correctly (documented locked-code limitation, §125:
     #   harness adapts, locked code untouched).
-    base_ts = datetime.now(timezone.utc).replace(tzinfo=None)
+    # base_ts must be PER SAMPLE: the engine compares our source timestamps
+    # against the real wall clock at analysis time. A single global base_ts
+    # makes late samples' frames appear artificially old (run position in
+    # seconds), flipping borderline samples across STALE thresholds and
+    # breaking run-to-run determinism (measured: 16/180 records flipped
+    # KeyError<->TypeError between run1/run2 with a global base_ts).
+    run_utc_ts = datetime.now(timezone.utc).replace(tzinfo=None)
 
     records = []
     for s in samples:
+        base_ts = datetime.now(timezone.utc).replace(tzinfo=None)
         frames = materialize_frames(s)
         rec = dict(
             sample_id=s.sample_id, cls=s.cls, subvariant=s.subvariant,
@@ -428,7 +435,7 @@ def main():
         benchmark="PRHAAR-C2-CAMERA-HEALTH-CLASSICAL-BENCH",
         version="v1",
         run_tag=RUN_TAG,
-        run_utc=base_ts.isoformat(),
+        run_utc=run_utc_ts.isoformat(),
         wall_seconds=round(time.time() - t0, 3),
         spec_compliance=dict(
             s67="classical CV benchmark performed first; no neural camera-health model trained",

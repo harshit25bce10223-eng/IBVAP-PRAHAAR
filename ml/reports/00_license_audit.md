@@ -46,6 +46,7 @@ Status legend: **USABLE** (verified, may be used with conditions) · **VERIFY-AT
 - **Why it matters:** AGPL's network-use clause can impose source-availability obligations on services built on the software.
 - **Options:** (a) comply with AGPL for the AI service boundary, (b) Ultralytics Enterprise License, (c) alternative detector family with permissive license *only if* Phase 3 measured results favor it.
 - **Status:** OPEN — carried in `PRHAAR_AI_MODEL_PLAN.md` §Open decisions. No production-candidate claim for C5/C6/C7 until resolved.
+- **Deepened 2026-10-03** in `ml/c5_detection/reports/model_license_audit.md`: local metadata verification, dependency table, and Ultralytics Responsible Use Policy §4.2 finding (law-enforcement context requires review/approval per their policy text). RT-DETR family has an Apache-2.0 original-implementation path (verified).
 
 ## 4. Acquisition-time verification protocol (mandatory)
 

@@ -4,11 +4,24 @@
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, Consolas, monospace;
 
-  --color-bg: #080c12;
-  --color-surface: #0d1117;
-  --color-border: #1e2d40;
-  --color-text: #e2e8f0;
-  --color-text-muted: #94a3b8;
+  --color-bg: #101c17;
+  --color-surface: #172a21;
+  --color-border: #3a5142;
+  --color-text: #f2f1e6;
+  --color-text-muted: #b9c5b4;
+  --color-brand: #c2cb99;
+  --color-brand-hover: #d6ddb6;
+  --color-slate-50: #f8f7ef;
+  --color-slate-100: #f2f1e6;
+  --color-slate-200: #e0e5d6;
+  --color-slate-300: #cbd4c2;
+  --color-slate-400: #b9c5b4;
+  --color-slate-500: #a1b09a;
+  --color-slate-600: #788b73;
+  --color-slate-700: #3a5142;
+  --color-slate-800: #22382b;
+  --color-slate-900: #172a21;
+  --color-slate-950: #101c17;
 
   --color-cyan-400: #22d3ee;
   --color-emerald-400: #34d399;
@@ -26,20 +39,20 @@
        good     → existing emerald-400 (canonical #3FCB8C)
        degraded → existing amber-400   (canonical #F5A623)
        failed   → existing red-400/500 (canonical #F0455B)
-       accent   → existing cyan-400    (canonical #2FD5E0)
+       accent   → logo-derived sage (independent of status colours)
      No component may use its own status shades. */
-  --color-prhaar-bg: #080c12;
-  --color-prhaar-surface: #0d1117;
-  --color-prhaar-surface-elevated: #111927;
-  --color-prhaar-text-primary: #e2e8f0;
-  --color-prhaar-text-secondary: #94a3b8;
-  --color-prhaar-text-muted: #64748b;
-  --color-prhaar-border: #1e2d40;
-  --color-prhaar-accent: #22d3ee;
+  --color-prhaar-bg: #101c17;
+  --color-prhaar-surface: #172a21;
+  --color-prhaar-surface-elevated: #22382b;
+  --color-prhaar-text-primary: #f2f1e6;
+  --color-prhaar-text-secondary: #b9c5b4;
+  --color-prhaar-text-muted: #a4b39b;
+  --color-prhaar-border: #3a5142;
+  --color-prhaar-accent: #c2cb99;
   --color-prhaar-good: #34d399;
   --color-prhaar-degraded: #f59e0b;
   --color-prhaar-failed: #f87171;
-  --color-prhaar-focus: #22d3ee;
+  --color-prhaar-focus: #c2cb99;
 
   /* ── प्रहार command palette (Main Command Dashboard shell) ─────────────────
      Canonical hexes (spec §3):
@@ -48,11 +61,13 @@
        Warning Amber        #F4B942   → --color-ssb-amber
        Alert Red            #D62828   → --color-ssb-red
        White                #FFFFFF   → --color-ssb-white
-     Derived shades below are neutral/contrast variants of the five canonical
-     hues only (per spec §3); they do not form a second palette. */
-  --color-ssb-navy: #0b1f33;
-  --color-ssb-navy-deep: #071527;
-  --color-ssb-navy-raised: #102b45;
+     Status hues retain their established meaning. Structural surfaces use
+     logo-derived forest green and ivory; legacy token names stay compatible. */
+  /* Legacy token names retained so existing components keep their contracts.
+     Shell surfaces use forest green; status colours retain their meaning. */
+  --color-ssb-navy: #172a21;
+  --color-ssb-navy-deep: #101c17;
+  --color-ssb-navy-raised: #22382b;
   --color-ssb-green: #0b5d3b;
   --color-ssb-green-bright: #35b884;
   --color-ssb-amber: #f4b942;
@@ -60,9 +75,9 @@
   --color-ssb-red: #d62828;
   --color-ssb-red-bright: #e85d5d;
   --color-ssb-white: #ffffff;
-  --color-ssb-text: #e9eef4;
-  --color-ssb-text-muted: #9aaebd;
-  --color-ssb-border: #1c3a55;
+  --color-ssb-text: #f2f1e6;
+  --color-ssb-text-muted: #b9c5b4;
+  --color-ssb-border: #3a5142;
 }
 
 @layer base {
@@ -71,6 +86,28 @@
   }
   body {
     @apply bg-bg text-text font-sans antialiased;
+    color-scheme: dark;
+  }
+  :where(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: #c2cb99;
+    color: #101c17;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #63785e #172a21;
+  }
+  :where(input, select, textarea) {
+    accent-color: var(--color-brand);
+  }
+  :where(table) {
+    font-variant-numeric: tabular-nums;
+  }
+  :where(th) {
+    font-weight: 600;
   }
   #root {
     @apply h-screen w-full flex flex-col;

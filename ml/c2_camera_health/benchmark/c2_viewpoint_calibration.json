@@ -1,0 +1,464 @@
+{
+  "corpus_manifest_sha256": "f251e908cd2f397f0793fe043032b39e9e9c99d5b288260f382a1d2fc602e30a",
+  "combos": [
+    {
+      "scale_factor": 0.75,
+      "min_features": 30,
+      "online": {
+        "init": 24,
+        "confirmed": 0,
+        "score_only": 0,
+        "engine_gate": 0,
+        "n": 24
+      },
+      "viewpoint": {
+        "init": 15,
+        "confirmed": 7,
+        "score_only": 7,
+        "engine_gate": 1,
+        "n": 15
+      },
+      "latency_ms": {
+        "p50": 5.28,
+        "p95": 20.94,
+        "max": 102.72
+      }
+    },
+    {
+      "scale_factor": 1.0,
+      "min_features": 15,
+      "online": {
+        "init": 24,
+        "confirmed": 0,
+        "score_only": 0,
+        "engine_gate": 0,
+        "n": 24
+      },
+      "viewpoint": {
+        "init": 15,
+        "confirmed": 13,
+        "score_only": 13,
+        "engine_gate": 5,
+        "n": 15
+      },
+      "latency_ms": {
+        "p50": 7.64,
+        "p95": 31.91,
+        "max": 125.25
+      }
+    },
+    {
+      "scale_factor": 1.0,
+      "min_features": 30,
+      "online": {
+        "init": 24,
+        "confirmed": 0,
+        "score_only": 0,
+        "engine_gate": 0,
+        "n": 24
+      },
+      "viewpoint": {
+        "init": 15,
+        "confirmed": 13,
+        "score_only": 13,
+        "engine_gate": 5,
+        "n": 15
+      },
+      "latency_ms": {
+        "p50": 7.63,
+        "p95": 27.88,
+        "max": 107.41
+      }
+    },
+    {
+      "scale_factor": 1.0,
+      "min_features": 60,
+      "online": {
+        "init": 24,
+        "confirmed": 0,
+        "score_only": 0,
+        "engine_gate": 0,
+        "n": 24
+      },
+      "viewpoint": {
+        "init": 15,
+        "confirmed": 13,
+        "score_only": 13,
+        "engine_gate": 5,
+        "n": 15
+      },
+      "latency_ms": {
+        "p50": 7.49,
+        "p95": 26.41,
+        "max": 81.87
+      }
+    },
+    {
+      "scale_factor": 1.0,
+      "min_features": 100,
+      "online": {
+        "init": 24,
+        "confirmed": 0,
+        "score_only": 0,
+        "engine_gate": 0,
+        "n": 24
+      },
+      "viewpoint": {
+        "init": 15,
+        "confirmed": 13,
+        "score_only": 13,
+        "engine_gate": 5,
+        "n": 15
+      },
+      "latency_ms": {
+        "p50": 7.52,
+        "p95": 24.13,
+        "max": 56.06
+      }
+    }
+  ],
+  "chosen": {
+    "scale_factor": 1.0,
+    "min_features": 30
+  },
+  "per_sample_at_chosen": {
+    "ONLINE": {
+      "C2-0001": {
+        "ref_ok": true,
+        "ref_features": 366,
+        "confirmed": false,
+        "score": 0.0192,
+        "confidence": 0.5031,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0002": {
+        "ref_ok": true,
+        "ref_features": 385,
+        "confirmed": false,
+        "score": 0.0445,
+        "confidence": 0.4733,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0003": {
+        "ref_ok": true,
+        "ref_features": 363,
+        "confirmed": false,
+        "score": 0.0111,
+        "confidence": 0.4264,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0004": {
+        "ref_ok": true,
+        "ref_features": 376,
+        "confirmed": false,
+        "score": 0.0,
+        "confidence": 0.2276,
+        "reason": "Low inlier ratio: 0.23"
+      },
+      "C2-0005": {
+        "ref_ok": true,
+        "ref_features": 375,
+        "confirmed": false,
+        "score": 0.0126,
+        "confidence": 0.3669,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0006": {
+        "ref_ok": true,
+        "ref_features": 359,
+        "confirmed": false,
+        "score": 0.0,
+        "confidence": 0.2065,
+        "reason": "Low inlier ratio: 0.21"
+      },
+      "C2-0007": {
+        "ref_ok": true,
+        "ref_features": 377,
+        "confirmed": false,
+        "score": 0.0147,
+        "confidence": 0.549,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0008": {
+        "ref_ok": true,
+        "ref_features": 356,
+        "confirmed": false,
+        "score": 0.111,
+        "confidence": 0.4264,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0009": {
+        "ref_ok": true,
+        "ref_features": 388,
+        "confirmed": false,
+        "score": 0.0123,
+        "confidence": 0.3364,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0010": {
+        "ref_ok": true,
+        "ref_features": 355,
+        "confirmed": false,
+        "score": 0.0487,
+        "confidence": 0.3056,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0011": {
+        "ref_ok": true,
+        "ref_features": 377,
+        "confirmed": false,
+        "score": 0.0186,
+        "confidence": 0.3772,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0012": {
+        "ref_ok": true,
+        "ref_features": 368,
+        "confirmed": false,
+        "score": 0.1004,
+        "confidence": 0.3585,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0013": {
+        "ref_ok": true,
+        "ref_features": 371,
+        "confirmed": false,
+        "score": 0.0288,
+        "confidence": 0.5486,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0014": {
+        "ref_ok": true,
+        "ref_features": 381,
+        "confirmed": false,
+        "score": 0.0449,
+        "confidence": 0.4615,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0015": {
+        "ref_ok": true,
+        "ref_features": 366,
+        "confirmed": false,
+        "score": 0.0109,
+        "confidence": 0.4959,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0016": {
+        "ref_ok": true,
+        "ref_features": 378,
+        "confirmed": false,
+        "score": 0.0,
+        "confidence": 0.2294,
+        "reason": "Low inlier ratio: 0.23"
+      },
+      "C2-0017": {
+        "ref_ok": true,
+        "ref_features": 375,
+        "confirmed": false,
+        "score": 0.0063,
+        "confidence": 0.3566,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0018": {
+        "ref_ok": true,
+        "ref_features": 356,
+        "confirmed": false,
+        "score": 0.0,
+        "confidence": 0.1585,
+        "reason": "Low inlier ratio: 0.16"
+      },
+      "C2-0019": {
+        "ref_ok": true,
+        "ref_features": 377,
+        "confirmed": false,
+        "score": 0.0147,
+        "confidence": 0.5373,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0020": {
+        "ref_ok": true,
+        "ref_features": 352,
+        "confirmed": false,
+        "score": 0.1023,
+        "confidence": 0.4237,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0021": {
+        "ref_ok": true,
+        "ref_features": 382,
+        "confirmed": false,
+        "score": 0.0,
+        "confidence": 0.266,
+        "reason": "Low inlier ratio: 0.27"
+      },
+      "C2-0022": {
+        "ref_ok": true,
+        "ref_features": 357,
+        "confirmed": false,
+        "score": 0.1359,
+        "confidence": 0.3714,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0023": {
+        "ref_ok": true,
+        "ref_features": 376,
+        "confirmed": false,
+        "score": 0.0209,
+        "confidence": 0.3854,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0024": {
+        "ref_ok": true,
+        "ref_features": 374,
+        "confirmed": false,
+        "score": 0.1221,
+        "confidence": 0.4382,
+        "reason": "Shift below persistence threshold"
+      }
+    },
+    "VIEWPOINT_CHANGED": {
+      "C2-0136": {
+        "ref_ok": true,
+        "ref_features": 383,
+        "confirmed": true,
+        "score": 0.3408,
+        "confidence": 0.55,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0137": {
+        "ref_ok": true,
+        "ref_features": 350,
+        "confirmed": true,
+        "score": 0.337,
+        "confidence": 0.5231,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0138": {
+        "ref_ok": true,
+        "ref_features": 364,
+        "confirmed": true,
+        "score": 0.3063,
+        "confidence": 0.4565,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0139": {
+        "ref_ok": true,
+        "ref_features": 369,
+        "confirmed": true,
+        "score": 0.3311,
+        "confidence": 0.5152,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0140": {
+        "ref_ok": true,
+        "ref_features": 368,
+        "confirmed": true,
+        "score": 0.3488,
+        "confidence": 0.5072,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0141": {
+        "ref_ok": true,
+        "ref_features": 356,
+        "confirmed": true,
+        "score": 0.4231,
+        "confidence": 0.6316,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0142": {
+        "ref_ok": true,
+        "ref_features": 356,
+        "confirmed": false,
+        "score": 0.2411,
+        "confidence": 0.4062,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0143": {
+        "ref_ok": true,
+        "ref_features": 348,
+        "confirmed": true,
+        "score": 0.3064,
+        "confidence": 0.4694,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0144": {
+        "ref_ok": true,
+        "ref_features": 374,
+        "confirmed": true,
+        "score": 0.3068,
+        "confidence": 0.4658,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0145": {
+        "ref_ok": true,
+        "ref_features": 383,
+        "confirmed": true,
+        "score": 0.3284,
+        "confidence": 0.3385,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0146": {
+        "ref_ok": true,
+        "ref_features": 350,
+        "confirmed": false,
+        "score": 0.2936,
+        "confidence": 0.3148,
+        "reason": "Shift below persistence threshold"
+      },
+      "C2-0147": {
+        "ref_ok": true,
+        "ref_features": 364,
+        "confirmed": true,
+        "score": 0.317,
+        "confidence": 0.3214,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0148": {
+        "ref_ok": true,
+        "ref_features": 369,
+        "confirmed": true,
+        "score": 0.4794,
+        "confidence": 0.4833,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0149": {
+        "ref_ok": true,
+        "ref_features": 368,
+        "confirmed": true,
+        "score": 0.3973,
+        "confidence": 0.3973,
+        "reason": "Persistent geometric displacement"
+      },
+      "C2-0150": {
+        "ref_ok": true,
+        "ref_features": 356,
+        "confirmed": true,
+        "score": 0.3273,
+        "confidence": 0.3273,
+        "reason": "Persistent geometric displacement"
+      }
+    }
+  },
+  "confidence_gate_tradeoff": [
+    {
+      "conf_threshold": 0.3,
+      "vp_flags": 13,
+      "online_flags": 0
+    },
+    {
+      "conf_threshold": 0.4,
+      "vp_flags": 9,
+      "online_flags": 0
+    },
+    {
+      "conf_threshold": 0.5,
+      "vp_flags": 5,
+      "online_flags": 0
+    },
+    {
+      "conf_threshold": 0.6,
+      "vp_flags": 1,
+      "online_flags": 0
+    }
+  ]
+}

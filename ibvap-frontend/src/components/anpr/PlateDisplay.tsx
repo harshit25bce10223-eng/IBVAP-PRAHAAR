@@ -41,7 +41,7 @@ function confidencePct(c: number): string {
 export function PlateDisplay({ plateRead, className }: PlateDisplayProps) {
   if (!plateRead) {
     return (
-      <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#080c12] p-3', className)}>
+      <div className={clsx('rounded-lg border border-border bg-bg p-3', className)}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Top OCR Candidate</span>
           <Badge variant="critical">UNREADABLE</Badge>
@@ -59,7 +59,7 @@ export function PlateDisplay({ plateRead, className }: PlateDisplayProps) {
   const conf = plateRead.confidence
 
   return (
-    <div className={clsx('rounded-lg border border-[#1e2d40] bg-[#080c12] p-3 space-y-2', className)}>
+    <div className={clsx('rounded-lg border border-border bg-bg p-3 space-y-2', className)}>
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Top OCR Candidate</span>
         <Badge variant={qualityVariant(plateRead.quality)}>{qualityLabel(plateRead.quality)}</Badge>

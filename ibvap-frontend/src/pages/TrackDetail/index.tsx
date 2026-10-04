@@ -75,7 +75,7 @@ import {
 type Load = 'idle' | 'loading' | 'ready' | 'error'
 
 const SECTION =
-  'rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4'
+  'rounded-xl border border-border bg-surface p-4'
 const SECTION_HEAD =
   'mb-3 border-b border-slate-800/60 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-300'
 
@@ -242,7 +242,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#080c12] p-6">
+      <div className="h-full flex items-center justify-center bg-bg p-6">
         <div className="flex flex-col items-center gap-3 text-slate-400 font-mono">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
           <span className="text-xs">Loading track telemetry for {trackId}…</span>
@@ -263,9 +263,9 @@ function TrackDetailView({ trackId }: { trackId: string }) {
   const isVehicle = track.objectClass === 'VEHICLE'
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto bg-[#080c12] p-4 md:p-6 gap-5">
+    <div className="h-full flex flex-col overflow-y-auto bg-bg p-4 md:p-6 gap-5">
       {/* ── §7 Track summary header ─────────────────────────────────────────── */}
-      <header className="border-b border-[#1e2d40] pb-4">
+      <header className="border-b border-border pb-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -440,7 +440,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
               </span>
             </h2>
             {/* Relative container gives the tactical radar a bounded viewport */}
-            <div className="relative w-full rounded-xl border border-[#1e2d40] overflow-hidden" style={{ height: '280px' }}>
+            <div className="relative w-full rounded-xl border border-border overflow-hidden" style={{ height: '280px' }}>
               <TrackTrajectory
                 track={track}
                 containerSize={{ width: 800, height: 280 }}
@@ -769,7 +769,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
             <h2 className={SECTION_HEAD}>Event · Correlation · Incident · Evidence</h2>
             <div className="space-y-2">
               {track.eventId && (
-                <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
                   <div className="flex items-center gap-2">
                     <Clock className="h-3.5 w-3.5 text-amber-400" />
                     <span className="font-mono text-slate-200">{track.eventId}</span>
@@ -784,7 +784,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
                 </div>
               )}
               {track.correlationId && (
-                <div className="p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+                <div className="p-2 rounded-lg bg-bg border border-border">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Activity className="h-3.5 w-3.5 text-purple-400" />
@@ -804,7 +804,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
                 </div>
               )}
               {track.incidentId && (
-                <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
                   <div className="flex items-center gap-2">
                     <Shield className="h-3.5 w-3.5 text-red-400" />
                     <span className="font-mono text-slate-200">{track.incidentId}</span>
@@ -815,7 +815,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
                 </div>
               )}
               {track.evidenceId && (
-                <div className="flex items-center justify-between p-2 rounded-lg bg-[#080c12] border border-[#1e2d40]">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg border border-border">
                   <div className="flex items-center gap-2">
                     <FileCheck className="h-3.5 w-3.5 text-emerald-400" />
                     <span className="font-mono text-slate-200">{track.evidenceId}</span>
@@ -870,7 +870,7 @@ function TrackDetailView({ trackId }: { trackId: string }) {
 function TrackUnavailablePanel({ message }: { message: string }) {
   const navigate = useNavigate()
   return (
-    <div className="h-full flex items-center justify-center bg-[#080c12] p-6">
+    <div className="h-full flex items-center justify-center bg-bg p-6">
       <div className="max-w-md w-full rounded-xl border border-red-500/20 bg-red-500/5 p-6 text-center">
         <AlertTriangle className="h-8 w-8 text-red-400 mx-auto mb-2" />
         <h2 className="text-sm font-semibold text-red-400">Track Record Unavailable</h2>
@@ -897,7 +897,7 @@ function TrackUnavailablePanel({ message }: { message: string }) {
 
 function HeaderStat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5 rounded-md border border-[#1e2d40] bg-[#0d1117] px-2 py-1">
+    <span className="inline-flex items-baseline gap-1.5 rounded-md border border-border bg-surface px-2 py-1">
       <span className="text-[9px] uppercase tracking-wider text-slate-500">{label}</span>
       {children}
     </span>
@@ -915,7 +915,7 @@ function MetaItem({ label, value }: { label: string; value: string }) {
 
 function SectionLoading({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-[#1e2d40] bg-[#080c12] p-3 text-[11px] text-slate-400" role="status">
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-bg p-3 text-[11px] text-slate-400" role="status">
       <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
       <span>{label}</span>
     </div>

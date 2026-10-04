@@ -147,11 +147,11 @@ export function CommandSearchModal({ isOpen, onClose }: CommandSearchModalProps)
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl rounded-xl border border-[#2FD5E0]/30 bg-[#080B10] shadow-[0_0_40px_rgba(0,0,0,0.8),0_0_15px_rgba(47,213,224,0.15)] overflow-hidden flex flex-col"
+        className="w-full max-w-2xl rounded-xl border border-[#2FD5E0]/30 bg-bg shadow-[0_0_40px_rgba(0,0,0,0.8),0_0_15px_rgba(47,213,224,0.15)] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#1e2d40] bg-[#0d1117]">
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border bg-surface">
           <Search size={18} className="text-[#2FD5E0] flex-shrink-0 animate-pulse" />
           <input
             ref={inputRef}
@@ -172,7 +172,7 @@ export function CommandSearchModal({ isOpen, onClose }: CommandSearchModalProps)
               <X size={14} />
             </button>
           )}
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-[#1e2d40] bg-[#080c12] text-slate-400">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-border bg-bg text-slate-400">
             ESC TO CLOSE
           </span>
         </div>
@@ -203,7 +203,7 @@ export function CommandSearchModal({ isOpen, onClose }: CommandSearchModalProps)
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-7 w-7 rounded border border-white/10 bg-[#0d1117] flex items-center justify-center flex-shrink-0">
+                    <div className="h-7 w-7 rounded border border-white/10 bg-surface flex items-center justify-center flex-shrink-0">
                       {getCategoryIcon(item.category)}
                     </div>
                     <div className="min-w-0">
@@ -243,7 +243,7 @@ export function CommandSearchModal({ isOpen, onClose }: CommandSearchModalProps)
         </div>
 
         {/* Footer shortcuts */}
-        <div className="px-4 py-2 border-t border-[#1e2d40] bg-[#0d1117] flex items-center justify-between text-[10px] font-mono text-slate-500">
+        <div className="px-4 py-2 border-t border-border bg-surface flex items-center justify-between text-[10px] font-mono text-slate-500">
           <div className="flex items-center gap-3">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>

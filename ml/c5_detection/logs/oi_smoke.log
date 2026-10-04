@@ -1,0 +1,25 @@
+2026-10-04 08:38:13,811 INFO downloading https://storage.googleapis.com/openimages/v5/test-annotations-bbox.csv -> test-annotations-bbox.csv (resuming from 35.7 MB)
+2026-10-04 08:38:52,996 INFO   77.5 MB in 39s
+2026-10-04 08:38:53,184 INFO downloading https://storage.googleapis.com/openimages/2018_04/test/test-images-with-rotation.csv -> test-images-with-rotation.csv (fresh)
+2026-10-04 08:39:39,191 INFO   45.2 MB in 46s
+2026-10-04 08:39:39,384 INFO target classes resolved: {'Person': '/m/01g317', 'Bicycle': '/m/0199g', 'Car': '/m/0k4j', 'Motorcycle': '/m/04_sv', 'Bus': '/m/01bjv', 'Truck': '/m/07r04', 'Van': '/m/0h2r6', 'Cattle': '/m/01xq0k1', 'Sheep': '/m/07bgp', 'Goat': '/m/03fwl', 'Horse': '/m/03k3r', 'Dog': '/m/0bt9lr'}
+2026-10-04 08:39:39,384 INFO === train: scanning oidv6-train-annotations-bbox.csv (caps {'Person': 3, 'Bicycle': 3, 'Car': 3, 'Motorcycle': 3, 'Bus': 3, 'Truck': 3, 'Van': 3, 'Cattle': 3, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 3})
+2026-10-04 08:39:42,208 INFO pass1 train approx image counts: {'Person': 11309, 'Bicycle': 1189, 'Car': 4398, 'Motorcycle': 652, 'Bus': 644, 'Truck': 635, 'Van': 508, 'Cattle': 317, 'Sheep': 152, 'Goat': 191, 'Horse': 739, 'Dog': 1328}
+2026-10-04 08:39:42,208 INFO pass2 sampling rates: {'Person': 0.0003, 'Bicycle': 0.0029, 'Car': 0.0008, 'Motorcycle': 0.0053, 'Bus': 0.0054, 'Truck': 0.0054, 'Van': 0.0068, 'Cattle': 0.0109, 'Sheep': 0.0227, 'Goat': 0.0181, 'Horse': 0.0047, 'Dog': 0.0026}
+2026-10-04 08:39:45,152 WARNING max_chunks=2 used: counts/rates are partial (test mode)
+2026-10-04 08:39:45,153 INFO pass2 kept per class (train): {'Person': 3, 'Bicycle': 3, 'Car': 1, 'Motorcycle': 2, 'Bus': 3, 'Truck': 3, 'Van': 1, 'Cattle': 1, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 2}; union=28
+2026-10-04 08:39:48,932 INFO train done: kept rows=95 stats={'Person': 3, 'Bicycle': 3, 'Car': 1, 'Motorcycle': 2, 'Bus': 3, 'Truck': 3, 'Van': 1, 'Cattle': 1, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 2}
+2026-10-04 08:39:48,932 INFO === validation: scanning validation-annotations-bbox.csv (caps {'Person': 3, 'Bicycle': 3, 'Car': 3, 'Motorcycle': 3, 'Bus': 3, 'Truck': 3, 'Van': 3, 'Cattle': 3, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 3})
+2026-10-04 08:39:49,889 INFO validation done: kept rows=140 stats={'Person': 3, 'Bicycle': 3, 'Car': 3, 'Motorcycle': 3, 'Bus': 3, 'Truck': 3, 'Van': 3, 'Cattle': 3, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 3}
+2026-10-04 08:39:49,890 INFO === test: scanning test-annotations-bbox.csv (caps {'Person': 3, 'Bicycle': 3, 'Car': 3, 'Motorcycle': 3, 'Bus': 3, 'Truck': 3, 'Van': 3, 'Cattle': 3, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 3})
+2026-10-04 08:39:52,781 INFO test done: kept rows=72 stats={'Person': 3, 'Bicycle': 3, 'Car': 3, 'Motorcycle': 3, 'Bus': 3, 'Truck': 3, 'Van': 3, 'Cattle': 3, 'Sheep': 3, 'Goat': 3, 'Horse': 3, 'Dog': 3}
+2026-10-04 08:39:52,782 INFO union images across splits: 100
+2026-10-04 08:41:24,147 INFO license rows resolved so far: 28 (from oidv6-train-images-with-labels-with-rotation.csv)
+2026-10-04 08:41:24,787 INFO license rows resolved so far: 64 (from validation-images-with-rotation.csv)
+2026-10-04 08:41:26,353 INFO all 100 license rows resolved within test-images-with-rotation.csv
+2026-10-04 08:41:26,354 INFO license rows resolved so far: 100 (from test-images-with-rotation.csv)
+2026-10-04 08:41:26,385 INFO license rows found for 100; dropped (no license row): 0
+2026-10-04 08:41:28,990 INFO downloading 100 images with 8 workers ...
+2026-10-04 08:42:05,255 INFO   100/100 downloaded (36s)
+2026-10-04 08:42:05,578 INFO DONE ok=100 failed=0 bytes=32.9 MB
+2026-10-04 08:42:05,579 INFO summary -> C:\SIH\ml\c5_detection\datasets\sources\openimages_v7\acquisition_summary.json

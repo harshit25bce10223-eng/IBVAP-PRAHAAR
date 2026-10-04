@@ -58,8 +58,8 @@ export function CorrelationSummary({
   return (
     <div
       className={clsx(
-        'rounded-xl border bg-[#0d1117] transition-colors',
-        density === 'compact' ? 'border-white/10' : 'border-[#1e2d40]'
+        'rounded-xl border bg-surface transition-colors',
+        density === 'compact' ? 'border-white/10' : 'border-border'
       )}
     >
       {density === 'compact' ? (
@@ -173,14 +173,14 @@ export function CorrelationSummary({
 
       {/* Expandable member signals */}
       {showExpand && expanded && (
-        <div className="border-t border-[#1e2d40] px-4 py-3">
+        <div className="border-t border-border px-4 py-3">
           <MemberSignals group={group} onSelectMember={onSelectMember} />
         </div>
       )}
 
       {/* Footer actions */}
       {(to || onExpand) && (
-        <div className={clsx('flex items-center justify-between border-t', density === 'compact' ? 'border-white/10 px-3 py-1.5' : 'border-[#1e2d40] px-4 py-2')}>
+        <div className={clsx('flex items-center justify-between border-t', density === 'compact' ? 'border-white/10 px-3 py-1.5' : 'border-border px-4 py-2')}>
           {showExpand && onExpand ? (
             <button
               onClick={onExpand}

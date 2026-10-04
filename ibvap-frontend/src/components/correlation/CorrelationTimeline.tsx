@@ -98,10 +98,10 @@ function RailDot({ className, 'aria-hidden': ariaHidden }: { className?: string;
   return (
     <>
       <span
-        className={clsx('absolute left-[3px] top-1.5 h-2 w-2 rounded-full border bg-[#0d1117]', className ?? 'border-slate-600')}
+        className={clsx('absolute left-[3px] top-1.5 h-2 w-2 rounded-full border bg-surface', className ?? 'border-slate-600')}
         aria-hidden={ariaHidden}
       />
-      <span className="absolute left-[7px] top-3 bottom-0 w-px bg-[#1e2d40]" aria-hidden />
+      <span className="absolute left-[7px] top-3 bottom-0 w-px bg-border" aria-hidden />
     </>
   )
 }

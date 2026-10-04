@@ -43,7 +43,7 @@ const SORTS: { value: DetectionQuery['sort']; label: string }[] = [
 
 function selectCls(compact?: boolean) {
   return clsx(
-    'rounded border border-white/10 bg-[#080c12] text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none',
+    'rounded border border-white/10 bg-bg text-xs text-slate-300 focus:border-cyan-400/60 focus:outline-none',
     compact ? 'px-1.5 py-1' : 'px-2 py-1.5'
   )
 }
@@ -87,7 +87,7 @@ export function DetectionFilters({ query, cameras, onChange, onReset }: Detectio
     query.order !== DEFAULT_DETECTION_QUERY.order
 
   return (
-    <div className="space-y-2.5 rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3">
+    <div className="space-y-2.5 rounded-xl border border-border bg-surface p-3">
       <div className="flex flex-wrap items-center gap-2">
         <input
           type="search"
@@ -95,7 +95,7 @@ export function DetectionFilters({ query, cameras, onChange, onReset }: Detectio
           onChange={e => onChange({ search: e.target.value })}
           placeholder="Search DET, CAM, EV, TRK, INC…"
           aria-label="Search detections"
-          className="min-w-[160px] rounded border border-white/10 bg-[#080c12] px-2 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
+          className="min-w-[160px] rounded border border-white/10 bg-bg px-2 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
         />
         <label className="flex items-center gap-1.5 text-[11px] text-slate-400">
           <span className="sr-only">Class</span>

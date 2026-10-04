@@ -50,7 +50,7 @@ interface TrackLifecycleTimelineProps {
 export function TrackLifecycleTimeline({ history, compact = false }: TrackLifecycleTimelineProps) {
   if (history.length === 0) {
     return (
-      <div className="rounded-lg border border-[#1e2d40] bg-[#080c12] p-4 text-center">
+      <div className="rounded-lg border border-border bg-bg p-4 text-center">
         <History size={16} className="mx-auto mb-1.5 text-slate-600" aria-hidden />
         <p className="text-[11px] text-slate-400">No lifecycle transitions recorded for this track.</p>
         <p className="mt-0.5 text-[10px] text-slate-500">

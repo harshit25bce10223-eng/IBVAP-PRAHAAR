@@ -1,0 +1,62 @@
+ 
+ 
+ 
+TIHAN Dataset Research End User License Agreement 
+(EULA) 
+The TIHAN Dataset is a collection of autonomous driving annotated street -level images 
+captured on Indian roads and formatted to facilitate use for training AI systems and neural 
+networks. TIHAN is willing to license the use of this Dataset according to the terms of 
+this TIHAN Dataset Research End User License Agreement (“License”) to you only if you 
+obtained the Dataset directly from TIHAN, and only upon the condition that you accept all of 
+the terms contained in this License. 
+The dataset comes “AS IS”, without express or implied warranty. This dataset is made freely 
+available to academic and non-academic entities for non-commercial purposes such as 
+academic research, teaching, scientific publications, or personal experimentation. 
+Permission is granted to use the data provided that you agree to: 
+1. Citation Requirement 
+o Include a reference to the TIHAN Dataset in any work that makes use of the 
+dataset. 
+o For research papers, cite TIHAN’s preferred publication as listed on the TIHAN 
+website. 
+o For other media, cite TIHAN’s preferred publication or link to the TIHAN 
+website (https://tihan.iith.ac.in). 
+2. No Redistribution 
+o You may not distribute this dataset or any modified versions. 
+o It is permissible to distribute derivative works as long as they are abstract 
+representations of this dataset (e.g., models trained on it or additional 
+annotations that do not directly include TIHAN data) and do not allow recovery 
+of the dataset or anything similar in character. 
+3. Non-Commercial Use Only 
+o You are not permitted to use the dataset or any derivative work for commercial 
+purposes (e.g., licensing, selling the data, or using the data to procure 
+commercial gain). 
+4. Privacy & Removal Requests 
+o If you find yourself or your personal belongings in this dataset, please contact 
+TIHAN, and we will immediately remove the respective data from our servers. 
+5. Publication Display Limitations 
+o A minimal portion of the data may be reproduced as part of research papers, as 
+appropriate, provided that no faces or license plates are reproduced or displayed. 
+6. Prohibition on Identification 
+o Any kind of identification that violates the privacy of individuals, organizations, 
+or entities is strictly prohibited. 
+
+ 
+ 
+o Face identification, vehicle identification, or any similar recognition activities 
+are strictly prohibited. 
+7. Reservation of Rights 
+o All rights not expressly granted to you are reserved by the TIHAN team. 
+Acknowledgment 
+    I have read the End-User License Agreement (EULA) above carefully, and I agree to be 
+bound by the terms and conditions of this EULA. 
+ 
+Details of Applicants: 
+Name:  ________________________________________________ 
+Designation: ____________________________________________                                   
+Institution/Organization: ___________________________________ 
+ 
+ 
+ 
+ 
+Place:              Signature of the Applicant 
+Date: 

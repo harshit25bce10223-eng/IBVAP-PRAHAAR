@@ -58,28 +58,29 @@ export function Modal({
       {/* Panel */}
       <div
         className={clsx(
-          'relative z-10 w-full rounded-xl border border-[#1e2d40]',
-          'bg-[#0d1117] shadow-2xl',
+          'relative z-10 w-full max-h-[90dvh] flex flex-col rounded-2xl border border-border',
+          'bg-surface shadow-2xl',
           sizeClasses[size]
         )}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between border-b border-[#1e2d40] px-6 py-4">
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-6 py-5">
             <h2 className="text-base font-semibold text-slate-100">{title}</h2>
             <button
               onClick={onClose}
-              className="rounded-md p-1 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+              aria-label="Close dialog"
+              className="rounded-lg p-2 text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-colors"
             >
               <X size={16} />
             </button>
           </div>
         )}
         {/* Body */}
-        <div className="px-6 py-5">{children}</div>
+        <div className="min-h-0 overflow-y-auto px-6 py-5">{children}</div>
         {/* Footer */}
         {footer && (
-          <div className="border-t border-[#1e2d40] px-6 py-4 flex justify-end gap-3">
+          <div className="border-t border-border px-6 py-4 flex shrink-0 flex-wrap justify-end gap-3">
             {footer}
           </div>
         )}

@@ -21,23 +21,39 @@ class FreezeResult:
 
 class FreezeDetector:
     """
-    Detects frozen camera streams using visual similarity analysis.
-    
-    Key principles:
-    - Not just timestamp-based (encoder can advance timestamps on frozen video)
-    - Uses visual similarity between consecutive sampled frames
-    - Requires temporal persistence to avoid false positives
-    - Handles static scenes (empty roads, walls) via noise floor analysis
-    - Configurable similarity metrics (pixel diff, perceptual hash, SSIM-like)
+    Detects frozen camera streams using absolute temporal activity analysis.
+
+    Key principles (repaired in C2 re-open — F4/F11):
+    - Not timestamp-based: a frozen encoder keeps advancing timestamps.
+    - ABSOLUTE pixel-difference activity, not normalized correlation:
+      mean-normalized NCC is scale-invariant and correlates ~0.995+ on any
+      quiet structured scene regardless of sensor-noise magnitude, which is
+      what produced false FROZEN verdicts on healthy quiet feeds. The
+      decision statistic here is the median ABSOLUTE per-region frame
+      difference on a small uniform ROI grid, compared against the
+      configured `noise_floor` (a live sensor always injects at least the
+      camera's native noise; a repeated/duplicated frame carries none).
+    - Bit-exact short-circuit: pixel-identical consecutive frames are frozen
+      evidence regardless of thresholds.
+    - ROI-aware movement guard: real motion in ANY grid region vetoes a
+      freeze verdict (a distant pedestrian changing one region must not be
+      masked by a static background in the other regions), while per-region
+      noise spread does not.
+    - Temporal persistence before confirming, so single coincidences do not
+      raise FROZEN.
+    - Generic uniform grid only — no benchmark-specific or hard-coded ROIs.
     """
+
+    # Uniform, generic ROI grid: rows x cols split over the downscaled frame.
+    REGION_GRID = (4, 4)
 
     def __init__(
         self,
         scale_factor: float = 0.125,        # Heavy downscale for speed
-        similarity_threshold: float = 0.995, # Visual similarity threshold
+        similarity_threshold: float = 0.995, # Kept for API compat (1 - activity)
         persistence_frames: int = 10,        # Frames to persist before confirming
         min_frame_interval_sec: float = 0.5, # Min time between analyzed frames
-        noise_floor: float = 0.001,          # Expected noise in static scenes
+        noise_floor: float = 0.001,          # Absolute activity floor (0-1 scale)
     ):
         self.scale_factor = scale_factor
         self.similarity_threshold = similarity_threshold
@@ -45,11 +61,16 @@ class FreezeDetector:
         self.min_frame_interval = timedelta(seconds=min_frame_interval_sec)
         self.noise_floor = noise_floor
 
+        # Movement guard: a region is "moving" when its activity exceeds the
+        # per-region noise spread by this factor (plus a small absolute floor).
+        self.movement_spread_factor = 8.0
+
         # State
         self._prev_frame: np.ndarray | None = None
         self._prev_timestamp: datetime | None = None
         self._consecutive_similar: int = 0
         self._freeze_start: datetime | None = None
+        self._last_activity: float | None = None
 
         # Try to import cv2
         self._cv2_available = False
@@ -80,42 +101,19 @@ class FreezeDetector:
 
         return small
 
-    def _compute_similarity(self, frame1: np.ndarray, frame2: np.ndarray) -> float:
-        """Compute visual similarity between two frames (0-1, 1=identical)."""
-        if not self._cv2_available:
-            # Fallback: simple numpy correlation
-            diff = np.abs(frame1 - frame2)
-            mean_diff = np.mean(diff)
-            return 1.0 - min(mean_diff * 2, 1.0)  # Rough approximation
+    def _region_activities(self, diff: np.ndarray) -> np.ndarray:
+        """Mean absolute difference per cell of the uniform ROI grid.
 
-        # Use Structural Similarity (SSIM-like) for robustness
-        # Simplified: normalized cross-correlation
-        try:
-            # Mean-normalized cross-correlation
-            f1 = frame1 - np.mean(frame1)
-            f2 = frame2 - np.mean(frame2)
-
-            numerator = np.sum(f1 * f2)
-            denominator = np.sqrt(np.sum(f1**2) * np.sum(f2**2))
-
-            if denominator == 0:
-                return 1.0 if np.allclose(frame1, frame2) else 0.0
-
-            correlation = numerator / denominator
-            return max(0.0, min(1.0, correlation))
-        except Exception:
-            # Fallback
-            diff = np.abs(frame1 - frame2)
-            return 1.0 - min(np.mean(diff) * 2, 1.0)
-
-    def _compute_noise_level(self, frame: np.ndarray) -> float:
-        """Estimate noise level in frame (for static scene detection)."""
-        if not self._cv2_available:
-            return 0.0
-
-        # Laplacian variance as noise/blur indicator
-        laplacian = self._cv2.Laplacian(frame, self._cv2.CV_64F)
-        return float(np.var(laplacian))
+        The frame is partitioned into REGION_GRID contiguous blocks; each
+        block's mean of the absolute inter-frame difference (0-1 scale) is
+        its activity. Returns a 1-D array of per-region activities.
+        """
+        rows, cols = self.REGION_GRID
+        acts: list[float] = []
+        for row_block in np.array_split(diff, rows, axis=0):
+            for cell in np.array_split(row_block, cols, axis=1):
+                acts.append(float(cell.mean()) if cell.size else 0.0)
+        return np.asarray(acts, dtype=np.float64)
 
     def analyze(
         self,
@@ -123,7 +121,23 @@ class FreezeDetector:
         timestamp: datetime,
         stream_fps: float | None = None,
     ) -> FreezeResult:
-        """Analyze a frame for freeze detection."""
+        """Analyze a frame for freeze detection.
+
+        Decision core (F4/F11 repair):
+          1. Bit-exact short-circuit — pixel-identical consecutive frames are
+             freeze evidence regardless of thresholds.
+          2. Absolute activity test — median per-region mean absolute
+             difference must be <= noise_floor. A live sensor always injects
+             at least its native noise; a repeated/duplicated frame carries
+             none (or only sub-floor re-encode dithering).
+          3. ROI movement guard — even when the median is quiet, real motion
+             in ANY region vetoes the verdict: (max region activity - median)
+             must stay within the per-region noise spread (8 x MAD) or the
+             absolute floor (4 x noise_floor). Uniform sensor noise does not
+             veto; localized movement does.
+          4. Persistence — the candidate condition must hold for
+             `persistence_frames` consecutive analyzed frames.
+        """
         if not self._cv2_available:
             return FreezeResult(
                 frozen=False,
@@ -156,15 +170,41 @@ class FreezeDetector:
                 reason="First frame",
             )
 
-        # Compute similarity
-        similarity = self._compute_similarity(self._prev_frame, processed)
+        # Shape change (resolution switch / decoder restart): state is not
+        # comparable — reset comparison state instead of crashing.
+        if processed.shape != self._prev_frame.shape:
+            self._prev_frame = processed
+            self._prev_timestamp = now
+            self._consecutive_similar = 0
+            self._freeze_start = None
+            return FreezeResult(
+                frozen=False,
+                confidence=0.0,
+                similarity_score=0.0,
+                reason="Frame geometry changed",
+            )
+
+        # Absolute per-region temporal activity
+        diff = np.abs(processed - self._prev_frame)
+        bit_exact = bool(np.array_equal(processed, self._prev_frame))
+        region_acts = self._region_activities(diff)
+        activity = float(np.median(region_acts))
+        mad = float(np.median(np.abs(region_acts - activity)))
+        spread = float(region_acts.max() - activity)
+        self._last_activity = activity
+
+        # similarity_score retained for API/observability compat (1 - activity)
+        similarity = 1.0 - min(activity, 1.0)
 
         # Update state
         self._prev_frame = processed
         self._prev_timestamp = now
 
-        # Check if similarity indicates freeze
-        if similarity >= self.similarity_threshold:
+        # Decision core
+        spread_limit = max(self.movement_spread_factor * mad, 4.0 * self.noise_floor)
+        candidate = bit_exact or (activity <= self.noise_floor and spread <= spread_limit)
+
+        if candidate:
             self._consecutive_similar += 1
 
             if self._consecutive_similar == 1:
@@ -173,29 +213,43 @@ class FreezeDetector:
             # Check persistence
             if self._consecutive_similar >= self.persistence_frames:
                 freeze_duration = (now - self._freeze_start).total_seconds() if self._freeze_start else 0
+                if bit_exact:
+                    reason = (
+                        f"Bit-exact repeated frames for {self._consecutive_similar} "
+                        f"consecutive checks (encoder is repeating a frame)"
+                    )
+                else:
+                    reason = (
+                        f"Pixel activity {activity:.5f} <= noise floor {self.noise_floor:.5f} "
+                        f"for {self._consecutive_similar} consecutive checks (repeated frame)"
+                    )
                 return FreezeResult(
                     frozen=True,
-                    confidence=min(similarity, 1.0),
+                    confidence=min(1.0, 1.0 - activity),
                     similarity_score=similarity,
                     freeze_duration_sec=freeze_duration,
-                    reason=f"Sustained visual similarity for {self._consecutive_similar} frames",
+                    reason=reason,
                 )
             else:
                 return FreezeResult(
                     frozen=False,
                     confidence=similarity,
                     similarity_score=similarity,
-                    reason=f"High similarity ({self._consecutive_similar}/{self.persistence_frames})",
+                    reason=f"Static content ({self._consecutive_similar}/{self.persistence_frames})",
                 )
         else:
-            # Reset on significant change
+            # Reset on significant change or movement
             self._consecutive_similar = 0
             self._freeze_start = None
+            if activity > self.noise_floor:
+                reason = f"Frame content active (activity {activity:.5f} > floor {self.noise_floor:.5f})"
+            else:
+                reason = f"Localized movement detected in ROI grid (spread {spread:.5f} > {spread_limit:.5f})"
             return FreezeResult(
                 frozen=False,
                 confidence=1.0 - similarity,
                 similarity_score=similarity,
-                reason="Visual content changed",
+                reason=reason,
             )
 
     def reset(self) -> None:
@@ -204,6 +258,7 @@ class FreezeDetector:
         self._prev_timestamp = None
         self._consecutive_similar = 0
         self._freeze_start = None
+        self._last_activity = None
 
     def force_unfreeze(self) -> None:
         """Force unfreeze (e.g., after confirmed stream recovery)."""

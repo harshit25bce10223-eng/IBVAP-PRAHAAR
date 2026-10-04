@@ -54,9 +54,9 @@ export function SightingTable({ sightings, selectedId, onSelect }: SightingTable
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[#1e2d40] bg-[#0d1117]">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
       <table className="min-w-full text-xs font-mono">
-        <thead className="border-b border-[#1e2d40]">
+        <thead className="border-b border-border">
           <tr>
             <th
               className="px-3 py-2 text-left text-[9px] font-mono uppercase tracking-wider text-slate-500 cursor-pointer hover:text-slate-300 select-none whitespace-nowrap"
@@ -101,7 +101,7 @@ export function SightingTable({ sightings, selectedId, onSelect }: SightingTable
               key={s.sightingId}
               onClick={() => onSelect?.(s.sightingId)}
               className={
-                'border-b border-[#1e2d40]/50 cursor-pointer transition-colors ' +
+                'border-b border-border/50 cursor-pointer transition-colors ' +
                 (selectedId === s.sightingId ? 'bg-cyan-500/10' : 'hover:bg-white/2')
               }
             >

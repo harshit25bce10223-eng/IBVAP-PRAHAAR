@@ -3,7 +3,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+import re
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -15,6 +16,12 @@ from app.core.errors import IBVAPError
 from app.db.database import get_db_session
 from app.domain.camera_health.analyzer import camera_health_analyzer
 from app.domain.camera_health.provider import get_camera_health_provider, set_camera_health_provider
+from app.domain.camera_health.state_engine import (
+    ImageQualityMetrics,
+    NetworkMetrics,
+    StreamHealthMetrics,
+    ViewpointMetrics,
+)
 from app.repositories.camera_health import (
     CameraHealthConfigRepository,
     CameraHealthCurrentRepository,
@@ -35,6 +42,54 @@ from app.schemas.camera_health import (
 )
 
 router = APIRouter(prefix="/cameras", tags=["camera-health"])
+
+_CAMEL_BOUNDARY = re.compile(r"(?<!^)(?=[A-Z])")
+
+
+def _config_kwargs(payload: dict[str, Any]) -> dict[str, Any]:
+    """Map camelCase config payload keys to ORM snake_case kwargs.
+
+    The config schemas use camelCase field names while the ORM model uses
+    snake_case columns; passing the raw model_dump() to the repository raised
+    TypeError (HTTP 500) on create and silently no-op'd on update (§34
+    clean-environment validation defect). 'cameraId' is dropped because
+    camera_id is already the path parameter.
+    """
+    out: dict[str, Any] = {}
+    for key, value in payload.items():
+        if key == "cameraId":
+            continue
+        out[_CAMEL_BOUNDARY.sub("_", key).lower()] = value
+    return out
+
+
+def _config_to_response(config: Any) -> CameraHealthConfigResponse:
+    """Build the camelCase response from the snake_case ORM row.
+
+    from_attributes alone cannot bridge the naming gap, so map explicitly
+    (same §34 defect family: create/read/update config endpoints must return
+    valid contracts, not HTTP 500).
+    """
+    data: dict[str, Any] = {}
+    for field in CameraHealthConfigResponse.model_fields:
+        snake = _CAMEL_BOUNDARY.sub("_", field).lower()
+        if hasattr(config, snake):
+            data[field] = getattr(config, snake)
+    return CameraHealthConfigResponse.model_validate(data)
+
+
+def _ensure_utc(dt: datetime) -> datetime:
+    """F8 policy: naive timestamps are interpreted as UTC.
+
+    SQLite (aiosqlite) drops tzinfo on read-back, so rows written as aware-UTC
+    come back naive-UTC. Comparing them against ``datetime.now()`` (naive local
+    IST, +5:30) produced false LAST_KNOWN sources and skewed history buckets
+    (§34 clean-environment validation defect). Normalize before any age/range
+    comparison; never treat stored values as local time.
+    """
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 def _to_response(current: Any, config: Any, events: list[Any]) -> CameraHealthResponse:
@@ -74,7 +129,7 @@ def _to_response(current: Any, config: Any, events: list[Any]) -> CameraHealthRe
     if source == "LIVE":
         # Check if data is actually stale
         if current.last_updated:
-            age = (datetime.now() - current.last_updated).total_seconds()
+            age = (datetime.now(timezone.utc) - _ensure_utc(current.last_updated)).total_seconds()
             if age > 60:
                 source = "LAST_KNOWN"
 
@@ -82,7 +137,7 @@ def _to_response(current: Any, config: Any, events: list[Any]) -> CameraHealthRe
         cameraId=current.camera_id,
         status=current.overall_status,
         statusReason=current.status_reason,
-        lastUpdated=current.last_updated.isoformat() if current.last_updated else None,
+        lastUpdated=_ensure_utc(current.last_updated).isoformat() if current.last_updated else None,
         source=source,
         regionProfile={
             "configured": True,
@@ -146,7 +201,7 @@ def _to_response(current: Any, config: Any, events: list[Any]) -> CameraHealthRe
         viewpoint={
             "status": current.viewpoint_status,
             "shiftScore": current.shift_score,
-            "detectedAt": current.shift_detected_at.isoformat() if current.shift_detected_at else None,
+            "detectedAt": _ensure_utc(current.shift_detected_at).isoformat() if current.shift_detected_at else None,
             "shiftDetected": current.shift_detected,
             "fenceConfidenceNote": current.fence_confidence_note,
         },
@@ -166,7 +221,7 @@ def _to_response(current: Any, config: Any, events: list[Any]) -> CameraHealthRe
         } if current.maintenance_recommended else None,
         lastKnown={
             "status": current.last_known_status,
-            "at": current.last_known_at.isoformat() if current.last_known_at else None,
+            "at": _ensure_utc(current.last_known_at).isoformat() if current.last_known_at else None,
         } if current.last_known_status else None,
     )
 
@@ -279,7 +334,7 @@ async def list_camera_health(
         # Build compact summary
         source = current.data_source or "LIVE"
         if source == "LIVE" and current.last_updated:
-            age = (datetime.now() - current.last_updated).total_seconds()
+            age = (datetime.now(timezone.utc) - _ensure_utc(current.last_updated)).total_seconds()
             if age > 60:
                 source = "LAST_KNOWN"
 
@@ -287,7 +342,7 @@ async def list_camera_health(
             cameraId=current.camera_id,
             status=current.overall_status,
             statusReason=current.status_reason,
-            lastUpdated=current.last_updated.isoformat() if current.last_updated else None,
+            lastUpdated=_ensure_utc(current.last_updated).isoformat() if current.last_updated else None,
             source=source,
             regionProfile={
                 "configured": True,
@@ -320,7 +375,7 @@ async def list_camera_health(
             viewpoint={
                 "status": current.viewpoint_status,
                 "shiftScore": current.shift_score,
-                "detectedAt": current.shift_detected_at.isoformat() if current.shift_detected_at else None,
+                "detectedAt": _ensure_utc(current.shift_detected_at).isoformat() if current.shift_detected_at else None,
                 "shiftDetected": current.shift_detected,
                 "fenceConfidenceNote": current.fence_confidence_note,
             },
@@ -332,7 +387,7 @@ async def list_camera_health(
             },
             lastKnown={
                 "status": current.last_known_status,
-                "at": current.last_known_at.isoformat() if current.last_known_at else None,
+                "at": _ensure_utc(current.last_known_at).isoformat() if current.last_known_at else None,
             } if current.last_known_status else None,
         ))
 
@@ -361,9 +416,10 @@ async def get_camera_health_history(
     if not config:
         raise HTTPException(status_code=404, detail=f"Camera {camera_id} not found")
 
-    # Default to last 24 hours
-    to_dt = to_ts or datetime.now()
-    from_dt = from_ts or (to_dt - timedelta(hours=24))
+    # Default to last 24 hours (normalize both ends: query params may arrive
+    # naive, stored telemetry is UTC per the F8 policy).
+    to_dt = _ensure_utc(to_ts) if to_ts is not None else datetime.now(timezone.utc)
+    from_dt = _ensure_utc(from_ts) if from_ts is not None else (to_dt - timedelta(hours=24))
 
     # Enforce maximum window (e.g., 30 days)
     max_window = timedelta(days=settings.ENV == "development" and 1 or 30)
@@ -423,8 +479,8 @@ async def get_camera_health_issues(
             "issueId": event.event_id,
             "title": event.event_type.replace("_", " ").title(),
             "impact": event.severity,
-            "firstSeen": event.first_seen.isoformat() if event.first_seen else None,
-            "lastSeen": event.last_seen.isoformat() if event.last_seen else None,
+            "firstSeen": _ensure_utc(event.first_seen).isoformat() if event.first_seen else None,
+            "lastSeen": _ensure_utc(event.last_seen).isoformat() if event.last_seen else None,
             "count": event.occurrence_count,
             "durationLabel": (
                 f"{(event.last_seen - event.first_seen).total_seconds():.0f}s"
@@ -462,58 +518,70 @@ async def ingest_health_observation(
         else:
             raise HTTPException(status_code=404, detail=f"Camera {camera_id} not configured")
 
-    # Convert observation to internal format
-    now = datetime.now()
-    received_at = observation.receivedTimestamp or now
+    # Convert observation to internal format. F8 time policy: naive datetimes
+    # are interpreted as UTC (documented rule); internal "now" is UTC-aware.
+    # Normalize caller timestamps to UTC before persisting: SQLite drops
+    # tzinfo, so a raw aware-IST value would be stored as a local wall clock
+    # and then bucketed/compared as if it were UTC (5:30 shift, §34 defect).
+    now = datetime.now(timezone.utc)
+    source_ts = _ensure_utc(observation.sourceTimestamp) if observation.sourceTimestamp else now
+    received_at = _ensure_utc(observation.receivedTimestamp) if observation.receivedTimestamp else now
 
-    # Build stream metrics
+    # Build stream metrics (typed contract — the analyzer/state engine expect
+    # StreamHealthMetrics/ImageQualityMetrics/NetworkMetrics/ViewpointMetrics,
+    # not dicts; dataclass defaults fill absent telemetry)
     stream = None
     if observation.stream:
-        stream = {
-            "connected": observation.stream.streamConnected,
-            "observed_fps": observation.stream.observedFps,
-            "expected_fps": observation.stream.expectedFps,
-            "frame_drop_rate": observation.stream.frameDropRate,
-            "frame_age_ms": observation.stream.frameAgeMs,
-            "reconnect_count": observation.stream.reconnectCount,
-        }
+        s = observation.stream
+        stream = StreamHealthMetrics(
+            connected=s.streamConnected,
+            observed_fps=s.observedFps,
+            expected_fps=s.expectedFps if s.expectedFps is not None else 25.0,
+            frame_drop_rate=s.frameDropRate if s.frameDropRate is not None else 0.0,
+            frame_age_ms=s.frameAgeMs if s.frameAgeMs is not None else 0.0,
+            reconnect_count=s.reconnectCount if s.reconnectCount is not None else 0,
+        )
 
     # Build image metrics
     image = None
     if observation.image:
-        image = {
-            "sharpness": observation.image.sharpness,
-            "brightness": observation.image.brightness,
-            "exposure": observation.image.exposure,
-            "contrast": observation.image.contrast,
-            "noise": observation.image.noise,
-        }
+        im = observation.image
+        image = ImageQualityMetrics(
+            sharpness=im.sharpness,
+            brightness=im.brightness,
+            exposure=im.exposure,
+            contrast=im.contrast,
+            noise=im.noise,
+        )
 
     # Build network metrics
     network = None
     if observation.network:
-        network = {
-            "latency_ms": observation.network.latencyMs,
-            "latency_variance_ms": observation.network.latencyVarianceMs,
-            "packet_loss_percent": observation.network.packetLossPercent,
-            "heartbeat_age_sec": observation.network.heartbeatAgeSec,
-        }
+        nw = observation.network
+        network = NetworkMetrics(
+            latency_ms=nw.latencyMs,
+            latency_variance_ms=nw.latencyVarianceMs,
+            packet_loss_percent=nw.packetLossPercent,
+            heartbeat_age_sec=nw.heartbeatAgeSec,
+        )
 
-    # Build viewpoint metrics
+    # Build viewpoint metrics (caller/edge-computed evidence; reference
+    # lifecycle is managed by the analyzer when frames are supplied)
     viewpoint = None
     if observation.viewpoint:
-        viewpoint = {
-            "shift_score": observation.viewpoint.shiftScore,
-            "shift_confidence": observation.viewpoint.shiftConfidence,
-            "reference_features": observation.viewpoint.referenceFeaturesCount,
-            "inlier_ratio": observation.viewpoint.inlierRatio,
-        }
+        vp = observation.viewpoint
+        viewpoint = ViewpointMetrics(
+            shift_score=vp.shiftScore,
+            shift_confidence=vp.shiftConfidence,
+            reference_features=vp.referenceFeaturesCount,
+            inlier_ratio=vp.inlierRatio,
+        )
 
     # Run analyzer (async)
     result = camera_health_analyzer.analyze_observation(
         camera_id=camera_id,
         config=config,
-        source_timestamp=observation.sourceTimestamp,
+        source_timestamp=source_ts,
         received_at=received_at,
         stream=stream,
         image=image,
@@ -522,36 +590,54 @@ async def ingest_health_observation(
         algorithm_version=observation.algorithmVersion,
     )
 
-    # Persist observation
-    await obs_repo.create(
+    # Persist observation (typed attribute access; engine-derived stream and
+    # viewpoint status are recorded — the raw telemetry payload carries no
+    # status field)
+    obs_kwargs = dict(
         camera_id=camera_id,
-        source_timestamp=observation.sourceTimestamp,
+        source_timestamp=source_ts,
         received_at=received_at,
         source_sequence=observation.sourceSequence,
-        observed_fps=stream.get("observed_fps") if stream else None,
-        expected_fps=stream.get("expected_fps") if stream else None,
-        frame_drop_rate=stream.get("frame_drop_rate") if stream else None,
-        frame_age_ms=stream.get("frame_age_ms") if stream else None,
-        stream_state=stream.get("state") if stream else None,
-        reconnect_count=stream.get("reconnect_count") if stream else None,
-        sharpness_raw=image.get("sharpness") if image else None,
-        sharpness_score=image.get("sharpness") if image else None,
-        brightness_mean=image.get("brightness") if image else None,
-        brightness_status=None,  # Will be derived
-        exposure_status=image.get("exposure") if image else None,
-        contrast_score=image.get("contrast") if image else None,
-        noise_score=image.get("noise") if image else None,
-        network_latency_ms=network.get("latency_ms") if network else None,
-        network_latency_variance_ms=network.get("latency_variance_ms") if network else None,
-        packet_loss_percent=network.get("packet_loss_percent") if network else None,
-        viewpoint_shift_score=viewpoint.get("shift_score") if viewpoint else None,
-        viewpoint_shift_confidence=viewpoint.get("shift_confidence") if viewpoint else None,
-        viewpoint_status=viewpoint.get("status") if viewpoint else None,
+        observed_fps=stream.observed_fps if stream else None,
+        expected_fps=stream.expected_fps if stream else None,
+        frame_drop_rate=stream.frame_drop_rate if stream else None,
+        frame_age_ms=stream.frame_age_ms if stream else None,
+        stream_state=result.stream_state,
+        reconnect_count=stream.reconnect_count if stream else None,
+        sharpness_raw=image.sharpness if image else None,
+        sharpness_score=image.sharpness if image else None,
+        brightness_mean=image.brightness if image else None,
+        brightness_status=result.brightness_status,
+        exposure_status=image.exposure if image else None,
+        contrast_score=image.contrast if image else None,
+        noise_score=image.noise if image else None,
+        network_latency_ms=network.latency_ms if network else None,
+        network_latency_variance_ms=network.latency_variance_ms if network else None,
+        packet_loss_percent=network.packet_loss_percent if network else None,
+        viewpoint_shift_score=viewpoint.shift_score if viewpoint else None,
+        viewpoint_shift_confidence=viewpoint.shift_confidence if viewpoint else None,
+        viewpoint_status=result.viewpoint_status,
         overall_status=result.overall_status.value,
         reliability=result.reliability,
         quality_flags=result.quality_flags,
         algorithm_version=observation.algorithmVersion,
     )
+
+    # Idempotent ingest: (camera_id, source_sequence) is unique. Adapter
+    # retries and camera reboots (sequence counter resets) must not raise an
+    # unhandled UNIQUE-constraint 500 — a duplicate sequence updates the
+    # existing row and is reported via `duplicate: true`, while the derived
+    # current state below still reflects the re-sent telemetry.
+    duplicate = False
+    if observation.sourceSequence is not None:
+        existing = await obs_repo.get_by_sequence(camera_id, observation.sourceSequence)
+        if existing is not None:
+            duplicate = True
+            created = await obs_repo.apply_update(existing, **obs_kwargs)
+        else:
+            created = await obs_repo.create(**obs_kwargs)
+    else:
+        created = await obs_repo.create(**obs_kwargs)
 
     # Update current state
     await current_repo.upsert(camera_id, **{
@@ -602,10 +688,15 @@ async def ingest_health_observation(
 
     await session.commit()
 
+    # observation_id is the persisted row id (assigned at flush) — carry it
+    # on the result for downstream observability (§43) and on the response.
+    observation_id = created.id if created is not None else None
+    result.observation_id = observation_id
     return HealthObservationIngestResponse(
         accepted=True,
-        observationId=None,  # Would need to return the created ID
+        observationId=observation_id,
         currentStatus=result.overall_status.value,
+        duplicate=duplicate,
     )
 
 
@@ -619,9 +710,9 @@ async def create_camera_health_config(
 ):
     """Create health config for a camera."""
     config_repo = CameraHealthConfigRepository(session)
-    config = await config_repo.create(camera_id, **config_data.model_dump())
+    config = await config_repo.create(camera_id, **_config_kwargs(config_data.model_dump()))
     await session.commit()
-    return CameraHealthConfigResponse.model_validate(config)
+    return _config_to_response(config)
 
 
 @router.get("/{camera_id}/health/config", response_model=CameraHealthConfigResponse)
@@ -634,7 +725,7 @@ async def get_camera_health_config(
     config = await config_repo.get(camera_id)
     if not config:
         raise HTTPException(status_code=404, detail=f"Health config for camera {camera_id} not found")
-    return CameraHealthConfigResponse.model_validate(config)
+    return _config_to_response(config)
 
 
 @router.patch("/{camera_id}/health/config", response_model=CameraHealthConfigResponse)
@@ -645,11 +736,11 @@ async def update_camera_health_config(
 ):
     """Update health config for a camera."""
     config_repo = CameraHealthConfigRepository(session)
-    config = await config_repo.update(camera_id, **config_data.model_dump(exclude_unset=True))
+    config = await config_repo.update(camera_id, **_config_kwargs(config_data.model_dump(exclude_unset=True)))
     if not config:
         raise HTTPException(status_code=404, detail=f"Health config for camera {camera_id} not found")
     await session.commit()
-    return CameraHealthConfigResponse.model_validate(config)
+    return _config_to_response(config)
 
 
 @router.delete("/{camera_id}/health/config")

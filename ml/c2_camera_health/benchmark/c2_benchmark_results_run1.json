@@ -7581,7 +7581,7 @@
           "ctx_geometry_confidence": null,
           "ctx_reliability": null,
           "ctx_viewpoint_shift_detected": null,
-          "exception": "TypeError: HealthAnalysisResult.__init__() got an unexpected keyword argument 'network_reason'",
+          "exception": "KeyError: 'reason'",
           "image_status": null,
           "impact_level": null,
           "maintenance_recommended": null,
@@ -7621,7 +7621,7 @@
           "ctx_geometry_confidence": null,
           "ctx_reliability": null,
           "ctx_viewpoint_shift_detected": null,
-          "exception": "TypeError: HealthAnalysisResult.__init__() got an unexpected keyword argument 'network_reason'",
+          "exception": "KeyError: 'reason'",
           "image_status": null,
           "impact_level": null,
           "maintenance_recommended": null,
@@ -7661,7 +7661,7 @@
           "ctx_geometry_confidence": null,
           "ctx_reliability": null,
           "ctx_viewpoint_shift_detected": null,
-          "exception": "TypeError: HealthAnalysisResult.__init__() got an unexpected keyword argument 'network_reason'",
+          "exception": "KeyError: 'reason'",
           "image_status": null,
           "impact_level": null,
           "maintenance_recommended": null,
@@ -7701,7 +7701,7 @@
           "ctx_geometry_confidence": null,
           "ctx_reliability": null,
           "ctx_viewpoint_shift_detected": null,
-          "exception": "TypeError: HealthAnalysisResult.__init__() got an unexpected keyword argument 'network_reason'",
+          "exception": "KeyError: 'reason'",
           "image_status": null,
           "impact_level": null,
           "maintenance_recommended": null,
@@ -7741,7 +7741,7 @@
           "ctx_geometry_confidence": null,
           "ctx_reliability": null,
           "ctx_viewpoint_shift_detected": null,
-          "exception": "TypeError: HealthAnalysisResult.__init__() got an unexpected keyword argument 'network_reason'",
+          "exception": "KeyError: 'reason'",
           "image_status": null,
           "impact_level": null,
           "maintenance_recommended": null,
@@ -7781,7 +7781,7 @@
           "ctx_geometry_confidence": null,
           "ctx_reliability": null,
           "ctx_viewpoint_shift_detected": null,
-          "exception": "TypeError: HealthAnalysisResult.__init__() got an unexpected keyword argument 'network_reason'",
+          "exception": "KeyError: 'reason'",
           "image_status": null,
           "impact_level": null,
           "maintenance_recommended": null,
@@ -7816,7 +7816,7 @@
       }
     ]
   },
-  "canonical_results_sha256": "3ba17d2e9083896e99c452e2b205f75c781caf3613252021a0180147a9cd169f",
+  "canonical_results_sha256": "7f59116b4f7ead41f6a1fc3375913528875c141354f062390aacedd81f0dc15c",
   "component_tables": {
     "freeze": {
       "BLURRED": {
@@ -8893,7 +8893,7 @@
   },
   "n_samples": 180,
   "run_tag": "run1",
-  "run_utc": "2026-09-30T13:22:24.261495",
+  "run_utc": "2026-10-03T09:07:00.969674",
   "spec_compliance": {
     "cv2_rng": "pinned per sample via cv2.setRNGSeed for RANSAC reproducibility",
     "s125": "no locked component modified; harness + corpus generator only",
@@ -8901,5 +8901,5 @@
     "s68_classes": "ten benchmark classes + documented supplementary state rows"
   },
   "version": "v1",
-  "wall_seconds": 41.143
+  "wall_seconds": 42.39
 }

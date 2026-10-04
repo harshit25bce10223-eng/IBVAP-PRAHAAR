@@ -9,7 +9,7 @@ import type { CorrelationGroup } from '@/types/eventCorrelation'
 export function CorrelationUncertainty({ group }: { group: CorrelationGroup }) {
   const tone = toneForCorrelation(group.status)
   return (
-    <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4" aria-label="Relationship uncertainty">
+    <section className="rounded-xl border border-border bg-surface p-4" aria-label="Relationship uncertainty">
       <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
         <span className={clsx('h-2 w-2 rounded-full', TONE[tone].dot)} aria-hidden />
         Relationship uncertainty

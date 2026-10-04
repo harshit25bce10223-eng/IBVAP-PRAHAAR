@@ -48,7 +48,7 @@ export function VehicleDetail() {
 
   if (!history && vehicleHistoryState !== 'error') {
     return (
-      <div className="h-full flex items-center justify-center bg-[#080c12] p-6">
+      <div className="h-full flex items-center justify-center bg-bg p-6">
         <div className="flex flex-col items-center gap-3 text-slate-400 font-mono">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
           <span className="text-xs">Loading vehicle telemetry &amp; observation history for {vehicleId}…</span>
@@ -59,7 +59,7 @@ export function VehicleDetail() {
 
   if (!history) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#080c12] p-6">
+      <div className="h-full flex items-center justify-center bg-bg p-6">
         <div className="max-w-md w-full rounded-xl border border-red-500/20 bg-red-500/5 p-6 text-center">
           <ShieldAlert className="h-8 w-8 text-red-400 mx-auto mb-2" />
           <h2 className="text-sm font-semibold text-red-400">Vehicle History Unavailable</h2>
@@ -92,9 +92,9 @@ export function VehicleDetail() {
     : null
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto bg-[#080c12] p-4 md:p-6 gap-6">
+    <div className="h-full flex flex-col overflow-y-auto bg-bg p-4 md:p-6 gap-6">
       {/* Top Header */}
-      <header className="border-b border-[#1e2d40] pb-4 space-y-3">
+      <header className="border-b border-border pb-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -131,7 +131,7 @@ export function VehicleDetail() {
 
         {/* §12 — Vehicle Summary header strip (from the newest observation) */}
         {latestSighting && (
-          <dl className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 rounded-xl border border-[#1e2d40] bg-[#0d1117] p-3 text-xs font-mono">
+          <dl className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 rounded-xl border border-border bg-surface p-3 text-xs font-mono">
             <div>
               <dt className="text-[9px] text-slate-600 uppercase">Top Plate Candidate</dt>
               <dd className="text-ssb-green-bright mt-0.5">
@@ -186,7 +186,7 @@ export function VehicleDetail() {
         {/* Left Column: Top Plate Candidate & Telemetry */}
         <div className="space-y-6">
           {latestSighting && (
-            <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4 space-y-3">
+            <section className="rounded-xl border border-border bg-surface p-4 space-y-3">
               <h3 className="text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-slate-800/60 pb-1.5">
                 Latest Plate Read
               </h3>
@@ -195,7 +195,7 @@ export function VehicleDetail() {
           )}
 
           {latestSighting && (
-            <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-4 space-y-3">
+            <section className="rounded-xl border border-border bg-surface p-4 space-y-3">
               <h3 className="text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-slate-800/60 pb-1.5">
                 Observed Attributes — Latest Sighting
               </h3>
@@ -228,7 +228,7 @@ export function VehicleDetail() {
 
         {/* Right 2 Columns: Multi-Camera Timeline */}
         <div className="lg:col-span-2 space-y-6">
-          <section className="rounded-xl border border-[#1e2d40] bg-[#0d1117] p-5">
+          <section className="rounded-xl border border-border bg-surface p-5">
             <div className="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-2">
               <div>
                 <h3 className="text-sm font-semibold font-mono text-slate-200">

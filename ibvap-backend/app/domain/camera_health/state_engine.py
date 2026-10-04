@@ -85,6 +85,22 @@ class ViewpointMetrics:
     shift_confidence: float | None = None
     reference_features: int | None = None
     inlier_ratio: float | None = None
+    # Explicit reference lifecycle signal (C2 repair F5/F13):
+    # None  -> viewpoint not computed this observation (legacy behavior)
+    # True  -> reference active, shift_score/shift_confidence are meaningful
+    # False -> reference NOT initialized (low-texture / provisioning failed):
+    #          state engine must report viewpoint UNKNOWN and must NOT
+    #          auto-degrade the camera on viewpoint grounds.
+    reference_active: bool | None = None
+
+
+@dataclass
+class FreezeMetrics:
+    """Persistent visual-freeze signal derived from frame analysis (F3)."""
+    frozen: bool = False
+    confidence: float | None = None
+    freeze_duration_sec: float | None = None
+    reason: str | None = None
 
 
 @dataclass
@@ -98,6 +114,7 @@ class CameraHealthInput:
     image: ImageQualityMetrics | None = None
     network: NetworkMetrics | None = None
     viewpoint: ViewpointMetrics | None = None
+    freeze: FreezeMetrics | None = None
     algorithm_version: str | None = None
 
 
@@ -135,13 +152,29 @@ class CameraHealthDerived:
 class CameraHealthStateEngine:
     """
     Canonical camera health state determination.
-    
+
     This is the SINGLE authoritative function for deriving camera health state.
     All API routes, background workers, and Component 1 integration must use this.
+
+    Timezone policy (F8 — one canonical policy, documented):
+      * All internal comparisons are performed with UTC-aware datetimes.
+      * A NAIVE incoming timestamp (from legacy edge adapters that send local
+        wall time without an offset) is interpreted as UTC. This is the single
+        explicit documented naive-interpretation rule; adapters that send
+        offset-aware timestamps are normalized with astimezone(utc).
+        (Edge adapters are contractually required to send UTC; the naive rule
+        exists so legacy inputs behave deterministically instead of crashing.)
     """
 
     def __init__(self):
         self._degraded_threshold = 2  # Number of degraded dimensions to trigger DEGRADED
+
+    @staticmethod
+    def _as_utc(dt: datetime) -> datetime:
+        """Normalize a timestamp to aware-UTC per the documented F8 policy."""
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
 
     def derive_state(self, input_data: CameraHealthInput) -> CameraHealthDerived:
         """Main entry point - derive complete health state from raw input."""
@@ -205,8 +238,8 @@ class CameraHealthStateEngine:
         stream = input_data.stream
         source_ts = input_data.source_timestamp
         now = datetime.now(timezone.utc)
-        if source_ts and source_ts.tzinfo is None:
-            source_ts = source_ts.replace(tzinfo=timezone.utc)
+        if source_ts is not None:
+            source_ts = self._as_utc(source_ts)  # F8 policy: naive → UTC
 
         if not stream or not stream.connected:
             return {
@@ -223,11 +256,30 @@ class CameraHealthStateEngine:
         frame_age_sec = (now - source_ts).total_seconds()
         stale_seconds = frame_age_sec if frame_age_sec > 0 else None
 
-        # Check stale threshold
+        # Check stale threshold.
+        # STALE (semantic, §38): frames are NOT arriving — the latest source
+        # timestamp is older than the configured threshold. Distinct from
+        # FROZEN, where frames arrive on schedule but carry identical content.
         if stale_seconds and stale_seconds > config.stale_after_seconds:
             return {
                 "state": StreamState.STALE,
                 "reason": f"No fresh frames for {stale_seconds:.0f}s (threshold: {config.stale_after_seconds}s)",
+                "fps": stream.observed_fps,
+                "expected_fps": config.expected_fps,
+                "frame_drop_percent": stream.frame_drop_rate * 100 if stream.frame_drop_rate else None,
+                "stale_seconds": stale_seconds,
+                "reconnect_count": stream.reconnect_count,
+            }
+
+        # Persistent visual freeze (frame-derived, F3): the stream delivers
+        # frames on schedule but their content is bit-exact/near-identical —
+        # the encoder or upstream source is repeating frames. Takes precedence
+        # over FPS-based degradation (a frozen encoder often reports fps 0).
+        freeze = input_data.freeze
+        if freeze and freeze.frozen:
+            return {
+                "state": StreamState.FROZEN,
+                "reason": freeze.reason or "Persistent visual freeze (identical frames)",
                 "fps": stream.observed_fps,
                 "expected_fps": config.expected_fps,
                 "frame_drop_percent": stream.frame_drop_rate * 100 if stream.frame_drop_rate else None,
@@ -428,6 +480,19 @@ class CameraHealthStateEngine:
                 "fence_confidence_note": None,
             }
 
+        # Explicit reference lifecycle (F5): a viewpoint whose geometric
+        # reference is NOT initialized carries no shift evidence. Report
+        # UNKNOWN — never auto-degrade a camera because its scene is
+        # low-texture or provisioning has not completed yet.
+        if viewpoint.reference_active is False:
+            return {
+                "status": ViewpointStatus.UNKNOWN,
+                "shift_score": viewpoint.shift_score,
+                "shift_confidence": viewpoint.shift_confidence,
+                "detected_at": None,
+                "fence_confidence_note": "Viewpoint reference not initialized (low texture or provisioning pending) — geometry confidence unestablished",
+            }
+
         score = viewpoint.shift_score
         confidence = viewpoint.shift_confidence or 0.0
         threshold = config.viewpoint_shift_threshold
@@ -463,15 +528,36 @@ class CameraHealthStateEngine:
         viewpoint_derived: dict[str, Any],
         config: Any,
     ) -> dict[str, Any]:
-        """Determine overall camera health state with documented precedence."""
+        """Determine overall camera health state with documented precedence.
+
+        State-precedence matrix (F13; table-driven tests in
+        tests/unit/test_c2_regression.py):
+
+            stream DISCONNECTED                → OFFLINE
+            stream FROZEN (visual freeze or
+            sustained high frame-drop)         → FROZEN
+            stream STALE (source timestamp
+            older than stale_after_seconds)    → STALE
+            severe viewpoint shift             → DEGRADED (always)
+            ≥ 2 degraded dimensions            → DEGRADED
+            exactly 1 of image/network/
+            viewpoint degraded                 → DEGRADED (F9 decision)
+            exactly 1 of stream degraded
+            (low FPS / reconnects)             → UNKNOWN (F9 decision)
+            stream CONNECTED + image GOOD +
+            network STABLE + viewpoint not
+            shifted (STABLE or UNKNOWN)        → ONLINE
+            anything else                      → UNKNOWN
+        """
 
         # Precedence order (highest to lowest):
         # 1. OFFLINE - no stream, no heartbeat
-        # 2. FROZEN - stream connected but frozen
+        # 2. FROZEN - frames arriving but content frozen (distinct from STALE,
+        #    where frames are not arriving at all — §38)
         # 3. STALE - stream stale beyond threshold
-        # 4. DEGRADED - multiple dimensions degraded
+        # 4. DEGRADED - dimension accounting per matrix above
         # 5. MAINTENANCE - manual override
-        # 6. ONLINE - all good
+        # 6. ONLINE - all measured dimensions healthy
         # 7. UNKNOWN - insufficient data
 
         stream_state = stream_derived["state"]
@@ -516,7 +602,20 @@ class CameraHealthStateEngine:
         # MAINTENANCE check (would come from config/manual override)
         # This would be checked if config has maintenance flag
 
-        # Count degraded dimensions
+        # ── Degraded-dimension accounting (documented product decision, F9) ──
+        # A single degraded dimension is enough to declare DEGRADED when the
+        # dimension is individually operationally meaningful:
+        #   image DEGRADED/FAILED  → analytics output quality at risk → DEGRADED
+        #   network DEGRADED       → live visibility at risk            → DEGRADED
+        #   viewpoint SHIFT        → fence geometry unreliable           → DEGRADED
+        # The stream dimension is treated differently: low FPS or frequent
+        # reconnects ALONE are transitory conditions that do not by themselves
+        # compromise coverage, so stream-only degradation resolves to UNKNOWN
+        # (telemetry insufficient for a definitive health verdict). This is a
+        # deliberate product decision recorded in the repair report — it is
+        # NOT tuned to improve benchmark scores.
+        self_degrading_dims = {"image", "network", "viewpoint"}
+
         degraded_dims = []
         if image_status in (HealthMetricStatus.DEGRADED, HealthMetricStatus.FAILED):
             degraded_dims.append("image")
@@ -527,7 +626,13 @@ class CameraHealthStateEngine:
         if stream_state in (StreamState.DEGRADED, StreamState.RECONNECTING):
             degraded_dims.append("stream")
 
-        if len(degraded_dims) >= self._degraded_threshold or viewpoint_status == ViewpointStatus.SEVERE_SHIFT:
+        # Severe geometric shift is always DEGRADED: the virtual fence cannot
+        # be trusted regardless of how healthy every other dimension is.
+        severe_shift = viewpoint_status == ViewpointStatus.SEVERE_SHIFT
+
+        if len(degraded_dims) >= self._degraded_threshold or severe_shift or (
+            len(degraded_dims) == 1 and degraded_dims[0] in self_degrading_dims
+        ):
             reason_parts = []
             if image_status == HealthMetricStatus.DEGRADED:
                 reason_parts.append("image quality degraded")
@@ -551,7 +656,21 @@ class CameraHealthStateEngine:
                 "data_source": "LIVE",
             }
 
-        if stream_state == StreamState.CONNECTED and image_status == HealthMetricStatus.GOOD and network_status == NetworkStatus.STABLE:
+        # ── ONLINE gate (F13): every dimension must be healthy or unmeasured ──
+        # viewpoint UNKNOWN (e.g. low-texture scene, reference not initialized)
+        # does NOT block ONLINE — unknown geometry is surfaced through
+        # fence_confidence_note / geometry_confidence, never auto-degraded
+        # (spec §12-14). A detected shift, by contrast, must block ONLINE.
+        viewpoint_blocks_online = viewpoint_status in (
+            ViewpointStatus.SHIFT_DETECTED,
+            ViewpointStatus.SEVERE_SHIFT,
+        )
+        if (
+            stream_state == StreamState.CONNECTED
+            and image_status == HealthMetricStatus.GOOD
+            and network_status == NetworkStatus.STABLE
+            and not viewpoint_blocks_online
+        ):
             return {
                 "status": CameraHealthState.ONLINE,
                 "reason": None,

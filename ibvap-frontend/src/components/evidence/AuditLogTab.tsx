@@ -15,11 +15,11 @@ export function AuditLogTab({ entries }: { entries: AuditEntry[] }) {
     )
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-[#1e2d40] bg-[#0d1117]">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
       <table className="w-full min-w-[760px] border-collapse text-left">
         <caption className="sr-only">Evidence audit log</caption>
         <thead>
-          <tr className="border-b border-[#1e2d40] text-[10px] uppercase tracking-wider text-slate-500">
+          <tr className="border-b border-border text-[10px] uppercase tracking-wider text-slate-500">
             {['Timestamp', 'Actor', 'Action', 'Target', 'Result', 'Reason'].map(h => (
               <th key={h} scope="col" className="px-3 py-2 font-medium">{h}</th>
             ))}

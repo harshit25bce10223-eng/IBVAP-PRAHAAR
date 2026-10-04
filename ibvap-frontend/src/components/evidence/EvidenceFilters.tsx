@@ -38,7 +38,7 @@ export function EvidenceFilters({
           value={query.search}
           onChange={e => onChange({ search: e.target.value })}
           placeholder="EVD-10482 · INC-… · CAM-12 · a3f8…"
-          className="rounded-md border border-white/10 bg-[#080c12] px-2.5 py-1.5 font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
+          className="rounded-md border border-white/10 bg-bg px-2.5 py-1.5 font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-400/60 focus:outline-none"
         />
       </label>
       <FilterSelect label="Camera" value={query.cameraId} onChange={v => onChange({ cameraId: v })} options={['ALL', ...cameras]} />
@@ -78,7 +78,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="rounded-md border border-white/10 bg-[#080c12] px-2 py-1.5 text-xs text-slate-200 focus:border-cyan-400/60 focus:outline-none"
+        className="rounded-md border border-white/10 bg-bg px-2 py-1.5 text-xs text-slate-200 focus:border-cyan-400/60 focus:outline-none"
       >
         {options.map(o => (
           <option key={o} value={o}>

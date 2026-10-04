@@ -1,6 +1,6 @@
 .master-demo {
   background: #edf1f2;
-  color: #0b1f33;
+  color: var(--color-ssb-navy);
   padding: 20px;
   font-family: Arial, sans-serif;
   min-height: 100%;
@@ -8,7 +8,7 @@
 .master-demo button {
   background: white;
   border: 1px solid #cad5db;
-  color: #0b1f33;
+  color: var(--color-ssb-navy);
   padding: 8px 11px;
   border-radius: 4px;
   cursor: pointer;
@@ -51,7 +51,7 @@
   border-radius: 3px;
 }
 .master-chain {
-  background: #0b1f33;
+  background: var(--color-ssb-navy);
   color: #d4dfe5;
   padding: 15px;
   border-radius: 5px;
@@ -329,7 +329,7 @@
 .master-plate {
   font-size: 25px;
   font-weight: bold;
-  border: 3px solid #0b1f33;
+  border: 3px solid var(--color-ssb-navy);
   background: #f3f2e9;
   text-align: center;
   padding: 16px;
@@ -337,7 +337,7 @@
 .master-phone {
   max-width: 250px;
   margin: auto;
-  border: 7px solid #0b1f33;
+  border: 7px solid var(--color-ssb-navy);
   border-radius: 22px;
   padding: 18px;
   background: #f1f5f2;
@@ -383,7 +383,7 @@
   bottom: 13px;
   left: 13px;
   right: 13px;
-  background: #0b1f33;
+  background: var(--color-ssb-navy);
   color: white;
   padding: 16px;
   border-radius: 5px;
@@ -398,7 +398,7 @@
 .master-opening {
   position: fixed;
   inset: 0;
-  background: #0b1f33;
+  background: var(--color-ssb-navy);
   color: white;
   z-index: 100;
   display: grid;
@@ -474,7 +474,7 @@ main.master-demo {
   z-index: 80;
   overflow: auto;
   background: #edf1f2 !important;
-  color: #0b1f33 !important;
+  color: var(--color-ssb-navy) !important;
   padding: 18px 24px !important;
 }
 .master-world-title {
@@ -509,7 +509,7 @@ section.master-demo {
   flex-direction: column;
   overflow: hidden;
   background: #edf1f2 !important;
-  color: #0b1f33 !important;
+  color: var(--color-ssb-navy) !important;
   padding: 10px 14px;
   gap: 6px;
 }
@@ -583,7 +583,7 @@ section.master-demo {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 5px;
   padding: 6px;
-  background: #0b1f33;
+  background: var(--color-ssb-navy);
   height: 94px;
   flex-shrink: 0;
 }
@@ -601,7 +601,7 @@ section.master-demo {
 .master-camera-tile > strong {
   display: flex;
   justify-content: space-between;
-  background: #0b1f33;
+  background: var(--color-ssb-navy);
   font-size: 8px;
   line-height: 15px;
   padding: 0 5px;
@@ -620,7 +620,7 @@ section.master-demo {
   font-size: 7px;
   line-height: 15px;
   white-space: nowrap;
-  background: #0b1f33;
+  background: var(--color-ssb-navy);
   padding: 0 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -931,10 +931,10 @@ section.master-demo {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Match the surrounding command dashboard. */
+/* Logo-derived forest / sage / ivory presentation palette. */
 section.master-demo {
-  background: var(--color-ssb-navy-deep, #071527) !important;
-  color: var(--color-ssb-text, #e9eef4) !important;
+  background: var(--color-ssb-navy-deep, var(--color-ssb-navy-deep)) !important;
+  color: var(--color-ssb-text, var(--color-ssb-text)) !important;
 }
 .master-demo small,
 .master-header > div:nth-child(2) small,
@@ -945,13 +945,13 @@ section.master-demo {
 }
 .master-demo .master-world,
 .master-demo .master-card {
-  background: #0b1f33;
-  border-color: #24415a;
-  color: #e9eef4;
+  background: var(--color-ssb-navy);
+  border-color: var(--color-ssb-border);
+  color: var(--color-ssb-text);
 }
 .master-demo .master-chain {
-  background: #102b45;
-  border: 1px solid #24415a;
+  background: var(--color-ssb-navy-raised);
+  border: 1px solid var(--color-ssb-border);
 }
 .master-demo button,
 .master-demo select,
@@ -959,13 +959,13 @@ section.master-demo {
 .master-tools select,
 .master-card input,
 .master-card select {
-  background: #102b45;
-  color: #e9eef4;
-  border-color: #2b4962;
+  background: var(--color-ssb-navy-raised);
+  color: var(--color-ssb-text);
+  border-color: var(--color-ssb-border);
   color-scheme: dark;
 }
 .master-demo button:hover {
-  background: #173951;
+  background: var(--color-ssb-navy-raised);
   border-color: #4c9d8e;
 }
 .master-demo [aria-pressed='true'] {
@@ -978,11 +978,11 @@ section.master-demo {
 .master-demo .master-records span,
 .master-demo .master-score small,
 .master-demo .master-events time {
-  color: #a9bdcb;
+  color: var(--color-ssb-text-muted);
 }
 .master-demo .master-card dd,
 .master-demo .master-records strong {
-  color: #e9eef4;
+  color: var(--color-ssb-text);
 }
 .master-demo .master-output {
   background: #10372d;
@@ -993,7 +993,7 @@ section.master-demo {
 .master-demo .master-events button,
 .master-demo .master-factor,
 .master-demo .master-seal {
-  border-color: #24415a;
+  border-color: var(--color-ssb-border);
 }
 .master-demo .master-score,
 .master-demo .master-factor b,
@@ -1006,35 +1006,35 @@ section.master-demo {
 }
 .master-demo .master-seal code,
 .master-demo .master-card pre {
-  background: #071527;
+  background: var(--color-ssb-navy-deep);
   color: #c5d7e4;
 }
 .master-demo .master-pair b {
-  background: #102b45;
+  background: var(--color-ssb-navy-raised);
   border-color: #35556d;
   color: #d2e7e0;
 }
 .master-demo .master-face {
-  background: #102b45;
+  background: var(--color-ssb-navy-raised);
   border-color: #49647b;
   color: #b8cbd8;
 }
 .master-demo .master-phone {
-  background: #102b45;
+  background: var(--color-ssb-navy-raised);
   border-color: #42627b;
-  color: #e9eef4;
+  color: var(--color-ssb-text);
 }
 .master-demo .master-plate {
   background: #193349;
   border-color: #5d7e94;
-  color: #e9eef4;
+  color: var(--color-ssb-text);
 }
 .master-demo .master-records button,
 .master-demo .master-vehicle-chain button {
   border-left-color: #4aab84;
 }
 .master-demo .master-record-pages small {
-  color: #a9bdcb;
+  color: var(--color-ssb-text-muted);
 }
 .master-demo .master-camera-tile {
   background: #20372d;
@@ -1046,6 +1046,45 @@ section.master-demo {
 }
 .master-demo .master-card summary {
   color: #b8d9d0;
+}
+
+/* Presentation-only hierarchy; control handlers and replay timing are unchanged. */
+.master-demo {
+  font-family: var(--font-sans);
+}
+.master-header h1 {
+  color: var(--color-ssb-text);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+.master-demo .master-world,
+.master-demo .master-card {
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 12%);
+}
+.master-toolbar button,
+.master-toolbar select {
+  min-height: 34px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.master-tools button,
+.master-tools select {
+  font-size: 11px;
+  min-height: 28px;
+  border-radius: 5px;
+}
+.master-demo .master-card p,
+.master-demo .master-card dt,
+.master-demo .master-card dd {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.master-demo button:focus-visible,
+.master-demo select:focus-visible,
+.master-demo input:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
 }
 /* Short windows must retain the map and all outcome text. */
 @media (max-height: 620px) {
