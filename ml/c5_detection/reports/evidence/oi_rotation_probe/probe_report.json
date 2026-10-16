@@ -1,0 +1,177 @@
+{
+  "artifact": "PRHAAR C5 Open Images rotation + integrity probe",
+  "generated_ist": "2026-10-13 21:21:28 IST",
+  "q1_downloaded_bytes_are_originals": {
+    "checked_images": 100,
+    "info_rows_resolved": 100,
+    "counts": {
+      "md5_mismatch": 100,
+      "rotation_0.0": 90,
+      "rotation_blank": 10,
+      "size_mismatch": 100
+    },
+    "md5_mismatch_samples": [
+      {
+        "image_id": "0000575f5a03db70",
+        "local": "e008318585bde30415bda47d6091ba68",
+        "csv": "WM9oh4+G5xGWvhTSCZHtaA=="
+      },
+      {
+        "image_id": "000817a6f6819e73",
+        "local": "ad4a58ccbbadd72d2157ccc31cb57ccf",
+        "csv": "RNEfFk6XXnudGVcTRNaugg=="
+      },
+      {
+        "image_id": "00120856d5e5a192",
+        "local": "8ea3d7e236a10587b589e7f9c4e905a9",
+        "csv": "JnUVab2YvKb0oWrSu8g90g=="
+      },
+      {
+        "image_id": "0015000a6bc37350",
+        "local": "9af6ea576e11ae5163d0ae40e5e04755",
+        "csv": "p0UaUxVvA2wX3r7saFnHxA=="
+      },
+      {
+        "image_id": "002d85ede4e5d1f3",
+        "local": "a546fa5af133bb00fc4c8410b8f0c681",
+        "csv": "kgWklZfWUhhMsZOLGTF+uQ=="
+      }
+    ],
+    "csv_columns_seen": [
+      "Author",
+      "ImageID",
+      "License",
+      "OriginalMD5",
+      "OriginalSize",
+      "Rotation",
+      "Title"
+    ]
+  },
+  "q2_annotation_coordinate_frame": {
+    "images_probed": 4,
+    "records": [
+      {
+        "image_id": "6833931f37595779",
+        "rotation": 270,
+        "bytes": 413575,
+        "raw_wh": [
+          1024,
+          768
+        ],
+        "rot_wh": [
+          768,
+          1024
+        ],
+        "n_boxes_drawn": 1,
+        "classes": [
+          "Person"
+        ],
+        "download_s": 0.24,
+        "montage": "reports\\evidence\\oi_rotation_probe\\montage_6833931f37595779.png"
+      },
+      {
+        "image_id": "87d0fbfa2ac26f8a",
+        "rotation": 180,
+        "bytes": 282317,
+        "raw_wh": [
+          1024,
+          768
+        ],
+        "rot_wh": [
+          1024,
+          768
+        ],
+        "n_boxes_drawn": 1,
+        "classes": [
+          "Bicycle"
+        ],
+        "download_s": 0.13,
+        "montage": "reports\\evidence\\oi_rotation_probe\\montage_87d0fbfa2ac26f8a.png"
+      },
+      {
+        "image_id": "af9b27b5b101ca1c",
+        "rotation": 270,
+        "bytes": 458290,
+        "raw_wh": [
+          1024,
+          768
+        ],
+        "rot_wh": [
+          768,
+          1024
+        ],
+        "n_boxes_drawn": 1,
+        "classes": [
+          "Car"
+        ],
+        "download_s": 0.1,
+        "montage": "reports\\evidence\\oi_rotation_probe\\montage_af9b27b5b101ca1c.png"
+      },
+      {
+        "image_id": "91886ebe7b3d6bed",
+        "rotation": 180,
+        "bytes": 95044,
+        "raw_wh": [
+          1024,
+          576
+        ],
+        "rot_wh": [
+          1024,
+          576
+        ],
+        "n_boxes_drawn": 1,
+        "classes": [
+          "Person"
+        ],
+        "download_s": 0.12,
+        "montage": "reports\\evidence\\oi_rotation_probe\\montage_91886ebe7b3d6bed.png"
+      }
+    ],
+    "contact_sheet": "reports\\evidence\\oi_rotation_probe\\contact_sheet.png"
+  },
+  "q3_decisive_aspect_statistics": {
+    "method": "normalized-aspect statistics on validation Person/Car boxes (depiction/group_of excluded)",
+    "results": {
+      "Person": {
+        "0.0": {
+          "boxes": 11118,
+          "tall_pct": 89.4,
+          "wide_pct": 10.1
+        },
+        "90.0": {
+          "boxes": 29,
+          "tall_pct": 13.8,
+          "wide_pct": 86.2
+        },
+        "180.0": {
+          "boxes": 13,
+          "tall_pct": 84.6,
+          "wide_pct": 15.4
+        },
+        "270.0": {
+          "boxes": 75,
+          "tall_pct": 18.7,
+          "wide_pct": 80.0
+        }
+      },
+      "Car": {
+        "0.0": {
+          "boxes": 8214,
+          "tall_pct": 33.4,
+          "wide_pct": 64.5
+        },
+        "270.0": {
+          "boxes": 4,
+          "tall_pct": 75.0,
+          "wide_pct": 0.0
+        }
+      }
+    },
+    "reading": "Person 90/270 groups flip to ~80-86% wide vs 10.1% wide in the rot=0 control; Car 270 flips to tall vs the wide control; 180 (aspect-preserving) stays tall like the control. Boxes are in the RAW stored-image frame."
+  },
+  "interpretation": [
+    "Q1: downloaded bytes are NOT the original Flickr files -- by design. OI redistributes images resized to max 1024px; the info CSV's OriginalMD5 (base64, not hex) and OriginalSize refer to the ORIGINAL Flickr upload, so 100/100 'mismatches' are expected and are not an integrity problem. Our own integrity anchor is the SHA-256 recorded per image in acquisition_manifest.jsonl.",
+    "Q2/Q3: OI bounding boxes are expressed in the coordinate frame of the RAW STORED image (the exact bytes we download) -- NOT the rotated display frame. Evidence: on 90/270-rotation images, Person boxes are 80.0-86.2% WIDE (lying) vs 10.1% wide on rot=0 controls (n=104); Car flips to tall vs its wide control; the aspect-preserving 180 group matches the control. The montages confirm visually: raw panel contains the sideways scene and the box hugs the sideways person.",
+    "CONSEQUENCE for PRHAAR C5: no rotation handling is needed anywhere -- raw bytes + raw normalized boxes are frame-consistent. The Rotation field is display metadata only and is recorded per image in the acquisition manifest for QA slicing. Rotation-unknown images (blank, ~13%) are unaffected: annotation correctness never depended on rotation."
+  ]
+}

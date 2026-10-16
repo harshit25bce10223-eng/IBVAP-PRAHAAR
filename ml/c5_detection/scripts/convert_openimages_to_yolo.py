@@ -24,7 +24,9 @@ Conversion policy (explicit, counted, never silent -- spec 46/61):
   - images left with zero boxes are skipped and counted.
 
 Paths in index.jsonl are relative to ml/c5_detection/ (C5 root) -- they start
-with "datasets/", matching qa_dataset.py/build_composite.py defaults.
+with "datasets/", matching qa_dataset.py/build_composite.py defaults. Each
+index entry carries label_file ("labels/<image_id>.txt"), the staging
+convention qa_dataset.py and build_composite.py resolve labels through.
 """
 
 from __future__ import annotations
@@ -164,6 +166,10 @@ def main() -> int:
             "source": "openimages_v7",
             "source_split": rec["oi_split"],
             "image_path": f"datasets/sources/openimages_v7/{man['path']}",
+            # same staging convention as every other converter:
+            # qa_dataset.py and build_composite.py resolve labels via this field
+            # (a missing label_file made the whole staging fail QA as orphans).
+            "label_file": f"labels/{img}.txt",
             "classes": sorted(img_classes),
             "n_boxes": len(kept),
             "n_boxes_raw": rec["n_boxes"],

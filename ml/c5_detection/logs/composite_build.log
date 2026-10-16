@@ -1,0 +1,15 @@
+sources: ['autorickshaw_yolo', 'oi_yolo', 'poribohon_yolo']
+  autorickshaw_yolo: 663 entries
+  oi_yolo: 15119 entries
+  poribohon_yolo: 4940 entries
+hashing 20722 images (sha256 + dhash64)...
+groups: 13020 (exact_pairs 8, near_pairs 88, author_pairs 7625, capped authors 7)
+
+built -> C:\SIH\ml\c5_detection\datasets\PRHAAR-C5-DETECTION
+  images 20722 | groups 13020 | boxes 59972
+  train: 14506 images, 42296 boxes, 9112 groups
+  val: 3108 images, 8786 boxes, 1954 groups
+  test: 3108 images, 8890 boxes, 1954 groups
+  leakage pass: True | problems: 0
+  dataset hash: 7fa08e2bf23baefc...
+  runtime 1015.3s

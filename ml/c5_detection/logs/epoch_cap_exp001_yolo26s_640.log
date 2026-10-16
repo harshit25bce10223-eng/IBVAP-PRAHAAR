@@ -1,0 +1,32 @@
+[cap 2026-10-15 22:24:04] watcher start exp=exp001_yolo26s_640 cap=50 model=yolo26s.pt rows_now=37
+[cap 2026-10-15 22:24:04] watcher start exp=exp001_yolo26s_640 cap=50 model=yolo26s.pt rows_now=37
+[cap 2026-10-16 03:03:17] results.csv rows=50 >= cap=50; stabilizing checkpoints before finalize
+[cap 2026-10-16 03:03:17] results.csv rows=50 >= cap=50; stabilizing checkpoints before finalize
+[cap 2026-10-16 03:03:29] checkpoints stable (last.pt age 24s) -- finalizing
+[cap 2026-10-16 03:03:29] checkpoints stable (last.pt age 24s) -- finalizing
+manifest -> C:\SIH\ml\c5_detection\training\runs\exp001_yolo26s_640\run_manifest.json
+cap epoch 50 | best epoch 49 | fitness 0.579793 | trainer-reported 815.0 min
+best.pt sha256 fb2180a3c331ddee... last.pt sha256 1fed841bbe9d2591...
+manifest -> C:\SIH\ml\c5_detection\training\runs\exp001_yolo26s_640\run_manifest.json
+cap epoch 50 | best epoch 49 | fitness 0.579793 | trainer-reported 815.0 min
+best.pt sha256 fb2180a3c331ddee... last.pt sha256 1fed841bbe9d2591...
+[cap 2026-10-16 03:04:00] manifest written -- stopping trainer
+[cap 2026-10-16 03:04:00] manifest written -- stopping trainer
+[cap 2026-10-16 03:04:02] taskkill //F //T //PID 2744
+[cap 2026-10-16 03:04:02] taskkill //F //T //PID 2744
+SUCCESS: The process with PID 3140 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 26352 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 20944 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 4152 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 23168 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 3032 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 2744 (child process of PID 24072) has been terminated.
+SUCCESS: The process with PID 3140 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 26352 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 20944 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 4152 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 23168 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 3032 (child process of PID 2744) has been terminated.
+SUCCESS: The process with PID 2744 (child process of PID 24072) has been terminated.
+[cap 2026-10-16 03:04:11] trainer stopped -- cap applied at epoch 50
+[cap 2026-10-16 03:04:11] trainer stopped -- cap applied at epoch 50

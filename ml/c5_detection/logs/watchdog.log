@@ -1,0 +1,4 @@
+      0 [main] bash (30776) child_copy: cygheap read copy failed, 0x800000000..0x800033290, done 0, windows pid 30776, Win32 error 299
+   3488 [main] bash 965 child_copy: dll data read copy failed, 0x210246000..0x21025FC90, done 0, windows pid 30776, Win32 error 299
+   4222 [main] bash 965 C:\Program Files\Git\usr\bin\bash.exe: *** fatal error in forked process - couldn't create signal pipe, Win32 error 5
+[watchdog 2026-10-16 09:07:29] watchdog start (stale=30min poll=300s)

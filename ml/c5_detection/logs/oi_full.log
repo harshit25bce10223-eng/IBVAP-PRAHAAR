@@ -1,0 +1,52 @@
+2026-10-13 21:22:39,445 INFO target classes resolved: {'Person': '/m/01g317', 'Bicycle': '/m/0199g', 'Car': '/m/0k4j', 'Motorcycle': '/m/04_sv', 'Bus': '/m/01bjv', 'Truck': '/m/07r04', 'Van': '/m/0h2r6', 'Cattle': '/m/01xq0k1', 'Sheep': '/m/07bgp', 'Goat': '/m/03fwl', 'Horse': '/m/03k3r', 'Dog': '/m/0bt9lr'}
+2026-10-13 21:22:39,446 INFO === train: scanning oidv6-train-annotations-bbox.csv (caps {'Person': 1400, 'Bicycle': 1050, 'Car': 1750, 'Motorcycle': 1050, 'Bus': 1050, 'Truck': 1400, 'Van': 1050, 'Cattle': 700, 'Sheep': 700, 'Goat': 700, 'Horse': 490, 'Dog': 700})
+2026-10-13 21:23:18,637 INFO pass1 train approx image counts: {'Person': 248385, 'Bicycle': 17631, 'Car': 89467, 'Motorcycle': 6944, 'Bus': 7293, 'Truck': 8078, 'Van': 5378, 'Cattle': 2916, 'Sheep': 1188, 'Goat': 1112, 'Horse': 7073, 'Dog': 20607}
+2026-10-13 21:23:18,638 INFO pass2 sampling rates: {'Person': 0.0065, 'Bicycle': 0.0685, 'Car': 0.0225, 'Motorcycle': 0.1739, 'Bus': 0.1656, 'Truck': 0.1993, 'Van': 0.2245, 'Cattle': 0.2761, 'Sheep': 0.6776, 'Goat': 0.7239, 'Horse': 0.0797, 'Dog': 0.0391}
+2026-10-13 21:24:04,515 INFO pass2 kept per class (train): {'Person': 1400, 'Bicycle': 1050, 'Car': 1750, 'Motorcycle': 1050, 'Bus': 1050, 'Truck': 1400, 'Van': 1050, 'Cattle': 700, 'Sheep': 700, 'Goat': 700, 'Horse': 490, 'Dog': 700}; union=11898
+2026-10-13 21:24:56,664 INFO train done: kept rows=41362 stats={'Person': 1400, 'Bicycle': 1050, 'Car': 1750, 'Motorcycle': 1050, 'Bus': 1050, 'Truck': 1400, 'Van': 1050, 'Cattle': 700, 'Sheep': 700, 'Goat': 700, 'Horse': 490, 'Dog': 700}
+2026-10-13 21:24:56,665 INFO === validation: scanning validation-annotations-bbox.csv (caps {'Person': 300, 'Bicycle': 225, 'Car': 375, 'Motorcycle': 225, 'Bus': 225, 'Truck': 300, 'Van': 225, 'Cattle': 150, 'Sheep': 150, 'Goat': 150, 'Horse': 105, 'Dog': 150})
+2026-10-13 21:24:57,812 INFO validation done: kept rows=5202 stats={'Person': 300, 'Bicycle': 225, 'Car': 375, 'Motorcycle': 151, 'Bus': 82, 'Truck': 300, 'Van': 178, 'Cattle': 134, 'Sheep': 62, 'Goat': 61, 'Horse': 105, 'Dog': 150}
+2026-10-13 21:24:57,812 INFO === test: scanning test-annotations-bbox.csv (caps {'Person': 300, 'Bicycle': 225, 'Car': 375, 'Motorcycle': 225, 'Bus': 225, 'Truck': 300, 'Van': 225, 'Cattle': 150, 'Sheep': 150, 'Goat': 150, 'Horse': 105, 'Dog': 150})
+2026-10-13 21:25:01,465 INFO test done: kept rows=6933 stats={'Person': 300, 'Bicycle': 225, 'Car': 375, 'Motorcycle': 225, 'Bus': 225, 'Truck': 300, 'Van': 225, 'Cattle': 150, 'Sheep': 150, 'Goat': 150, 'Horse': 105, 'Dog': 150}
+2026-10-13 21:25:01,699 INFO union images across splits: 16372
+2026-10-13 21:26:34,529 INFO license rows resolved so far: 11898 (from oidv6-train-images-with-labels-with-rotation.csv)
+2026-10-13 21:26:35,054 INFO license rows resolved so far: 13887 (from validation-images-with-rotation.csv)
+2026-10-13 21:26:36,600 INFO all 16372 license rows resolved within test-images-with-rotation.csv
+2026-10-13 21:26:36,601 INFO license rows resolved so far: 16372 (from test-images-with-rotation.csv)
+2026-10-13 21:26:36,637 INFO license rows found for 16372; dropped (no license row): 0
+2026-10-13 21:26:38,380 INFO downloading 16372 images with 8 workers ...
+2026-10-13 22:17:52,927 INFO   500/16372 downloaded (3075s)
+2026-10-13 22:20:46,892 INFO   1000/16372 downloaded (3249s)
+2026-10-13 22:23:30,686 INFO   1500/16372 downloaded (3412s)
+2026-10-13 22:26:07,859 INFO   2000/16372 downloaded (3569s)
+2026-10-13 22:28:38,704 INFO   2500/16372 downloaded (3720s)
+2026-10-13 22:31:18,946 INFO   3000/16372 downloaded (3881s)
+2026-10-13 22:34:03,599 INFO   3500/16372 downloaded (4045s)
+2026-10-13 23:48:48,508 INFO   4000/16372 downloaded (8530s)
+2026-10-13 23:51:37,725 INFO   4500/16372 downloaded (8699s)
+2026-10-13 23:54:13,410 INFO   5000/16372 downloaded (8855s)
+2026-10-13 23:58:13,569 INFO   5500/16372 downloaded (9095s)
+2026-10-14 00:01:00,422 INFO   6000/16372 downloaded (9262s)
+2026-10-14 00:03:41,683 INFO   6500/16372 downloaded (9423s)
+2026-10-14 00:06:17,548 INFO   7000/16372 downloaded (9579s)
+2026-10-14 00:09:05,938 INFO   7500/16372 downloaded (9748s)
+2026-10-14 00:12:01,657 INFO   8000/16372 downloaded (9923s)
+2026-10-14 00:14:43,701 INFO   8500/16372 downloaded (10085s)
+2026-10-14 00:17:10,461 INFO   9000/16372 downloaded (10232s)
+2026-10-14 00:19:59,720 INFO   9500/16372 downloaded (10401s)
+2026-10-14 00:22:32,931 INFO   10000/16372 downloaded (10555s)
+2026-10-14 00:25:13,760 INFO   10500/16372 downloaded (10715s)
+2026-10-14 00:27:43,660 INFO   11000/16372 downloaded (10865s)
+2026-10-14 00:30:16,535 INFO   11500/16372 downloaded (11018s)
+2026-10-14 00:32:48,475 INFO   12000/16372 downloaded (11170s)
+2026-10-14 00:35:26,428 INFO   12500/16372 downloaded (11328s)
+2026-10-14 00:38:10,986 INFO   13000/16372 downloaded (11493s)
+2026-10-14 00:40:47,207 INFO   13500/16372 downloaded (11649s)
+2026-10-14 00:43:24,086 INFO   14000/16372 downloaded (11806s)
+2026-10-14 00:46:02,782 INFO   14500/16372 downloaded (11964s)
+2026-10-14 00:48:46,138 INFO   15000/16372 downloaded (12128s)
+2026-10-14 00:51:29,045 INFO   15500/16372 downloaded (12291s)
+2026-10-14 00:54:04,024 INFO   16000/16372 downloaded (12446s)
+2026-10-14 00:55:58,431 INFO   16372/16372 downloaded (12560s)
+2026-10-14 00:58:31,212 INFO DONE ok=16372 failed=0 bytes=5530.2 MB
+2026-10-14 00:58:31,220 INFO summary -> C:\SIH\ml\c5_detection\datasets\sources\openimages_v7\acquisition_summary.json

@@ -1,0 +1,500 @@
+{
+  "dataset": "PRHAAR-C5-DETECTION",
+  "splits": {
+    "train": {
+      "images": 14506,
+      "boxes": 42296,
+      "corrupt_label_lines": 0,
+      "sources_images": {
+        "ars": 466,
+        "oi": 10568,
+        "pbh": 3472
+      },
+      "boxes_per_image": {
+        "1": 6626,
+        "2": 3046,
+        "3": 1499,
+        "4": 1008,
+        "6-10": 1170,
+        "5": 622,
+        "11+": 535
+      },
+      "per_class": {
+        "PERSON": {
+          "boxes": 11063,
+          "images_with_class": 2906,
+          "size_buckets_px": {
+            "small": 1531,
+            "medium": 4400,
+            "large": 5132
+          },
+          "aspect_buckets": {
+            "square~1": 4542,
+            "tall<0.5": 5448,
+            "wide1-2": 968,
+            "verywide>2": 105
+          }
+        },
+        "MOTORCYCLE": {
+          "boxes": 2841,
+          "images_with_class": 1861,
+          "size_buckets_px": {
+            "large": 2296,
+            "medium": 460,
+            "small": 85
+          },
+          "aspect_buckets": {
+            "wide1-2": 1353,
+            "square~1": 1094,
+            "verywide>2": 103,
+            "tall<0.5": 291
+          }
+        },
+        "BICYCLE": {
+          "boxes": 2434,
+          "images_with_class": 1191,
+          "size_buckets_px": {
+            "large": 1736,
+            "medium": 531,
+            "small": 167
+          },
+          "aspect_buckets": {
+            "wide1-2": 1047,
+            "square~1": 891,
+            "tall<0.5": 382,
+            "verywide>2": 114
+          }
+        },
+        "CAR": {
+          "boxes": 8570,
+          "images_with_class": 3706,
+          "size_buckets_px": {
+            "large": 4958,
+            "small": 760,
+            "medium": 2852
+          },
+          "aspect_buckets": {
+            "square~1": 1641,
+            "wide1-2": 4537,
+            "verywide>2": 1894,
+            "tall<0.5": 498
+          }
+        },
+        "LIGHT_VEHICLE": {
+          "boxes": 2832,
+          "images_with_class": 1775,
+          "size_buckets_px": {
+            "large": 2321,
+            "medium": 481,
+            "small": 30
+          },
+          "aspect_buckets": {
+            "wide1-2": 1428,
+            "verywide>2": 503,
+            "square~1": 733,
+            "tall<0.5": 168
+          }
+        },
+        "TRUCK": {
+          "boxes": 2879,
+          "images_with_class": 2020,
+          "size_buckets_px": {
+            "large": 2492,
+            "medium": 354,
+            "small": 33
+          },
+          "aspect_buckets": {
+            "wide1-2": 1550,
+            "square~1": 630,
+            "verywide>2": 496,
+            "tall<0.5": 203
+          }
+        },
+        "BUS": {
+          "boxes": 2413,
+          "images_with_class": 1504,
+          "size_buckets_px": {
+            "large": 1972,
+            "medium": 401,
+            "small": 40
+          },
+          "aspect_buckets": {
+            "wide1-2": 1039,
+            "square~1": 717,
+            "verywide>2": 339,
+            "tall<0.5": 318
+          }
+        },
+        "TRACTOR": {
+          "boxes": 0,
+          "images_with_class": 0,
+          "size_buckets_px": {},
+          "aspect_buckets": {}
+        },
+        "ANIMAL": {
+          "boxes": 6792,
+          "images_with_class": 2656,
+          "size_buckets_px": {
+            "large": 4966,
+            "medium": 1313,
+            "small": 513
+          },
+          "aspect_buckets": {
+            "square~1": 2624,
+            "wide1-2": 3252,
+            "tall<0.5": 472,
+            "verywide>2": 444
+          }
+        },
+        "AUTO_RICKSHAW": {
+          "boxes": 2472,
+          "images_with_class": 1400,
+          "size_buckets_px": {
+            "large": 1949,
+            "medium": 481,
+            "small": 42
+          },
+          "aspect_buckets": {
+            "wide1-2": 544,
+            "square~1": 1350,
+            "tall<0.5": 569,
+            "verywide>2": 9
+          }
+        }
+      }
+    },
+    "val": {
+      "images": 3108,
+      "boxes": 8786,
+      "corrupt_label_lines": 0,
+      "sources_images": {
+        "ars": 92,
+        "oi": 2267,
+        "pbh": 749
+      },
+      "boxes_per_image": {
+        "1": 1447,
+        "2": 635,
+        "4": 213,
+        "3": 343,
+        "6-10": 236,
+        "5": 127,
+        "11+": 107
+      },
+      "per_class": {
+        "PERSON": {
+          "boxes": 2151,
+          "images_with_class": 601,
+          "size_buckets_px": {
+            "medium": 839,
+            "large": 1087,
+            "small": 225
+          },
+          "aspect_buckets": {
+            "tall<0.5": 1052,
+            "square~1": 827,
+            "wide1-2": 243,
+            "verywide>2": 29
+          }
+        },
+        "MOTORCYCLE": {
+          "boxes": 614,
+          "images_with_class": 383,
+          "size_buckets_px": {
+            "large": 506,
+            "small": 13,
+            "medium": 95
+          },
+          "aspect_buckets": {
+            "square~1": 251,
+            "wide1-2": 292,
+            "tall<0.5": 51,
+            "verywide>2": 20
+          }
+        },
+        "BICYCLE": {
+          "boxes": 466,
+          "images_with_class": 234,
+          "size_buckets_px": {
+            "large": 378,
+            "medium": 82,
+            "small": 6
+          },
+          "aspect_buckets": {
+            "square~1": 196,
+            "wide1-2": 189,
+            "verywide>2": 32,
+            "tall<0.5": 49
+          }
+        },
+        "CAR": {
+          "boxes": 1960,
+          "images_with_class": 832,
+          "size_buckets_px": {
+            "large": 1086,
+            "medium": 645,
+            "small": 229
+          },
+          "aspect_buckets": {
+            "verywide>2": 457,
+            "square~1": 406,
+            "wide1-2": 981,
+            "tall<0.5": 116
+          }
+        },
+        "LIGHT_VEHICLE": {
+          "boxes": 623,
+          "images_with_class": 383,
+          "size_buckets_px": {
+            "large": 524,
+            "medium": 89,
+            "small": 10
+          },
+          "aspect_buckets": {
+            "wide1-2": 290,
+            "verywide>2": 115,
+            "square~1": 171,
+            "tall<0.5": 47
+          }
+        },
+        "TRUCK": {
+          "boxes": 715,
+          "images_with_class": 489,
+          "size_buckets_px": {
+            "large": 616,
+            "medium": 88,
+            "small": 11
+          },
+          "aspect_buckets": {
+            "wide1-2": 418,
+            "square~1": 122,
+            "verywide>2": 147,
+            "tall<0.5": 28
+          }
+        },
+        "BUS": {
+          "boxes": 420,
+          "images_with_class": 270,
+          "size_buckets_px": {
+            "large": 369,
+            "medium": 45,
+            "small": 6
+          },
+          "aspect_buckets": {
+            "wide1-2": 190,
+            "square~1": 127,
+            "verywide>2": 59,
+            "tall<0.5": 44
+          }
+        },
+        "TRACTOR": {
+          "boxes": 0,
+          "images_with_class": 0,
+          "size_buckets_px": {},
+          "aspect_buckets": {}
+        },
+        "ANIMAL": {
+          "boxes": 1335,
+          "images_with_class": 554,
+          "size_buckets_px": {
+            "large": 998,
+            "medium": 243,
+            "small": 94
+          },
+          "aspect_buckets": {
+            "wide1-2": 681,
+            "verywide>2": 77,
+            "square~1": 478,
+            "tall<0.5": 99
+          }
+        },
+        "AUTO_RICKSHAW": {
+          "boxes": 502,
+          "images_with_class": 276,
+          "size_buckets_px": {
+            "large": 413,
+            "medium": 83,
+            "small": 6
+          },
+          "aspect_buckets": {
+            "square~1": 265,
+            "wide1-2": 106,
+            "tall<0.5": 129,
+            "verywide>2": 2
+          }
+        }
+      }
+    },
+    "test": {
+      "images": 3108,
+      "boxes": 8890,
+      "corrupt_label_lines": 0,
+      "sources_images": {
+        "ars": 105,
+        "oi": 2284,
+        "pbh": 719
+      },
+      "boxes_per_image": {
+        "1": 1403,
+        "2": 705,
+        "5": 132,
+        "3": 293,
+        "4": 228,
+        "6-10": 242,
+        "11+": 105
+      },
+      "per_class": {
+        "PERSON": {
+          "boxes": 2100,
+          "images_with_class": 571,
+          "size_buckets_px": {
+            "large": 1057,
+            "medium": 802,
+            "small": 241
+          },
+          "aspect_buckets": {
+            "tall<0.5": 1113,
+            "square~1": 812,
+            "wide1-2": 161,
+            "verywide>2": 14
+          }
+        },
+        "MOTORCYCLE": {
+          "boxes": 738,
+          "images_with_class": 414,
+          "size_buckets_px": {
+            "large": 552,
+            "medium": 159,
+            "small": 27
+          },
+          "aspect_buckets": {
+            "wide1-2": 315,
+            "square~1": 319,
+            "tall<0.5": 80,
+            "verywide>2": 24
+          }
+        },
+        "BICYCLE": {
+          "boxes": 602,
+          "images_with_class": 234,
+          "size_buckets_px": {
+            "large": 387,
+            "medium": 172,
+            "small": 43
+          },
+          "aspect_buckets": {
+            "tall<0.5": 125,
+            "wide1-2": 210,
+            "square~1": 247,
+            "verywide>2": 20
+          }
+        },
+        "CAR": {
+          "boxes": 1824,
+          "images_with_class": 816,
+          "size_buckets_px": {
+            "large": 1018,
+            "medium": 637,
+            "small": 169
+          },
+          "aspect_buckets": {
+            "wide1-2": 927,
+            "square~1": 351,
+            "verywide>2": 424,
+            "tall<0.5": 122
+          }
+        },
+        "LIGHT_VEHICLE": {
+          "boxes": 675,
+          "images_with_class": 403,
+          "size_buckets_px": {
+            "large": 547,
+            "medium": 123,
+            "small": 5
+          },
+          "aspect_buckets": {
+            "wide1-2": 322,
+            "verywide>2": 103,
+            "square~1": 202,
+            "tall<0.5": 48
+          }
+        },
+        "TRUCK": {
+          "boxes": 651,
+          "images_with_class": 449,
+          "size_buckets_px": {
+            "large": 563,
+            "medium": 81,
+            "small": 7
+          },
+          "aspect_buckets": {
+            "wide1-2": 347,
+            "verywide>2": 136,
+            "square~1": 132,
+            "tall<0.5": 36
+          }
+        },
+        "BUS": {
+          "boxes": 453,
+          "images_with_class": 281,
+          "size_buckets_px": {
+            "large": 358,
+            "medium": 81,
+            "small": 14
+          },
+          "aspect_buckets": {
+            "wide1-2": 221,
+            "verywide>2": 78,
+            "square~1": 111,
+            "tall<0.5": 43
+          }
+        },
+        "TRACTOR": {
+          "boxes": 0,
+          "images_with_class": 0,
+          "size_buckets_px": {},
+          "aspect_buckets": {}
+        },
+        "ANIMAL": {
+          "boxes": 1317,
+          "images_with_class": 579,
+          "size_buckets_px": {
+            "large": 1016,
+            "medium": 237,
+            "small": 64
+          },
+          "aspect_buckets": {
+            "wide1-2": 650,
+            "tall<0.5": 107,
+            "verywide>2": 80,
+            "square~1": 480
+          }
+        },
+        "AUTO_RICKSHAW": {
+          "boxes": 530,
+          "images_with_class": 313,
+          "size_buckets_px": {
+            "large": 433,
+            "medium": 89,
+            "small": 8
+          },
+          "aspect_buckets": {
+            "square~1": 295,
+            "tall<0.5": 110,
+            "wide1-2": 124,
+            "verywide>2": 1
+          }
+        }
+      }
+    }
+  },
+  "totals": {
+    "images": 20722,
+    "boxes": 59972
+  },
+  "notes": [
+    "size buckets use REAL image dims (PIL header reads), COCO px thresholds 32/96",
+    "source = filename prefix stamped by build_composite (oi__=OpenImages, ars__=auto-rickshaw, pbd__=Poribohon-BD)",
+    "TRACTOR is a declared empty class (taxonomy v1.0 conditional) -- zero boxes is expected, not an error"
+  ]
+}

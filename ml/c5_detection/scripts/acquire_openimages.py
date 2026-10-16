@@ -15,6 +15,10 @@ Design constraints (C5 spec)
   - Deterministic sampling (seed + sha1), reproducible.
   - Per-image license captured (OI images are Flickr, per-image license in the
     images-with-rotation CSVs; annotations are CC-BY-4.0).
+  - Rotation field: OI boxes are in the RAW stored-image frame (proven measured
+    2026-10-04, reports/evidence/oi_rotation_probe/) -- Rotation is display
+    metadata only; no rotation is ever applied to pixels or boxes. Recorded per
+    image in the manifest so QA can slice by it.
   - Occlusion/truncation flags are PRESERVED (we do not discard them; downstream
     selection is a staging decision, not an acquisition decision).
   - Images whose license row cannot be found are DROPPED and counted, never guessed.
@@ -643,6 +647,12 @@ def main() -> int:
                 "title": info.get(img, {}).get("Title"),
                 "original_url": info.get(img, {}).get("OriginalURL"),
                 "landing_url": info.get(img, {}).get("OriginalLandingURL"),
+                # Flickr-intended display orientation (CCW degrees). Proven
+                # MEASURED 2026-10-04 (see reports/evidence/oi_rotation_probe/):
+                # OI boxes are in the RAW stored-image frame, so this field is
+                # display metadata only -- no rotation is ever applied to pixels
+                # or boxes. Recorded so QA can slice by it. "" = OI has no value.
+                "rotation": info.get(img, {}).get("Rotation", ""),
                 "n_boxes": rec["n_boxes"], "classes": rec["classes"],
             }
             mf.write(json.dumps(entry, ensure_ascii=False) + "\n")

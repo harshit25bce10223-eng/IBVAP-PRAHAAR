@@ -89,6 +89,30 @@ def now_ist() -> str:
     return datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST")
 
 
+def total_ram_gib():
+    """Total physical RAM in GiB via GlobalMemoryStatusEx (no extra deps)."""
+    import ctypes
+
+    class _MEMORYSTATUSEX(ctypes.Structure):
+        _fields_ = [
+            ("dwLength", ctypes.c_ulong),
+            ("dwMemoryLoad", ctypes.c_ulong),
+            ("ullTotalPhys", ctypes.c_ulonglong),
+            ("ullAvailPhys", ctypes.c_ulonglong),
+            ("ullTotalPageFile", ctypes.c_ulonglong),
+            ("ullAvailPageFile", ctypes.c_ulonglong),
+            ("ullTotalVirtual", ctypes.c_ulonglong),
+            ("ullAvailVirtual", ctypes.c_ulonglong),
+            ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+        ]
+
+    st = _MEMORYSTATUSEX()
+    st.dwLength = ctypes.sizeof(_MEMORYSTATUSEX)
+    if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(st)):
+        return None
+    return st.ullTotalPhys / 2 ** 30
+
+
 def resolve_split_dir(data_yaml: Path, split: str) -> Path | None:
     y = yaml.safe_load(data_yaml.read_text(encoding="utf-8"))
     rel = y.get(split)
@@ -129,6 +153,10 @@ def main() -> int:
     ap.add_argument("--experiment-id", required=True)
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--batch", type=int, default=8, help="eval batch")
+    ap.add_argument("--workers", type=int, default=4,
+                    help="val dataloader workers; low-RAM machines (< 12 GiB) are capped to 2 "
+                         "(ultralytics default would be 8 -- commit-exhaustion crash risk, "
+                         "measured 2026-10-14)")
     ap.add_argument("--device", default="0")
     ap.add_argument("--latency-n", type=int, default=100,
                     help="images for the batch-1 latency bench (min with split size)")
@@ -141,6 +169,14 @@ def main() -> int:
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     t0 = time.time()
+
+    # ---- low-RAM worker cap (measured 2026-10-14; mirrors train_detector.py) ----
+    workers_effective = args.workers
+    ram_gib = total_ram_gib()
+    if ram_gib is not None and ram_gib < 12.0 and workers_effective > 2:
+        LOG.warning("workers capped %d -> 2 (RAM %.1f GiB: commit-exhaustion workaround)",
+                    workers_effective, ram_gib)
+        workers_effective = 2
 
     weights = args.weights.resolve()
     if not weights.is_file():
@@ -164,7 +200,7 @@ def main() -> int:
 
     import torch
     import ultralytics
-    from ultralytics import YOLO
+    from ultralytics import RTDETR, YOLO
 
     ckpt_sha = sha256_file(weights)
     y = yaml.safe_load(data_yaml.read_text(encoding="utf-8"))
@@ -178,7 +214,22 @@ def main() -> int:
     LOG.info("eval %s | split %s (%d images) | imgsz %d | batch %d",
              args.experiment_id, args.split, n_images, args.imgsz, args.batch)
 
-    model = YOLO(str(weights))
+    # loader selection: a run's best.pt is always named best.pt, so the model
+    # family cannot be read from the filename -- it comes from the checkpoint's
+    # own recorded train_args (set by train_detector.py), never guessed.
+    loader_cls = YOLO
+    try:
+        _ck = torch.load(str(weights), map_location="cpu", weights_only=False)
+        _ta = _ck.get("train_args", {}) if isinstance(_ck, dict) else {}
+        _mname = str(_ta.get("model", ""))
+        if "rtdetr" in _mname.lower():
+            loader_cls = RTDETR
+        LOG.info("checkpoint train_args model=%r -> loader %s", _mname, loader_cls.__name__)
+        del _ck
+    except Exception as e:
+        LOG.warning("could not read train_args from checkpoint (%s) -- defaulting to YOLO loader", e)
+
+    model = loader_cls(str(weights))
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
@@ -190,6 +241,7 @@ def main() -> int:
     m = model.val(data=str(data_yaml), split=args.split, imgsz=args.imgsz,
                   batch=args.batch, device=args.device,
                   plots=True, verbose=False,
+                  workers=workers_effective,
                   project=str(EVAL_DIR / "runs"), name=f"{args.experiment_id}_{args.split}",
                   exist_ok=True)
     val_s = time.time() - val_t0

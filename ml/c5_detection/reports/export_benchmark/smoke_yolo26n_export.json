@@ -1,0 +1,117 @@
+{
+  "schema": "c5_export_benchmark_v1",
+  "experiment_id": "smoke_yolo26n",
+  "timestamp_utc": "2026-10-15T07:38:35.808105+00:00",
+  "source_weights": {
+    "path": "yolo26n.pt",
+    "sha256": "9b09cc8bf347f0fc8a5f7657480587f25db09b34bf33b0652110fb03a8ad4fef",
+    "size_bytes": 5544453
+  },
+  "export": {
+    "imgsz": 320,
+    "batch": 1,
+    "dynamic": false,
+    "half": false,
+    "device": "cpu",
+    "formats_requested": [
+      "onnx",
+      "torchscript"
+    ],
+    "results": [
+      {
+        "format": "onnx",
+        "path": "exports\\smoke_yolo26n\\yolo26n.onnx",
+        "sha256": "0b6cbf127a45683d7172a48d604a7acf9b16c316e2beca2145ab30c4593f4f4e",
+        "size_bytes": 9816001,
+        "elapsed_s": 7.481,
+        "loader_basis": "checkpoint train_args model='yolo26n-objv1-150.pt'",
+        "ultralytics": "8.4.118"
+      },
+      {
+        "format": "torchscript",
+        "path": "exports\\smoke_yolo26n\\yolo26n.torchscript",
+        "sha256": "8650d0ff9cd215b9bd52ee43b53ae5d6d40f29d4336b90b80c9db5d40382cd28",
+        "size_bytes": 10183128,
+        "elapsed_s": 2.559,
+        "loader_basis": "checkpoint train_args model='yolo26n-objv1-150.pt'",
+        "ultralytics": "8.4.118"
+      }
+    ]
+  },
+  "latency": {
+    "device": "cpu",
+    "onnx": {
+      "runtime": "onnxruntime-cpu",
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "input": {
+        "name": "images",
+        "shape": [
+          1,
+          3,
+          320,
+          320
+        ],
+        "dtype": "float32"
+      },
+      "outputs": [
+        {
+          "name": "output0",
+          "shape": [
+            1,
+            300,
+            6
+          ]
+        }
+      ],
+      "forward_ok": true,
+      "sanity_output_shapes": [
+        [
+          1,
+          300,
+          6
+        ]
+      ],
+      "dummy_seed": 0,
+      "warmup": 5,
+      "iters": 20,
+      "p50_ms": 41.853,
+      "p95_ms": 72.296,
+      "mean_ms": 44.122,
+      "imgs_per_s": 22.66
+    },
+    "torchscript": {
+      "runtime": "torchscript-cpu",
+      "forward_ok": true,
+      "warmup": 5,
+      "iters": 20,
+      "p50_ms": 81.538,
+      "p95_ms": 95.417,
+      "mean_ms": 80.741,
+      "imgs_per_s": 12.39
+    }
+  },
+  "memory": {
+    "peak_observed_rss_mb": 567.6,
+    "note": "this python process RSS after measurement (Windows; not a hard cap)"
+  },
+  "environment": {
+    "python": "3.11.9",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.118",
+    "onnx": "1.22.0",
+    "onnxslim": "0.1.98",
+    "onnxruntime": "1.20.1",
+    "git_commit": "483808b"
+  },
+  "contention": {
+    "training_alive": false,
+    "probe_detail": 0,
+    "measured_under_training_contention": false,
+    "note": "measured on an idle machine (no train_detector process)"
+  },
+  "deferrals": [
+    "engine: TensorRT build + engine latency DEFERRED until the GPU is free of training duty; not measured, not assumed (spec 43)."
+  ]
+}

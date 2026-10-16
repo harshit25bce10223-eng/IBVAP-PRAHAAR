@@ -1,0 +1,25 @@
+[autoresume 2026-10-15 10:58:20] logon hook fired
+[autoresume 2026-10-15 10:58:22] trainer already alive -- leaving it
+[autoresume 2026-10-15 10:58:24] watchdog already alive
+[autoresume 2026-10-15 10:58:25] chain already alive
+[autoresume 2026-10-15 10:58:25] done
+[autoresume 2026-10-15 11:00:11] logon hook fired
+[autoresume 2026-10-15 11:00:13] trainer already alive -- leaving it
+[autoresume 2026-10-15 11:00:15] watchdog already alive
+[autoresume 2026-10-15 11:00:17] chain already alive
+[autoresume 2026-10-15 11:00:17] done
+[autoresume 2026-10-15 13:08:37] logon hook fired
+[autoresume 2026-10-15 13:08:41] resume exp001 from last.pt
+[autoresume 2026-10-15 13:08:59] starting watchdog
+[autoresume 2026-10-15 13:09:05] starting sweep chain
+[autoresume 2026-10-15 13:09:05] done
+[autoresume 2026-10-15 13:25:38] logon hook fired
+[autoresume 2026-10-15 13:25:41] resume exp001 from last.pt
+[autoresume 2026-10-15 13:25:59] starting watchdog
+[autoresume 2026-10-15 13:26:04] starting sweep chain
+[autoresume 2026-10-15 13:26:04] done
+[autoresume 2026-10-16 09:07:35] logon hook fired
+[autoresume 2026-10-16 09:07:40] watchdog already alive
+[autoresume 2026-10-16 09:07:48] chain already alive
+[autoresume 2026-10-16 09:07:49] exp001 manifest exists -- cap watcher not needed
+[autoresume 2026-10-16 09:07:49] done
